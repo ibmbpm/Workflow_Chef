@@ -1,0 +1,525 @@
+#!/bin/bash
+# set -e
+
+# echo Get the vaule by key from properties file $BAW_CHEF_PROPERTIES_FILE
+getValueFromPropFile () {
+
+  if [ ! -f $1 ]; then
+      echo "File $1 not found!"
+      return 1
+  fi
+
+  local src_file=$1
+  # local key=$2 # this way have issues with empty value property
+  # local value=$( cat $src_file | grep -w ^${key} | cut -d= -f2 )
+  # local key=$2"=" to solve the key without value statuations, like "key= key" defined in the properties file only
+  local key=$2"="
+  local value=$( cat $src_file | grep ^${key} | cut -d= -f2 )
+  echo $value
+}
+
+
+getFormatedStringListForiFixpack () {
+
+  # $1 An array include all fixpacks
+  
+  # For example
+  # INPUT workflow.18002.delta.repository.zip 8.5.5-WS-WAS-FP014-part1.zip; 8.5.5-WS-WAS-FP014-part2.zip; 8.5.5-WS-WAS-FP014-part3.zip test1.zip; test2; test3 test1.zip
+  
+  # OUTPUT "workflow.18002.delta.repository.zip, 8.5.5-WS-WAS-FP014-part1.zip;8.5.5-WS-WAS-FP014-part2.zip;8.5.5-WS-WAS-FP014-part3.zip, test1.zip;test2;test3, test1.zip"
+  local input_unformated_fixpack_names_arrary=( $1 )
+  local input_unformated_fixpack_names_arrary_length=${#input_unformated_fixpack_names_arrary[*]}
+  # local begin_of_one_multifixpacks=1 # boolen, if it is the begining of one multiple fixpacks, 1 means true, 0 means false
+  # output is a string
+  local output_formated_fixpack_names_string=""
+  for (( i=0; i<$input_unformated_fixpack_names_arrary_length; i++ ));
+    do 
+      if echo ${input_unformated_fixpack_names_arrary[$i]} | grep "[;,]$" > /dev/null 2>&1
+      then
+        # For multiple fixpacks 
+        output_formated_fixpack_names_string+=${input_unformated_fixpack_names_arrary[$i]}
+        # check next element
+        if echo ${input_unformated_fixpack_names_arrary[$i+1]} | grep "[;,]$" > /dev/null 2>&1
+          then
+          # It is not the end yet
+          continue
+        else
+          # The end of one multiple fixpacks, predict
+          output_formated_fixpack_names_string+=${input_unformated_fixpack_names_arrary[$i+1]}
+          (( i++ ))
+        fi
+      else
+        # For single fixpack, add it to the list
+        output_formated_fixpack_names_string+=${input_unformated_fixpack_names_arrary[$i]}
+      fi
+
+      # if false, add a comma , and a blank space to the end of one element, there should be some other element left
+      if (( $i+1 != $input_unformated_fixpack_names_arrary_length ))
+      then
+        output_formated_fixpack_names_string+=', '
+      fi
+    done
+  echo $output_formated_fixpack_names_string
+}
+
+
+Auto_Create_WORKFLOW_INSTALL_ROLE () {
+
+
+  #Role name is need to be defined ahead of time
+  # Default
+  WORKFLOW_INSTALL_ROLE_NAME=${WORKFLOW_INSTALL_ROLE_NAME:-"workflow_v18_0_201806_install"}
+
+  WORKFLOW_INSTALL_ROLE_FILE="$WORKFLOW_INSTALL_ROLE_NAME.json"
+ 
+  var_ibm_sw_repo=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo)
+  var_ibm_sw_repo_user=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo_user)
+  var_ibm_im_repo=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo)
+  var_ibm_im_repo_user=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo_user)
+
+  ######## TODO encryption
+  var_ibm_im_repo_password=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo_password)
+  var_ibm_sw_repo_password=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo_password)
+
+  # "os_admin": {
+  #     "user": "$var_Workflow_os_admin_user"
+  # },
+  Workflow01_node_os_admin_user=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_user)
+  # Workflow02_node_os_admin_user=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_os_admin_user)
+  Workflow01_node_os_admin_user=${Workflow01_node_os_admin_user:-"root"} 
+  # Workflow02_node_os_admin_user=${Workflow02_node_os_admin_user:-"root"} 
+  # Common para
+  var_Workflow_os_admin_user=${var_Workflow_os_admin_user:-"$Workflow01_node_os_admin_user"} 
+
+  # "install_mode": "nonAdmin",
+  local_Workflow_install_mode=${local_Workflow_install_mode:-"nonAdmin"}
+
+  # "os_users": {
+  #     "workflow": {
+  #         "name": "$var_Workflow_baw_os_user_name",
+  # Use "Workflow01_baw_os_user_name" as default input
+  var_Workflow01_baw_os_user_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_baw_os_user_name)
+  # Common para
+  var_Workflow_baw_os_user_name=${var_Workflow_baw_os_user_name:-"$var_Workflow01_baw_os_user_name"}
+  local_Workflow_baw_os_user_home="/home/$var_Workflow_baw_os_user_name"
+
+  # Common para "gid": "$var_Workflow01_baw_os_user_gid",
+  Workflow01_baw_os_user_gid=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_baw_os_user_gid)
+  Workflow01_baw_os_user_gid=${Workflow01_baw_os_user_gid:-"workflowgroup"}
+  var_Workflow_baw_os_user_gid=${var_Workflow_baw_os_user_gid:-"$Workflow01_baw_os_user_gid"}
+
+  # Common para
+  var_Workflow_baw_os_user_shell=${var_Workflow_baw_os_user_shell:-"/bin/bash"}
+
+  var_Workflow_product_version=${var_Workflow_product_version:-"18.0.0.1"}
+  var_Workflow_im_version=${var_Workflow_im_version:-"1.8.9"}
+  var_Workflow_features=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_features)
+
+  # Comman para
+  local_Workflow_install_dir="/home/${var_Workflow_baw_os_user_name}/IBM/Workflow"
+  var_Workflow_baw_offering_id=${var_Workflow_baw_offering_id:-"com.ibm.bpm.ADV.v85"}
+  var_Workflow_baw_offering_version=${var_Workflow_baw_offering_version:-"8.6.10018001"}
+  var_Workflow_was_profile_id=${var_Workflow_was_profile_id:-"IBM WebSphere Application Server Network Deployment V8.5"}
+  var_Workflow_was_offering_id=${var_Workflow_was_offering_id:-"com.ibm.websphere.ND.v85"}
+
+  # Single node only 
+  var_Workflow_db2_install=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_install)
+  var_Workflow_db2_install=${var_Workflow_db2_install:-"false"}  
+  var_Workflow_db2_offering_id="com.ibm.ws.DB2EXP.linuxia64"
+  var_Workflow_db2_port=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_port)
+  var_Workflow_db2_instance_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_username)
+  var_Workflow_db2_instance_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_userpassword)
+  var_Workflow_db2_fenced_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_db2_fenced_username)
+  var_Workflow_db2_fenced_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_db2_fenced_userpassword)
+  var_Workflow_db2_das_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_db2_das_username)
+  var_Workflow_db2_das_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_db2_das_userpassword)
+
+# be careful, donot indent these codes below, _EOF_
+eval "cat << _EOF_
+  $(< $WORKFLOW_INSTALL_ROLE_TMPL_FILE)
+_EOF_" > $BAW_CHEF_TEMP_DIR/$WORKFLOW_INSTALL_ROLE_FILE
+
+echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_INSTALL_ROLE_FILE created"
+}
+
+
+# function Auto_Create_WORKFLOW_UPGRADE_ROLE
+Auto_Create_WORKFLOW_UPGRADE_ROLE () {
+
+  
+  #Role name is need to be defined ahead of time
+  # Default
+  WORKFLOW_UPGRADE_ROLE_NAME=${WORKFLOW_UPGRADE_ROLE_NAME:-"workflow_upgrade"}
+  # WORKFLOW_UPGRADE_ROLE_FILE=${WORKFLOW_UPGRADE_ROLE_FILE:-"$WORKFLOW_UPGRADE_ROLE_NAME.json"}
+  WORKFLOW_UPGRADE_ROLE_FILE="$WORKFLOW_UPGRADE_ROLE_NAME.json"
+
+  # The same
+  var_ibm_sw_repo=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo)
+  local_ibm_fixpack_repo=$var_ibm_sw_repo/workflow/fixpacks
+
+  var_Workflow01_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_name)
+  var_Workflow01_domain=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_domain)
+
+  if [ ! -z "$var_Workflow01_name" -a ! -z "$var_Workflow01_domain" ]
+  then
+    local_node_hostnames=${local_node_hostnames:-"$var_Workflow01_name.$var_Workflow01_domain"}
+  fi
+
+
+  var_Workflow_cell_admin_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_username)
+  var_Workflow_cell_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_userpassword)
+
+  # "install_mode": "nonAdmin",
+  local_Workflow_install_mode=${local_Workflow_install_mode:-"nonAdmin"}
+
+  # Defalut
+  var_Workflow01_baw_os_user_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_baw_os_user_name)
+  # Common para
+  var_Workflow_baw_os_user_name=${var_Workflow_baw_os_user_name:-"$var_Workflow01_baw_os_user_name"}
+
+  # Common para "gid": "$var_Workflow01_baw_os_user_gid",
+  Workflow01_baw_os_user_gid=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_baw_os_user_gid)
+  Workflow01_baw_os_user_gid=${Workflow01_baw_os_user_gid:-"workflowgroup"}
+  var_Workflow_baw_os_user_gid=${var_Workflow_baw_os_user_gid:-"$Workflow01_baw_os_user_gid"}
+
+  local_Workflow_install_dir="/home/${var_Workflow_baw_os_user_name}/IBM/Workflow"
+
+  # The properties file fixpack format is like this below
+  # Workflow01_fixpack_names=workflow.18002.delta.repository.zip
+  # WAS_fixpack_names=8.5.5-WS-WAS-FP014-part1.zip; 8.5.5-WS-WAS-FP014-part2.zip; 8.5.5-WS-WAS-FP014-part3.zip
+
+
+  var_Workflow_fixpack_names_tmp=( $(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_fixpack_names) )
+  var_WAS_fixpack_names_tmp=( $(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE WAS_fixpack_names) )
+
+  var_Workflow_fixpack_names_tmp_array=( ${var_Workflow_fixpack_names_tmp[*]} ${var_WAS_fixpack_names_tmp[*]} )
+  var_Workflow_fixpack_names=$(getFormatedStringListForiFixpack "${var_Workflow_fixpack_names_tmp_array[*]}")
+
+  
+# be careful, donot indent these codes below, _EOF_
+eval "cat << _EOF_
+  $(< $WORKFLOW_UPGRADE_ROLE_TMPL_FILE)
+_EOF_" > $BAW_CHEF_TEMP_DIR/$WORKFLOW_UPGRADE_ROLE_FILE
+
+echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_UPGRADE_ROLE_FILE created"
+}
+
+
+# function Auto_Create_WORKFLOW_APPLYIFIX_ROLE
+Auto_Create_WORKFLOW_APPLYIFIX_ROLE () {
+
+
+  #Role name is need to be defined ahead of time
+  # Default
+  WORKFLOW_APPLYIFIX_ROLE_NAME=${WORKFLOW_APPLYIFIX_ROLE_NAME:-"workflow_applyifix"}
+  # WORKFLOW_APPLYIFIX_ROLE_FILE=${WORKFLOW_APPLYIFIX_ROLE_FILE:-"$WORKFLOW_APPLYIFIX_ROLE_NAME.json"}
+  WORKFLOW_APPLYIFIX_ROLE_FILE="$WORKFLOW_APPLYIFIX_ROLE_NAME.json"
+  
+  # The same
+  var_ibm_sw_repo=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo)
+  local_ibm_ifix_repo=$var_ibm_sw_repo/workflow/ifixes
+
+  # node_hostnames
+  var_Workflow01_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_name)
+  var_Workflow01_domain=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_domain)
+
+  if [ ! -z "$var_Workflow01_name" -a ! -z "$var_Workflow01_domain" ]
+  then
+    local_node_hostnames=${local_node_hostnames:-"$var_Workflow01_name.$var_Workflow01_domain"}
+  fi
+
+  var_Workflow_cell_admin_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_username)
+
+  var_Workflow_cell_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_userpassword)
+
+  # "install_mode": "nonAdmin",
+  local_Workflow_install_mode=${local_Workflow_install_mode:-"nonAdmin"}
+
+  # The same
+  var_Workflow01_baw_os_user_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_baw_os_user_name)
+  var_Workflow_baw_os_user_name=${var_Workflow_baw_os_user_name:-"$var_Workflow01_baw_os_user_name"}
+
+  # Common para "gid": "$var_Workflow01_baw_os_user_gid",
+  Workflow01_baw_os_user_gid=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_baw_os_user_gid)
+  Workflow01_baw_os_user_gid=${Workflow01_baw_os_user_gid:-"workflowgroup"}
+  var_Workflow_baw_os_user_gid=${var_Workflow_baw_os_user_gid:-"$Workflow01_baw_os_user_gid"}
+
+  local_Workflow_install_dir="/home/${var_Workflow_baw_os_user_name}/IBM/Workflow"
+
+  # For ifixs, input should be separated by comma like Workflow_ifix_names=8.5.5.14-ws-was-ifph01810.zip, test1, test2,test3 
+  var_Workflow_ifix_names_tmp=( $(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_ifix_names) )
+  var_WAS_ifix_names_tmp=( $(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE WAS_ifix_names) )
+
+  var_Workflow_ifix_names_tmp_array=( ${var_Workflow_ifix_names_tmp[*]} ${var_WAS_ifix_names_tmp[*]} )
+  var_Workflow_ifix_names=$(getFormatedStringListForiFixpack "${var_Workflow_ifix_names_tmp_array[*]}")
+
+ 
+# be careful, donot indent these codes below, _EOF_
+eval "cat << _EOF_
+  $(< $WORKFLOW_APPLYIFIX_ROLE_TMPL_FILE)
+_EOF_" > $BAW_CHEF_TEMP_DIR/$WORKFLOW_APPLYIFIX_ROLE_FILE
+
+echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_APPLYIFIX_ROLE_FILE created"
+}
+
+
+# function Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE
+Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
+
+  #Role name is needed to be defined ahead of time
+  WORKFLOW_CREATE_SINGLECLUSTER_ROLE_NAME=${WORKFLOW_CREATE_SINGLECLUSTER_ROLE_NAME:-"workflow_v18_0_201806_create_singlecluster"}
+  # WORKFLOW_v18_0_201806_CREATE_SINGLECLUSTER_ROLE_FILE=${WORKFLOW_v18_0_201806_CREATE_SINGLECLUSTER_ROLE_FILE:-"$WORKFLOW_CREATE_SINGLECLUSTER_ROLE_NAME.json"}
+  WORKFLOW_v18_0_201806_CREATE_SINGLECLUSTER_ROLE_FILE="$WORKFLOW_CREATE_SINGLECLUSTER_ROLE_NAME.json"
+
+  # The same
+  var_ibm_sw_repo=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo)
+  # The same
+  var_Workflow01_baw_os_user_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_baw_os_user_name)
+  var_Workflow_baw_os_user_name=${var_Workflow_baw_os_user_name:-"$var_Workflow01_baw_os_user_name"}
+
+
+  # Common para "gid": "$var_Workflow01_baw_os_user_gid",
+  Workflow01_baw_os_user_gid=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_baw_os_user_gid)
+  Workflow01_baw_os_user_gid=${Workflow01_baw_os_user_gid:-"workflowgroup"}
+  var_Workflow_baw_os_user_gid=${var_Workflow_baw_os_user_gid:-"$Workflow01_baw_os_user_gid"}
+
+
+  # "node_hostname": "kvm-018074.test.local",
+  var_Workflow01_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_name)
+  var_Workflow01_domain=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_domain)
+  # "node_hostname": "kvm-018074.test.local",
+  var_Workflow02_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_name)
+  var_Workflow02_domain=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_domain)
+
+  # "ip_hostname_pairs": {}, key value pair
+  # local_ip_hostname_pairs="$IHS_IP_ADDR"': '"$var_IHS01_name.$var_IHS01_domain","$WF01_IP_ADDR":"$var_Workflow01_name.$var_Workflow01_domain","$WF02_IP_ADDR":"$var_Workflow02_name.$var_Workflow02_domain" 
+  # unset var_Workflow02_name
+  # unset var_Workflow01_name
+  if [ ! -z "$WF01_IP_ADDR" -a ! -z "$var_Workflow01_name" -a ! -z "$var_Workflow01_domain" ]
+  then
+    if [ ! -z "$WF02_IP_ADDR" -a ! -z "$var_Workflow02_name" -a ! -z "$var_Workflow02_domain" ] 
+    then
+      local local_ip_hostname_pairs='"'"$WF01_IP_ADDR"'": "'"$var_Workflow01_name.$var_Workflow01_domain"'"',' "'"$WF02_IP_ADDR"'": "'"$var_Workflow02_name.$var_Workflow02_domain"'"'
+    else
+      local local_ip_hostname_pairs='"'"$WF01_IP_ADDR"'": "'"$var_Workflow01_name.$var_Workflow01_domain"'"'
+    fi
+  else
+    local local_ip_hostname_pairs='"'"$WF02_IP_ADDR"'": "'"$var_Workflow02_name.$var_Workflow02_domain"'"'
+  fi
+
+
+  local_Workflow_install_dir="/home/${var_Workflow_baw_os_user_name}/IBM/Workflow"
+  # "install_mode": "nonAdmin",
+  local_Workflow_install_mode=${local_Workflow_install_mode:-"nonAdmin"}
+  # "product_type": "Advanced",
+  var_Workflow_config_product_type=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_config_product_type)
+  # "deployment_type": "PC",
+  var_Workflow_config_deployment_type=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_config_deployment_type)
+  # "cluster_type": "SingleCluster", default
+  var_Workflow_config_cluster_type=${var_Workflow_config_cluster_type:-"SingleCluster"}
+  # "deadmin_alias_user": "deadmin",
+  var_Workflow_de_admin_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_de_admin_username)
+  # "deadmin_alias_password": "b",
+  var_Workflow_de_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_de_admin_userpassword)
+  # "celladmin_alias_user": "celladmin",
+  var_Workflow_cell_admin_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_username)
+  # "celladmin_alias_password": "b",
+  var_Workflow_cell_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_userpassword)
+
+
+  var_Workflow01_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_name)
+  var_Workflow01_domain=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_domain)
+
+
+  if [ ! -z "$var_Workflow01_name" -a ! -z "$var_Workflow01_domain" ]
+  then
+  # "dmgr_hostname": "kvm-018074.test.local",
+  local_dmgr_hostnames="$var_Workflow01_name.$var_Workflow01_domain"
+  # "node_hostname": "kvm-018074.test.local",
+  local_node_hostnames=${local_node_hostnames:-"$var_Workflow01_name.$var_Workflow01_domain"}
+  fi
+
+  if [ ! -z "$var_IHS_name" -a ! -z "$var_IHS_domain" ]
+  then
+  # "ihs_hostname": "kvm-018074.test.local"
+  local_ihs_hostname="$var_IHS_name.$var_IHS_domain"
+  fi
+  # "ihs_https_port": "8443",
+  var_IHS_ihs_https_port=8443
+  # "case_network_shared_dir": "",
+  var_case_network_shared_dir=$var_case_network_shared_dir
+
+  # "database_type": "DB2",
+  var_Database_type=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_type)
+  # "db2_install": "true",
+  var_Workflow_db2_install=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_install)
+  var_Workflow_db2_install=${var_Workflow_db2_install:-"false"}  
+  # "db2_hostname": "10.0.14.215",
+  var_Workflow_db2_hostname=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_hostname)
+  # "db2_port": "50000",
+  var_Workflow_db2_port=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_port)
+  # "db_alias_user": "db2inst1",
+  var_Workflow_db2_instance_username_config=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_username_config)
+  # "db_alias_password": "b",
+  var_Workflow_db2_instance_userpassword_config=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_userpassword_config)
+  # "db2_cmndb_name": "CMNDB",
+  var_Workflow_db2_common_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_common_database)
+  # "db2_bpmdb_name": "BPMDB",
+  var_Workflow_db2_process_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_process_database)
+  # "db2_pdwdb_name": "PDWDB",
+  var_Workflow_db2_perf_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_perf_database)
+  # "db2_cpedb_name": "CPEDB",
+  var_Workflow_db2_cpe_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_cpe_database)
+  # "cpedb": {
+  #   "icndb": {
+  #     "schema": "ICNSA",
+  var_Database_cpe_icndb_schema=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_cpe_icndb_schema)
+  #     "tsicn": "WFICNTS"
+  var_Database_cpe_icndb_tablespace=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_cpe_icndb_tablespace)
+  #   "dosdb": {
+  #     "schema": "DOSSA",
+  var_Database_cpe_dosdb_schema=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_cpe_dosdb_schema)
+  #     "tsdosdata": "DOSSA_DATA_TS",
+  var_Database_cpe_dosdb_tsdosdata=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_cpe_dosdb_tsdosdata)
+  #     "tsdoslob": "DOSSA_LOB_TS",
+  var_Database_cpe_dosdb_tsdoslob=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_cpe_dosdb_tsdoslob)
+  #     "tsdosidx": "DOSSA_IDX_TS"
+  var_Database_cpe_dosdb_tsdosidx=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_cpe_dosdb_tsdosidx)
+  #   "tosdb": {
+  #     "schema": "TOSSA",
+  var_Database_cpe_tosdb_schema=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_cpe_tosdb_schema)
+  #     "tstosdata": "TOSSA_DATA_TS",
+  var_Database_cpe_tosdb_tstosdata=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_cpe_tosdb_tstosdata)
+  #     "tstoslob": "TOSSA_LOB_TS",
+  var_Database_cpe_tosdb_tstoslob=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_cpe_tosdb_tstoslob)
+  #     "tstosidx": "TOSSA_IDX_TS"
+  var_Database_cpe_tosdb_tstosidx=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_cpe_tosdb_tstosidx)
+
+
+  # For Oracle
+  # "oracle": {
+  #   "hostname": "",
+  var_Database_oracle_hostname=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_hostname)
+  #   "port": "1521",
+  var_Database_oracle_port=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_port)
+  #   "database_name": "orcl",
+  var_Database_oracle_database_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_database_name)
+  #   "jdbc_driver": "",
+  var_Oracle_jdbc_driver=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Oracle_jdbc_driver)
+  #   "shareddb": {
+  #     "username": "cmnuser",
+  var_Database_oracle_shareddb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_shareddb_username)
+  #     "password": ""
+  var_Database_oracle_shareddb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_shareddb_userpassword)
+  #   "cellonlydb": {
+  #     "username": "celluser",
+  var_Database_oracle_cellonlydb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_cellonlydb_username)
+  #     "password": ""
+  var_Database_oracle_cellonlydb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_cellonlydb_userpassword)
+  #   "psdb": {
+  #     "username": "psuser",
+  var_Database_oracle_psdb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_psdb_username)
+  #     "password": ""
+  var_Database_oracle_psdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_psdb_userpassword)
+  #   "icndb": {
+  #     "username": "icnuser",
+  var_Database_oracle_icndb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_icndb_username)
+  #     "password": "",
+  var_Database_oracle_icndb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_icndb_userpassword)
+  #     "tsicn": "WFICNTS"
+  var_Database_oracle_icndb_tablespace=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_icndb_tablespace)
+  #   "dosdb": {
+  #     "username": "dosuser",
+  var_Database_oracle_dosdb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_dosdb_username)
+  #     "password": "",
+  var_Database_oracle_dosdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_dosdb_userpassword)
+  #     "tsdosdata": "DOSSA_DATA_TS"
+  var_Database_oracle_dosdb_tsdosdata=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_dosdb_tsdosdata)
+  #   "tosdb": {
+  #     "username": "tosuser",
+  var_Database_oracle_tosdb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_tosdb_username)
+  #     "password": "",
+  var_Database_oracle_tosdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_tosdb_userpassword)
+  #     "tstosdata": "TOSSA_DATA_TS"
+  var_Database_oracle_tosdb_tstosdata=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_tosdb_tstosdata)
+  #   "pdwdb": {
+  #     "username": "pdwuser",
+  var_Database_oracle_pdwdb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_pdwdb_username)
+  #     "password": ""
+  var_Database_oracle_pdwdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_pdwdb_userpassword)
+  # "ps_environment_purpose": "Production",
+  var_Workflow_ps_environment_purpose=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_ps_environment_purpose)
+
+  # "ps_offline": "false","hidden": true,
+  var_Workflow_ps_offline=${var_Workflow_ps_offline:-"true"}
+  # "ps_pc_transport_protocol": "https","hidden": true,
+  var_Workflow_ps_pc_transport_protocol=${var_Workflow_ps_pc_transport_protocol:-"https"}
+  # "ps_pc_hostname": "",
+  var_Workflow_ps_pc_hostname=${var_Workflow_ps_pc_hostname:-""}
+  # "ps_pc_port": "9443",
+  var_Workflow_ps_pc_port=${var_Workflow_ps_pc_port:-"9443"}
+  # "ps_pc_contextroot_prefix": "",
+  var_Workflow_ps_pc_contextroot_prefix=${var_Workflow_ps_pc_contextroot_prefix:-""}
+  # "ps_pc_alias_user": "admin",
+  var_Workflow_ps_pc_alias_user=${var_Workflow_ps_pc_alias_user:-"admin"}
+  # "ps_pc_alias_password": "",
+  var_Workflow_ps_pc_alias_password=${var_Workflow_ps_pc_alias_password:-""}
+  # "metering": {
+  #   "identifier_name": "",
+  var_ibm_stack_name=${var_ibm_stack_name:-""}
+  #   "url": "",
+  var_metering_url=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE metering_url)
+  #   "apikey": ""
+  var_metering_apikey=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE metering_apikey)
+
+# be careful, donot indent these codes below, _EOF_
+eval "cat << _EOF_
+  $(< $WORKFLOW_CREATE_SINGLECLUSTER_ROLE_TMPL_FILE)
+_EOF_" > $BAW_CHEF_TEMP_DIR/$WORKFLOW_v18_0_201806_CREATE_SINGLECLUSTER_ROLE_FILE
+
+echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_v18_0_201806_CREATE_SINGLECLUSTER_ROLE_FILE created"
+}
+
+
+# function Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
+Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE () {
+
+  #Role name is needed to be defined ahead of time
+  WORKFLOW_POST_DEPLOYMENT_ROLE_NAME=${WORKFLOW_POST_DEPLOYMENT_ROLE_NAME:-"workflow_post_deployment"}
+  # WORKFLOW_POST_DEPLOYMENT_ROLE_FILE=${WORKFLOW_POST_DEPLOYMENT_ROLE_FILE:-"$WORKFLOW_POST_DEPLOYMENT_ROLE_NAME.json"}
+  WORKFLOW_POST_DEPLOYMENT_ROLE_FILE="$WORKFLOW_POST_DEPLOYMENT_ROLE_NAME.json"
+
+  # "os_users": {
+  #   "workflow": {
+  #     "name": "workflowuser01",
+  #     "gid": "workflowgroup"
+  var_Workflow01_baw_os_user_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_baw_os_user_name)
+
+  var_Workflow_baw_os_user_name=${var_Workflow_baw_os_user_name:-"$var_Workflow01_baw_os_user_name"}
+
+  # Common para "gid": "$var_Workflow01_baw_os_user_gid",
+  Workflow01_baw_os_user_gid=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_baw_os_user_gid)
+  Workflow01_baw_os_user_gid=${Workflow01_baw_os_user_gid:-"workflowgroup"}
+  var_Workflow_baw_os_user_gid=${var_Workflow_baw_os_user_gid:-"$Workflow01_baw_os_user_gid"}
+
+  #"node_hostnames": "kvm-018074.test.local"
+  var_Workflow01_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_name)
+  var_Workflow01_domain=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_domain)
+
+  if [ ! -z "$var_Workflow01_name" -a ! -z "$var_Workflow01_domain" ]
+  then
+    local_node_hostnames=${local_node_hostnames:-"$var_Workflow01_name.$var_Workflow01_domain"}
+  fi
+
+  # "install_mode": "nonAdmin",
+  local_Workflow_install_mode=${local_Workflow_install_mode:-"nonAdmin"}
+  # "install_dir": "/home/workflowuser01/IBM/Workflow"
+  local_Workflow_install_dir="/home/${var_Workflow_baw_os_user_name}/IBM/Workflow"
+
+# be careful, donot indent these codes below, _EOF_
+eval "cat << _EOF_
+  $(< $WORKFLOW_POST_DEPLOYMENT_ROLE_TMPL_FILE)
+_EOF_" > $BAW_CHEF_TEMP_DIR/$WORKFLOW_POST_DEPLOYMENT_ROLE_FILE
+
+echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_POST_DEPLOYMENT_ROLE_FILE created"
+}

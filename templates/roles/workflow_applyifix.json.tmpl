@@ -1,0 +1,36 @@
+{
+  "name": "$WORKFLOW_APPLYIFIX_ROLE_NAME",
+  "description": "Apply ifixes for IBM Business Automation Workflow",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "ibm": {
+      "ifix_repo": "$local_ibm_ifix_repo"
+    },
+    "workflow": {
+      "config": {
+        "node_hostnames": "$local_node_hostnames",
+        "celladmin_alias_user": "$var_Workflow_cell_admin_username",
+        "celladmin_alias_password": "$var_Workflow_cell_admin_userpassword"
+      },
+      "install_mode": "$local_Workflow_install_mode",
+      "os_users": {
+        "workflow": {
+          "name": "$var_Workflow_baw_os_user_name",
+          "gid": "$var_Workflow_baw_os_user_gid"
+        }
+      },
+      "install_dir": "$local_Workflow_install_dir",
+      "ifix_names": "$var_Workflow_ifix_names"
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[workflow::applyifix]"
+  ],
+  "env_run_lists": {
+
+  }
+}

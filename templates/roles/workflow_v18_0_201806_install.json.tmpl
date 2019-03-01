@@ -1,0 +1,66 @@
+{
+  "name": "$WORKFLOW_INSTALL_ROLE_NAME",
+  "description": "Install IBM Business Automation Workflow 18.0 2018.06",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+      "ibm": {
+          "log_dir": "$local_Workflow_baw_os_user_home/var/log/ibm_cloud",
+          "sw_repo": "$var_ibm_sw_repo/workflow",
+          "sw_repo_user": "$var_ibm_sw_repo_user",
+          "im_repo": "$var_ibm_im_repo",
+          "im_repo_user": "$var_ibm_im_repo_user",
+          "sw_repo_password": "$var_ibm_sw_repo_password",
+          "im_repo_password": "$var_ibm_im_repo_password"
+      },
+      "os_admin": {
+          "user": "$var_Workflow_os_admin_user"
+      },
+      "workflow": {
+          "install_mode": "$local_Workflow_install_mode",
+          "os_users": {
+              "workflow": {
+                  "name": "$var_Workflow_baw_os_user_name",
+                  "gid": "$var_Workflow_baw_os_user_gid",
+                  "comment": "OS administrative user for Workflow installation",
+                  "home": "$local_Workflow_baw_os_user_home",
+                  "shell": "$var_Workflow_baw_os_user_shell"
+              }
+          },
+          "version": "$var_Workflow_product_version",
+          "im_version": "$var_Workflow_im_version",
+          "features": "$var_Workflow_features",
+          "install_dir": "$local_Workflow_install_dir",
+          "offering_id": "$var_Workflow_baw_offering_id",
+          "offering_version": "$var_Workflow_baw_offering_version",
+          "profile_id": "$var_Workflow_was_profile_id"
+      },
+      "was": {
+          "offering_id": "$var_Workflow_was_offering_id"
+      },
+      "db2": {
+          "install": "$var_Workflow_db2_install",
+          "offering_id": "$var_Workflow_db2_offering_id",
+          "offering_version": "11.1.0",
+          "port": "$var_Workflow_db2_port",
+          "username": "$var_Workflow_db2_instance_username",
+          "password": "$var_Workflow_db2_instance_userpassword",
+          "das_newuser": "true",
+          "fenced_newuser": "true",
+          "fenced_username": "$var_Workflow_db2_fenced_username",
+          "fenced_password": "$var_Workflow_db2_fenced_userpassword",
+          "das_username": "$var_Workflow_db2_das_username",
+          "das_password": "$var_Workflow_db2_das_userpassword"
+      }
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+      "recipe[workflow::prereq]",
+      "recipe[workflow::prereq_check]",
+      "recipe[workflow::install]"
+  ],
+  "env_run_lists": {
+
+  }
+}

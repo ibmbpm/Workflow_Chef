@@ -1,0 +1,123 @@
+{
+  "name": "$WORKFLOW_CREATE_SINGLECLUSTER_ROLE_NAME",
+  "description": "Setup IBM Business Automation Workflow 18.0 2018.09 SingleCluster on Multiple Nodes",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "ibm": {
+      "sw_repo": "$var_ibm_sw_repo"
+    },
+    "workflow": {
+      "os_users": {
+        "workflow": {
+          "name": "$var_Workflow_baw_os_user_name",
+          "gid": "$var_Workflow_baw_os_user_gid"
+        }
+      },
+      "ip_hostname_pairs": {$local_ip_hostname_pairs},
+      "install_dir": "$local_Workflow_install_dir",
+      "install_mode": "$local_Workflow_install_mode",
+      "config": {
+        "product_type": "$var_Workflow_config_product_type",
+        "deployment_type": "$var_Workflow_config_deployment_type",
+        "cluster_type": "$var_Workflow_config_cluster_type",
+        "deadmin_alias_user": "$var_Workflow_de_admin_username",
+        "deadmin_alias_password": "$var_Workflow_de_admin_userpassword",
+        "celladmin_alias_user": "$var_Workflow_cell_admin_username",
+        "celladmin_alias_password": "$var_Workflow_cell_admin_userpassword",
+        "dmgr_hostname": "$local_dmgr_hostnames",
+        "node_hostnames": "$local_node_hostnames",
+        "ihs_hostname": "$local_ihs_hostname",
+        "ihs_https_port": "$var_IHS_ihs_https_port",
+        "case_network_shared_dir": "$var_case_network_shared_dir",
+        "database_type": "$var_Database_type",
+        "db2_install": "$var_Workflow_db2_install",
+        "db2_hostname": "$var_Workflow_db2_hostname",
+        "db2_port": "$var_Workflow_db2_port",
+        "db_alias_user": "$var_Workflow_db2_instance_username_config",
+        "db_alias_password": "$var_Workflow_db2_instance_userpassword_config",
+        "db2_cmndb_name": "$var_Workflow_db2_common_database",
+        "db2_bpmdb_name": "$var_Workflow_db2_process_database",
+        "db2_pdwdb_name": "$var_Workflow_db2_perf_database",
+        "db2_cpedb_name": "$var_Workflow_db2_cpe_database",
+        "cpedb": {
+          "icndb": {
+            "schema": "$var_Database_cpe_icndb_schema",
+            "tsicn": "$var_Database_cpe_icndb_tablespace"
+          },
+          "dosdb": {
+            "schema": "$var_Database_cpe_dosdb_schema",
+            "tsdosdata": "$var_Database_cpe_dosdb_tsdosdata",
+            "tsdoslob": "$var_Database_cpe_dosdb_tsdoslob",
+            "tsdosidx": "$var_Database_cpe_dosdb_tsdosidx"
+          },
+          "tosdb": {
+            "schema": "$var_Database_cpe_tosdb_schema",
+            "tstosdata": "$var_Database_cpe_tosdb_tstosdata",
+            "tstoslob": "$var_Database_cpe_tosdb_tstoslob",
+            "tstosidx": "$var_Database_cpe_tosdb_tstosidx"
+          }
+        },
+        "oracle": {
+          "hostname": "$var_Database_oracle_hostname",
+          "port": "$var_Database_oracle_port",
+          "database_name": "$var_Database_oracle_database_name",
+          "jdbc_driver": "$var_Oracle_jdbc_driver",
+          "shareddb": {
+            "username": "$var_Database_oracle_shareddb_username",
+            "password": "$var_Database_oracle_shareddb_userpassword"
+          },
+          "cellonlydb": {
+            "username": "$var_Database_oracle_cellonlydb_username",
+            "password": "$var_Database_oracle_cellonlydb_userpassword"
+          },
+          "psdb": {
+            "username": "$var_Database_oracle_psdb_username",
+            "password": "$var_Database_oracle_psdb_userpassword"
+          },
+          "icndb": {
+            "username": "$var_Database_oracle_icndb_username",
+            "password": "$var_Database_oracle_icndb_userpassword",
+            "tsicn": "$var_Database_oracle_icndb_tablespace"
+          },
+          "dosdb": {
+            "username": "$var_Database_oracle_dosdb_username",
+            "password": "$var_Database_oracle_dosdb_userpassword",
+            "tsdosdata": "$var_Database_oracle_dosdb_tsdosdata"
+          },
+          "tosdb": {
+            "username": "$var_Database_oracle_tosdb_username",
+            "password": "$var_Database_oracle_tosdb_userpassword",
+            "tstosdata": "$var_Database_oracle_tosdb_tstosdata"
+          },
+          "pdwdb": {
+            "username": "$var_Database_oracle_pdwdb_username",
+            "password": "$var_Database_oracle_pdwdb_userpassword"
+          }
+        },
+        "ps_environment_purpose": "$var_Workflow_ps_environment_purpose",
+        "ps_offline": "$var_Workflow_ps_offline",
+        "ps_pc_transport_protocol": "$var_Workflow_ps_pc_transport_protocol",
+        "ps_pc_hostname": "$var_Workflow_ps_pc_hostname",
+        "ps_pc_port": "$var_Workflow_ps_pc_port",
+        "ps_pc_contextroot_prefix": "$var_Workflow_ps_pc_contextroot_prefix",
+        "ps_pc_alias_user": "$var_Workflow_ps_pc_alias_user",
+        "ps_pc_alias_password": "$var_Workflow_ps_pc_alias_password",
+        "metering": {
+          "identifier_name": "$var_ibm_stack_name",
+          "url": "$var_metering_url",
+          "apikey": "$var_metering_apikey"
+        }
+      }
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[workflow::create_singleclusters]"
+  ],
+  "env_run_lists": {
+
+  }
+}
