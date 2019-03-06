@@ -91,33 +91,33 @@ BAW_Single_Node_Installation_Start () {
   # sequential
 
     echo
-    echo "$(date -Iseconds), MTASK: $LOG_SNODE_NAME TASKS List (Installation, Upgrade, Applyifix, Configuration, POST) starts"
+    echo "$(date -Iseconds), MTASK: $LOG_SNODE_NAME TASK List (Installation, Upgrade, Applyifix, Configuration, POST Action) starts"
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_INSTALL_NAME]" || return 1
-    echo "doing, please wait"
+    echo "Installation is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_UPGRADE_NAME]" || return 1
-    echo "doing, please wait"
+    echo "Upgrade is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_APPLYIFIX_NAME]" || return 1
-    echo "doing, please wait"
+    echo "Applyifix is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_CONFIG_NAME]" || return 1
-    echo "doing, please wait"
+    echo "Configuration is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_POSTDEV_NAME]" || return 1
-    echo "doing, please wait"
+    echo "POST Action is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
-    echo "$(date -Iseconds), STATUS: $LOG_SNODE_NAME TASKS List (Installation, Upgrade, Applyifix, Configuration) was done successfully"
+    echo "$(date -Iseconds), STATUS: $LOG_SNODE_NAME TASK List (Installation, Upgrade, Applyifix, Configuration, POST Action) was done successfully"
     echo
 }
 
