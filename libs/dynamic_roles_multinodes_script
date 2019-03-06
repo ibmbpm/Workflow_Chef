@@ -42,6 +42,19 @@ Create_Temp_Dir () {
 }
 
 
+decode_base64 () {
+  # $1 first input is an encrypted base64 string
+  local decrypted_pass=$(echo "$1" | base64 -d)
+
+  if (($? != 0)); then
+  printf 'Could not decode base64 string\n' >&2
+  exit 1
+  fi
+
+  echo $decrypted_pass
+}
+
+
 Generate_WF01_Roles () {
   
   #   # INSTall
@@ -165,16 +178,21 @@ readonly WF01_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow0
 # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
 WF01_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_user)
 readonly WF01_ROOT_USERNAME=${WF01_ROOT_USERNAME:-"root"}
-# The password of the root account for the node
-WF01_ROOT_PW=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_password)
+
+# The encrypted password of the root account for the node
+WF01_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_password)
+readonly WF01_ROOT_PW=$(decode_base64 $WF01_ROOT_PW_tmp)
+
 
 # Node 2, Workflow02 (WF02) configuration
 # The ip address of the node where WF02 should be installed
 readonly WF02_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_ipv4_address)
 # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
 WF02_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_os_admin_user)
-# The password for the root account for the node
-WF02_ROOT_PW=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_os_admin_password)
+
+# The encrypted password of the root account for the node
+WF02_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_os_admin_password)
+readonly WF02_ROOT_PW=$(decode_base64 $WF02_ROOT_PW_tmp)
 
 
 ######## Chef server configuration ########

@@ -12,9 +12,10 @@ getValueFromPropFile () {
   local src_file=$1
   # local key=$2 # this way have issues with empty value property
   # local value=$( cat $src_file | grep -w ^${key} | cut -d= -f2 )
-  # local key=$2"=" to solve the key without value statuations, like "key= key" defined in the properties file only
+  # local key=$2"=" to solve the key without any value situations, like "key= " defined in the properties file only
+  # cut -d= -f2-  cut with delimiter '=', and only the first '=' counts. for example if input is 'abcd==efg=h==', the output is '=efg=h=='
   local key=$2"="
-  local value=$( cat $src_file | grep ^${key} | cut -d= -f2 )
+  local value=$( cat $src_file | grep ^${key} | cut -d= -f2- )
   echo $value
 }
 
@@ -77,9 +78,9 @@ Auto_Create_WORKFLOW_INSTALL_ROLE () {
   var_ibm_im_repo=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo)
   var_ibm_im_repo_user=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo_user)
 
-  ######## TODO encryption
-  var_ibm_im_repo_password=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo_password)
-  var_ibm_sw_repo_password=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo_password)
+  # ######## TODO encryption
+  # var_ibm_im_repo_password=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo_password)
+  # var_ibm_sw_repo_password=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo_password)
 
   # "os_admin": {
   #     "user": "$var_Workflow_os_admin_user"
@@ -128,11 +129,11 @@ Auto_Create_WORKFLOW_INSTALL_ROLE () {
   var_Workflow_db2_offering_id="com.ibm.ws.DB2EXP.linuxia64"
   var_Workflow_db2_port=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_port)
   var_Workflow_db2_instance_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_username)
-  var_Workflow_db2_instance_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_userpassword)
+  # var_Workflow_db2_instance_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_userpassword)
   var_Workflow_db2_fenced_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_db2_fenced_username)
-  var_Workflow_db2_fenced_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_db2_fenced_userpassword)
+  # var_Workflow_db2_fenced_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_db2_fenced_userpassword)
   var_Workflow_db2_das_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_db2_das_username)
-  var_Workflow_db2_das_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_db2_das_userpassword)
+  # var_Workflow_db2_das_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_db2_das_userpassword)
 
 # be careful, donot indent these codes below, _EOF_
 eval "cat << _EOF_
@@ -167,7 +168,7 @@ Auto_Create_WORKFLOW_UPGRADE_ROLE () {
 
 
   var_Workflow_cell_admin_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_username)
-  var_Workflow_cell_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_userpassword)
+  # var_Workflow_cell_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_userpassword)
 
   # "install_mode": "nonAdmin",
   local_Workflow_install_mode=${local_Workflow_install_mode:-"nonAdmin"}
@@ -230,7 +231,7 @@ Auto_Create_WORKFLOW_APPLYIFIX_ROLE () {
 
   var_Workflow_cell_admin_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_username)
 
-  var_Workflow_cell_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_userpassword)
+  # var_Workflow_cell_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_userpassword)
 
   # "install_mode": "nonAdmin",
   local_Workflow_install_mode=${local_Workflow_install_mode:-"nonAdmin"}
@@ -320,11 +321,11 @@ Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
   # "deadmin_alias_user": "deadmin",
   var_Workflow_de_admin_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_de_admin_username)
   # "deadmin_alias_password": "b",
-  var_Workflow_de_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_de_admin_userpassword)
+  # var_Workflow_de_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_de_admin_userpassword)
   # "celladmin_alias_user": "celladmin",
   var_Workflow_cell_admin_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_username)
   # "celladmin_alias_password": "b",
-  var_Workflow_cell_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_userpassword)
+  # var_Workflow_cell_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_cell_admin_userpassword)
 
 
   var_Workflow01_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_name)
@@ -361,7 +362,7 @@ Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
   # "db_alias_user": "db2inst1",
   var_Workflow_db2_instance_username_config=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_username_config)
   # "db_alias_password": "b",
-  var_Workflow_db2_instance_userpassword_config=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_userpassword_config)
+  # var_Workflow_db2_instance_userpassword_config=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_userpassword_config)
   # "db2_cmndb_name": "CMNDB",
   var_Workflow_db2_common_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_common_database)
   # "db2_bpmdb_name": "BPMDB",
@@ -410,43 +411,43 @@ Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
   #     "username": "cmnuser",
   var_Database_oracle_shareddb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_shareddb_username)
   #     "password": ""
-  var_Database_oracle_shareddb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_shareddb_userpassword)
+  # var_Database_oracle_shareddb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_shareddb_userpassword)
   #   "cellonlydb": {
   #     "username": "celluser",
   var_Database_oracle_cellonlydb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_cellonlydb_username)
   #     "password": ""
-  var_Database_oracle_cellonlydb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_cellonlydb_userpassword)
+  # var_Database_oracle_cellonlydb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_cellonlydb_userpassword)
   #   "psdb": {
   #     "username": "psuser",
   var_Database_oracle_psdb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_psdb_username)
   #     "password": ""
-  var_Database_oracle_psdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_psdb_userpassword)
+  # var_Database_oracle_psdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_psdb_userpassword)
   #   "icndb": {
   #     "username": "icnuser",
   var_Database_oracle_icndb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_icndb_username)
   #     "password": "",
-  var_Database_oracle_icndb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_icndb_userpassword)
+  # var_Database_oracle_icndb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_icndb_userpassword)
   #     "tsicn": "WFICNTS"
   var_Database_oracle_icndb_tablespace=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_icndb_tablespace)
   #   "dosdb": {
   #     "username": "dosuser",
   var_Database_oracle_dosdb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_dosdb_username)
   #     "password": "",
-  var_Database_oracle_dosdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_dosdb_userpassword)
+  # var_Database_oracle_dosdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_dosdb_userpassword)
   #     "tsdosdata": "DOSSA_DATA_TS"
   var_Database_oracle_dosdb_tsdosdata=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_dosdb_tsdosdata)
   #   "tosdb": {
   #     "username": "tosuser",
   var_Database_oracle_tosdb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_tosdb_username)
   #     "password": "",
-  var_Database_oracle_tosdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_tosdb_userpassword)
+  # var_Database_oracle_tosdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_tosdb_userpassword)
   #     "tstosdata": "TOSSA_DATA_TS"
   var_Database_oracle_tosdb_tstosdata=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_tosdb_tstosdata)
   #   "pdwdb": {
   #     "username": "pdwuser",
   var_Database_oracle_pdwdb_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_pdwdb_username)
   #     "password": ""
-  var_Database_oracle_pdwdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_pdwdb_userpassword)
+  # var_Database_oracle_pdwdb_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Database_oracle_pdwdb_userpassword)
   # "ps_environment_purpose": "Production",
   var_Workflow_ps_environment_purpose=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_ps_environment_purpose)
 
@@ -463,7 +464,7 @@ Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
   # "ps_pc_alias_user": "admin",
   var_Workflow_ps_pc_alias_user=${var_Workflow_ps_pc_alias_user:-"admin"}
   # "ps_pc_alias_password": "",
-  var_Workflow_ps_pc_alias_password=${var_Workflow_ps_pc_alias_password:-""}
+  # var_Workflow_ps_pc_alias_password=${var_Workflow_ps_pc_alias_password:-""}
   # "metering": {
   #   "identifier_name": "",
   var_ibm_stack_name=${var_ibm_stack_name:-""}

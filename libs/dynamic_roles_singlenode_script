@@ -42,6 +42,18 @@ Create_Temp_Dir () {
 }
 
 
+decode_base64 () {
+  # $1 first input is an encrypted base64 string
+  local decrypted_pass=$(echo "$1" | base64 -d)
+
+  if (($? != 0)); then
+  printf 'Could not decode base64 string\n' >&2
+  exit 1
+  fi
+
+  echo $decrypted_pass
+}
+
 
 Generate_SNODE_Roles () {
 
@@ -109,8 +121,9 @@ readonly SNODE_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow
 SNODE_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_user)
 readonly SNODE_ROOT_USERNAME=${SNODE_ROOT_USERNAME:-"root"}
 
-# The password of the root account for the node
-readonly SNODE_ROOT_PW=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_password)
+# The encrypted password of the root account for the node
+SNODE_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_password)
+readonly SNODE_ROOT_PW=$(decode_base64 $SNODE_ROOT_PW_tmp)
 
 
 ######## Chef server configuration ########
