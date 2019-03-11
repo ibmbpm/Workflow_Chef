@@ -46,15 +46,6 @@ Print_TopologyLogs () {
   echo
 }
 
-# # Upload all roles to the chef server
-# Upload_Roles () {
-  
-#     knife role from file $SNODE_ROLE_INSTALL_NAME.json || return 1
-#     knife role from file $SNODE_ROLE_UPGRADE_NAME.json || return 1
-#     knife role from file $SNODE_ROLE_APPLYIFIX_NAME.json || return 1
-#     knife role from file $SNODE_ROLE_CONFIG_NAME.json || return 1
-#     knife role from file $SNODE_ROLE_POSTDEV_NAME.json 
-# }
 
 # Upload all roles to the chef server
 Upload_Roles () {
@@ -86,6 +77,21 @@ Bootstrap () {
     echo
 }
 
+
+Create_Chef_Vaults () {
+
+  # Generate_CHEFVAULT 
+  WORKFLOW_SECRETS_TMPL_FILE=$workflow_secrets_TMPL_FILE
+  Auto_Create_WORKFLOW_SECRETS
+  # RUNTIME_WORKFLOW_SECRETS_JSON
+
+  if [ $( eval "knife vault list -M client | grep ^$BAW_CHEF_VAULT_NAME$" ) ]; then
+    knife vault delete $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -M client -y 
+  fi
+  knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when creating chef vault"; return 1; } 
+}
+
+
 ######## BAW Installation ########
 BAW_Single_Node_Installation_Start () {
   # sequential
@@ -94,21 +100,25 @@ BAW_Single_Node_Installation_Start () {
     echo "$(date -Iseconds), MTASK: $LOG_SNODE_NAME TASK List (Installation, Upgrade, Applyifix, Configuration, POST Action) starts"
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_INSTALL_NAME]" || return 1
+    knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_INSTALL_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client  2>/dev/null || { echo "Error when updating chef vault"; return 1; }
     echo "Installation is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_UPGRADE_NAME]" || return 1
+    knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_UPGRADE_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
     echo "Upgrade is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_APPLYIFIX_NAME]" || return 1
+    knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_APPLYIFIX_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
     echo "Applyifix is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_CONFIG_NAME]" || return 1
+    knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_CONFIG_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
     echo "Configuration is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
@@ -135,6 +145,7 @@ BAW_Single_Nodes_Chef_Start () {
 
   Upload_Roles || return 1
   Bootstrap || return 1
+  Create_Chef_Vaults || return 1
   BAW_Single_Node_Installation_Start
 }
 
