@@ -73,14 +73,14 @@ echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 ######## SNode configuration ########
 
 # The ip address of the node where BAW should be installed
-readonly SNODE_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_ipv4_address)
+readonly SNODE_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_ipv4_address)
 
 # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
-SNODE_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_user)
+SNODE_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_user)
 readonly SNODE_ROOT_USERNAME=${SNODE_ROOT_USERNAME:-"root"}
 
 # The encrypted password of the root account for the node
-SNODE_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_password)
+SNODE_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_password)
 readonly SNODE_ROOT_PW=$(Decode_base64 $SNODE_ROOT_PW_tmp) 
 
 
@@ -88,8 +88,10 @@ readonly SNODE_ROOT_PW=$(Decode_base64 $SNODE_ROOT_PW_tmp)
 
 #The unique name to give the node on your chef server
 # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow01_node_name"
-SNODE_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_Workflow01_on_chef_server)
-var_Workflow01_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_name)
+SNODE_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow01_on_chef_server)
+var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
+var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
+
 readonly SNODE_ON_CHEF_SERVER=${SNODE_ON_CHEF_SERVER:-$var_Workflow01_name}
 
 

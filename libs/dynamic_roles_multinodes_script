@@ -51,8 +51,10 @@ Generate_WF02_Roles () {
 
   # Customize for WF02
   # var_Workflow_baw_os_user_name
-  var_Workflow02_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_name)
-  var_Workflow02_baw_os_user_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_baw_os_user_name)
+  var_Workflow02_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_fqdn_name)
+  var_Workflow02_name=$(echo $var_Workflow02_FQDN | cut -d '.' -f1)
+
+  var_Workflow02_baw_os_user_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_nonadmin_user)
   var_Workflow_baw_os_user_name=$var_Workflow02_baw_os_user_name
 
   # WORKFLOW_INSTALL_ROLE_TMPL_FILE=$workflow_v18_0_201806_install_TMPL_FILE
@@ -81,12 +83,21 @@ Generate_WF02_Roles () {
 Generate_Roles () {
 
   # Customize for multinodes
-  # "node_hostname": "",
-  var_Workflow01_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_name)
-  var_Workflow01_domain=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_domain)
-  # "node_hostname": "",
-  var_Workflow02_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_name)
-  var_Workflow02_domain=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_domain)
+  # "node_hostname": "kvm-018074.test.local",
+  var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
+  var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
+  if [ ! -z $(echo $var_Workflow01_FQDN | grep '\.' ) ]
+  then
+    var_Workflow01_domain=$(echo $var_Workflow01_FQDN | cut -d '.' -f2-)
+  fi
+
+  # "node_hostname": "kvm-018075.test.local",
+  var_Workflow02_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_fqdn_name)
+  var_Workflow02_name=$(echo $var_Workflow02_FQDN | cut -d '.' -f1)
+  if [ ! -z $(echo $var_Workflow02_FQDN | grep '\.' ) ]
+  then
+    var_Workflow02_domain=$(echo $var_Workflow02_FQDN | cut -d '.' -f2-)
+  fi
 
   local_node_hostnames="$var_Workflow01_name.$var_Workflow01_domain,$var_Workflow02_name.$var_Workflow02_domain"
 
@@ -122,24 +133,24 @@ echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
 # Node 1, Dmgr and Workflow01 (WF01) configuration
 #The ip address of the node where Dmgr and WF01 should be installed
-readonly WF01_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_ipv4_address)
+readonly WF01_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_ipv4_address)
 # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
-WF01_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_user)
+WF01_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_user)
 readonly WF01_ROOT_USERNAME=${WF01_ROOT_USERNAME:-"root"}
 
 # The encrypted password of the root account for the node
-WF01_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_password)
+WF01_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_password)
 readonly WF01_ROOT_PW=$(Decode_base64 $WF01_ROOT_PW_tmp)
 
 
 # Node 2, Workflow02 (WF02) configuration
 # The ip address of the node where WF02 should be installed
-readonly WF02_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_ipv4_address)
+readonly WF02_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_ipv4_address)
 # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
-WF02_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_os_admin_user)
+WF02_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_admin_user)
 
 # The encrypted password of the root account for the node
-WF02_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_os_admin_password)
+WF02_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_admin_password)
 readonly WF02_ROOT_PW=$(Decode_base64 $WF02_ROOT_PW_tmp)
 
 
@@ -148,13 +159,15 @@ readonly WF02_ROOT_PW=$(Decode_base64 $WF02_ROOT_PW_tmp)
 #The unique name to give the node on your chef server
 
 # For Node 1 # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow01_node_name"
-WF01_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_Workflow01_on_chef_server)
-var_Workflow01_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_name)
+WF01_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow01_on_chef_server)
+var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
+var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
 readonly WF01_ON_CHEF_SERVER=${WF01_ON_CHEF_SERVER:-$var_Workflow01_name}
 
 # For Node 2 # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow02_node_name"
-WF02_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_Workflow02_on_chef_server)
-var_Workflow02_name=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow02_node_name)
+WF02_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow02_on_chef_server)
+var_Workflow02_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_fqdn_name)
+var_Workflow02_name=$(echo $var_Workflow02_FQDN | cut -d '.' -f1)
 readonly WF02_ON_CHEF_SERVER=${WF02_ON_CHEF_SERVER:-$var_Workflow02_name}
 
 
@@ -204,7 +217,7 @@ WF02_ROLE_CONFIG_FILE="$WF02_ROLE_CONFIG_NAME.json"
 WF02_ROLE_POSTDEV_FILE="$WF02_ROLE_POSTDEV_NAME.json"
 
 # Chef vault, these two lines should be executed before "Generate_Roles"
-readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_$var_Workflow01_name_$var_Workflow02_name"
+readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_${var_Workflow01_name}_${var_Workflow02_name}"
 readonly BAW_CHEF_VAULT_ITEM="secrets"
 
 Generate_Roles
