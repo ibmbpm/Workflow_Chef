@@ -5,10 +5,12 @@
 # Operating Systems Supported
 # Ubuntu 16.04 LTS; Ubuntu 18.04 LTS
 #
-# This script deploys IBM Business Automation Workflow Enterprise V18 on a Linux virtual machine.
+# IBM Business Automation Workflow Cookbook Project, https://github.com/IBM-CAMHub-Open/cookbook_ibm_workflow_multios
+#
+# This script work with IBM Business Automation Workflow Cookbook project to deploy IBM Business Automation Workflow Enterprise on a single host. 
 
 # Topology
-# SNode: 1 virtual machine, IBM Business Automation Workflow Enterprise V18 - Deployment Manager and Custom Node, one cluster member.
+# Single host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member.
 
 
 # Generate temporary dir (do not delete it by this program)
@@ -41,7 +43,7 @@ Print_TopologyLogs () {
   echo
   echo "Topology"
   echo
-  echo "  SNode: 1 virtual machine, IBM Business Automation Workflow Enterprise V18 - Deployment Manager and Custom Node, one cluster member."
+  echo "  Single Host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member."
   echo "  Log to $SNODE_LOG"
   echo
 }
@@ -152,7 +154,7 @@ BAW_Single_Nodes_Chef_Start () {
 Main_Start () {
 
   echo
-  echo "Start to install and configure IBM Business Automation Workflow Enterprise V18 on one node."
+  echo "Start to install and configure IBM Business Automation Workflow Enterprise on one single host."
   echo
   echo "Starting at: $(date -Iseconds)"
   echo
@@ -162,7 +164,7 @@ Main_Start () {
   ######## Prepare logs for nodes #######
   # The name for SNode in log printing
   # $SNODE_IP_ADDR depend on . "$MY_DIR/../libs/dynamic_roles_singlenode_script"
-  LOG_SNODE_NAME="SNode Workflow ($SNODE_IP_ADDR)"  
+  LOG_SNODE_NAME="Single Host($SNODE_IP_ADDR), Workflow"  
   readonly LOG_SNODE_NAME
   SNODE_LOG="${LOG_DIR}SNODE_${SNODE_IP_ADDR}_chef.log"
   readonly SNODE_LOG

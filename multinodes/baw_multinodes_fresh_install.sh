@@ -5,11 +5,13 @@
 # Operating Systems Supported
 # Ubuntu 16.04 LTS; Ubuntu 18.04 LTS
 #
-# This script deploys IBM Business Automation Workflow Enterprise V18 on two nodes.
+# IBM Business Automation Workflow Cookbook Project, https://github.com/IBM-CAMHub-Open/cookbook_ibm_workflow_multios
+#
+# This script work with IBM Business Automation Workflow Cookbook project to deploy IBM Business Automation Workflow Enterprise on two hosts.
 
 # Topology
-# Node 1, Workflow01 or WF01: IBM Business Automation Workflow Deployment Manager (Dmgr), Custom Node, one cluster member
-# Node 2, Workflow02 or WF02: IBM Business Automation Workflow Custom Node, one cluster member
+# Host 1, Workflow01 or WF01: IBM Business Automation Workflow Deployment Manager (Dmgr), Custom Node, one cluster member
+# Host 2, Workflow02 or WF02: IBM Business Automation Workflow Custom Node, one cluster member
 
 
 # Generate temporary dir (do not delete it by this program)
@@ -42,10 +44,10 @@ Print_TopologyLogs () {
   echo
   echo "Topology"
   echo
-  echo "  Node 1, Workflow01 or WF01: IBM Business Automation Workflow Deployment Manager (Dmgr), Custom Node, one cluster member,"
+  echo "  Host 1, Workflow01 or WF01: IBM Business Automation Workflow Deployment Manager (Dmgr), Custom Node, one cluster member,"
   echo "  Log to $WF01_LOG"
   echo
-  echo "  Node 2, Workflow02 or WF02: IBM Business Automation Workflow Custom Node, one cluster member,"
+  echo "  Host 2, Workflow02 or WF02: IBM Business Automation Workflow Custom Node, one cluster member,"
   echo "  Log to $WF02_LOG"
   echo
 }
@@ -473,7 +475,7 @@ BAW_Multiple_Nodes_Chef_Start () {
 Main_Start () {
 
   echo
-  echo "Start to install and configure IBM Business Automation Workflow Enterprise V18 on two nodes."
+  echo "Start to install and configure IBM Business Automation Workflow Enterprise on two hosts."
   echo
   echo "Starting at: $(date -Iseconds)"
   echo
@@ -483,10 +485,10 @@ Main_Start () {
   ######## Prepare logs for nodes #######
   # $WF01_IP_ADDR depend on . "$MY_DIR/../libs/dynamic_roles_singlenode_script"
   # The name for WF01 in log printing
-  LOG_WF01_NAME="Node Workflow01 ($WF01_IP_ADDR)"  
+  LOG_WF01_NAME="Host($WF01_IP_ADDR), Workflow01"  
   readonly LOG_WF01_NAME
   # The name for WF02 in log printing
-  LOG_WF02_NAME="Node Workflow02 ($WF02_IP_ADDR)"
+  LOG_WF02_NAME="Host($WF02_IP_ADDR), Workflow02"
   readonly LOG_WF02_NAME
 
   WF01_LOG="${LOG_DIR}/WF01_${WF01_IP_ADDR}_chef.log"
