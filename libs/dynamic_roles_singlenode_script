@@ -1,28 +1,7 @@
 #!/bin/bash
 # set -e
 
-# generate temporary dir and delete it when exits
-Create_Runtime_Temp_Dir () {
-
-  local i=0 # The times which attempt to create temporary dir 
-  local tempdir=
-  # Set a trap to delete the temporary dir immediately when any kinds of exit happen
-  trap '[[ $tempdir ]] && rm -rf "$tempdir"' EXIT
-
-  while ((++i <= 10)); do
-  tempdir=${TMPDIR:-/tmp}/$RANDOM-$$
-  mkdir -m 700 "$tempdir" 2>/dev/null && break
-  done
-
-  if ((i > 10)); then
-  printf 'Could not create runtime temporary directory\n' >&2
-  exit 1
-  fi
-
-  echo $tempdir
-}
-
-# generate temporary dir (do not delete it by this program)
+# Generate temporary dir
 Create_Temp_Dir () {
 
   local i=0 # The times which attempt to create temporary dir 
@@ -42,28 +21,23 @@ Create_Temp_Dir () {
 }
 
 
-
 Generate_SNODE_Roles () {
 
   WORKFLOW_INSTALL_ROLE_TMPL_FILE=$workflow_v18_0_201806_install_TMPL_FILE
   WORKFLOW_INSTALL_ROLE_NAME="$SNODE_ROLE_INSTALL_NAME"
   Auto_Create_WORKFLOW_INSTALL_ROLE
 
-
   WORKFLOW_UPGRADE_ROLE_TMPL_FILE=$workflow_upgrade_TMPL_FILE
   WORKFLOW_UPGRADE_ROLE_NAME="$SNODE_ROLE_UPGRADE_NAME"
   Auto_Create_WORKFLOW_UPGRADE_ROLE
-
 
   WORKFLOW_APPLYIFIX_ROLE_TMPL_FILE=$workflow_applyifix_TMPL_FILE
   WORKFLOW_APPLYIFIX_ROLE_NAME="$SNODE_ROLE_APPLYIFIX_NAME"
   Auto_Create_WORKFLOW_APPLYIFIX_ROLE
 
-
   WORKFLOW_CREATE_SINGLECLUSTER_ROLE_TMPL_FILE=$workflow_v18_0_201806_create_singlecluster_TMPL_FILE
   WORKFLOW_CREATE_SINGLECLUSTER_ROLE_NAME="$SNODE_ROLE_CONFIG_NAME"
   Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE
-
 
   WORKFLOW_POST_DEPLOYMENT_ROLE_TMPL_FILE=$workflow_post_deployment_TMPL_FILE
   WORKFLOW_POST_DEPLOYMENT_ROLE_NAME="$SNODE_ROLE_POSTDEV_NAME"
@@ -89,10 +63,6 @@ readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_singlenode.prope
 # Test if $BAW_CHEF_PROPERTIES_FILE exists 
 getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
 
-# temp dir
-# readonly BAW_CHEF_TEMP_DIR="$( Create_Temp_Dir )"
-# echo "temp dir created $BAW_CHEF_TEMP_DIR"
-# readonly BAW_CHEF_Runtime_TEMP_DIR=$(Create_Runtime_Temp_Dir)
 
 # temp dir
 readonly BAW_CHEF_TEMP_DIR="$( Create_Temp_Dir )"
@@ -109,8 +79,9 @@ readonly SNODE_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow
 SNODE_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_user)
 readonly SNODE_ROOT_USERNAME=${SNODE_ROOT_USERNAME:-"root"}
 
-# The password of the root account for the node
-readonly SNODE_ROOT_PW=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_password)
+# The encrypted password of the root account for the node
+SNODE_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow01_node_os_admin_password)
+readonly SNODE_ROOT_PW=$(Decode_base64 $SNODE_ROOT_PW_tmp) 
 
 
 ######## Chef server configuration ########
@@ -123,7 +94,10 @@ readonly SNODE_ON_CHEF_SERVER=${SNODE_ON_CHEF_SERVER:-$var_Workflow01_name}
 
 
 # The templates path
-readonly BAW_CHEF_ROLES_TMPL_DIR=$MY_DIR/../templates/roles
+readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../templates
+readonly BAW_CHEF_ROLES_TMPL_DIR=$BAW_CHEF_TMPL_DIR/roles
+
+readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
 
 readonly workflow_v18_0_201806_install_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_install.json.tmpl
 readonly workflow_upgrade_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_upgrade.json.tmpl
@@ -149,5 +123,8 @@ SNODE_ROLE_APPLYIFIX_FILE="$SNODE_ROLE_APPLYIFIX_NAME.json"
 SNODE_ROLE_CONFIG_FILE="$SNODE_ROLE_CONFIG_NAME.json"
 SNODE_ROLE_POSTDEV_FILE="$SNODE_ROLE_POSTDEV_NAME.json"
 
+# Chef vault, these two lines should be executed before "Generate_Roles"
+readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_$var_Workflow01_name"
+readonly BAW_CHEF_VAULT_ITEM="secrets"
 
 Generate_Roles

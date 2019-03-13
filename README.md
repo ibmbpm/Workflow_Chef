@@ -2,30 +2,30 @@
 
 ## Description
 
-Shell script to execute Chef recipes to automate IBM Business Automation Workflow 
+This script work with IBM Business Automation Workflow Cookbook project to automate IBM Business Automation Workflow Enterprise 
 
 ### Cookbook Supported
 IBM Business Automation Workflow Cookbook Project Information: <br> 
 Name: OpenContent/cookbook_ibm_workflow_multios <br>
 URL: https://github.ibm.com/OpenContent/cookbook_ibm_workflow_multios <br>
-Version: version 2.1 <br>
+Version: version 2.1, 2.2 <br>
 
 
 ### Single node 
 #### Single Node Topology:
-  IBM Business Automation Workflow Enterprise V18.0 - Single Cluster <br>
+  IBM Business Automation Workflow Enterprise V19.0 - Single Cluster <br>
 #### Software Deployed
 IBM WebSphere Application Server Network Deployment V8.5.5 <br>
-IBM Business Automation Workflow Enterprise V18.0 <br>
+IBM Business Automation Workflow Enterprise V19.0 <br>
 IBM DB2 Enterprise Server Edition V11 <br>
 <br>
 
 
 ### Multinodes
 #### Multinodes Topology:
-Node 1: IBM Business Automation Workflow Deployment Manager, Custom Node, one cluster member <br>
-Node 2: IBM Business Automation Workflow Custom Node, one cluster member <br>
+Host 1: IBM Business Automation Workflow Deployment Manager, Custom Node, one cluster member <br>
+Host 2: IBM Business Automation Workflow Custom Node, one cluster member <br>
 #### Software Deployed
 IBM WebSphere Application Server Network Deployment V8.5.5 <br>
-IBM Business Automation Workflow Enterprise V18.0 <br>
+IBM Business Automation Workflow Enterprise V19.0 <br>
 <br>

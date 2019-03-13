@@ -5,10 +5,12 @@
 # Operating Systems Supported
 # Ubuntu 16.04 LTS; Ubuntu 18.04 LTS
 #
-# This script deploys IBM Business Automation Workflow Enterprise V18 on a Linux virtual machine.
+# IBM Business Automation Workflow Cookbook Project, https://github.com/IBM-CAMHub-Open/cookbook_ibm_workflow_multios
+#
+# This script work with IBM Business Automation Workflow Cookbook project to deploy IBM Business Automation Workflow Enterprise on a single host. 
 
 # Topology
-# SNode: 1 virtual machine, IBM Business Automation Workflow Enterprise V18 - Deployment Manager and Custom Node, one cluster member.
+# Single host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member.
 
 
 # Generate temporary dir (do not delete it by this program)
@@ -41,20 +43,11 @@ Print_TopologyLogs () {
   echo
   echo "Topology"
   echo
-  echo "  SNode: 1 virtual machine, IBM Business Automation Workflow Enterprise V18 - Deployment Manager and Custom Node, one cluster member."
+  echo "  Single Host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member."
   echo "  Log to $SNODE_LOG"
   echo
 }
 
-# # Upload all roles to the chef server
-# Upload_Roles () {
-  
-#     knife role from file $SNODE_ROLE_INSTALL_NAME.json || return 1
-#     knife role from file $SNODE_ROLE_UPGRADE_NAME.json || return 1
-#     knife role from file $SNODE_ROLE_APPLYIFIX_NAME.json || return 1
-#     knife role from file $SNODE_ROLE_CONFIG_NAME.json || return 1
-#     knife role from file $SNODE_ROLE_POSTDEV_NAME.json 
-# }
 
 # Upload all roles to the chef server
 Upload_Roles () {
@@ -86,38 +79,57 @@ Bootstrap () {
     echo
 }
 
+
+Create_Chef_Vaults () {
+
+  # Generate_CHEFVAULT 
+  WORKFLOW_SECRETS_TMPL_FILE=$workflow_secrets_TMPL_FILE
+  Auto_Create_WORKFLOW_SECRETS
+  # RUNTIME_WORKFLOW_SECRETS_JSON
+
+  if [ $( eval "knife vault list -M client | grep ^$BAW_CHEF_VAULT_NAME$" ) ]; then
+    knife vault delete $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -M client -y 
+  fi
+  knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when creating chef vault"; return 1; } 
+}
+
+
 ######## BAW Installation ########
 BAW_Single_Node_Installation_Start () {
   # sequential
 
     echo
-    echo "$(date -Iseconds), MTASK: $LOG_SNODE_NAME TASKS List (Installation, Upgrade, Applyifix, Configuration, POST) starts"
+    echo "$(date -Iseconds), MTASK: $LOG_SNODE_NAME TASK List (Installation, Upgrade, Applyifix, Configuration, POST Action) starts"
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_INSTALL_NAME]" || return 1
-    echo "doing, please wait"
+    knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_INSTALL_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client  2>/dev/null || { echo "Error when updating chef vault"; return 1; }
+    echo "Installation is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_UPGRADE_NAME]" || return 1
-    echo "doing, please wait"
+    knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_UPGRADE_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
+    echo "Upgrade is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_APPLYIFIX_NAME]" || return 1
-    echo "doing, please wait"
+    knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_APPLYIFIX_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
+    echo "Applyifix is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_CONFIG_NAME]" || return 1
-    echo "doing, please wait"
+    knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_CONFIG_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
+    echo "Configuration is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_POSTDEV_NAME]" || return 1
-    echo "doing, please wait"
+    echo "POST Action is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
-    echo "$(date -Iseconds), STATUS: $LOG_SNODE_NAME TASKS List (Installation, Upgrade, Applyifix, Configuration) was done successfully"
+    echo "$(date -Iseconds), STATUS: $LOG_SNODE_NAME TASK List (Installation, Upgrade, Applyifix, Configuration, POST Action) was done successfully"
     echo
 }
 
@@ -135,13 +147,14 @@ BAW_Single_Nodes_Chef_Start () {
 
   Upload_Roles || return 1
   Bootstrap || return 1
+  Create_Chef_Vaults || return 1
   BAW_Single_Node_Installation_Start
 }
 
 Main_Start () {
 
   echo
-  echo "Start to install and configure IBM Business Automation Workflow Enterprise V18 on one node."
+  echo "Start to install and configure IBM Business Automation Workflow Enterprise on one single host."
   echo
   echo "Starting at: $(date -Iseconds)"
   echo
@@ -151,7 +164,7 @@ Main_Start () {
   ######## Prepare logs for nodes #######
   # The name for SNode in log printing
   # $SNODE_IP_ADDR depend on . "$MY_DIR/../libs/dynamic_roles_singlenode_script"
-  LOG_SNODE_NAME="SNode Workflow ($SNODE_IP_ADDR)"  
+  LOG_SNODE_NAME="Single Host($SNODE_IP_ADDR), Workflow"  
   readonly LOG_SNODE_NAME
   SNODE_LOG="${LOG_DIR}SNODE_${SNODE_IP_ADDR}_chef.log"
   readonly SNODE_LOG
