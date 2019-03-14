@@ -123,7 +123,8 @@ readonly WF01_ROOT_USERNAME=${WF01_ROOT_USERNAME:-"root"}
 
 # The encrypted password of the root account for the node
 WF01_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_password)
-readonly WF01_ROOT_PW=$(Decode_base64 $WF01_ROOT_PW_tmp)
+Decode_base64 "workflow_host01_admin_password" $WF01_ROOT_PW_tmp 1>/dev/null || return 1
+readonly WF01_ROOT_PW=$(Decode_base64 "workflow_host01_admin_password" $WF01_ROOT_PW_tmp)
 
 
 # Node 2, Workflow02 (WF02) configuration
@@ -134,7 +135,8 @@ WF02_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_hos
 
 # The encrypted password of the root account for the node
 WF02_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_admin_password)
-readonly WF02_ROOT_PW=$(Decode_base64 $WF02_ROOT_PW_tmp)
+Decode_base64 "workflow_host02_admin_password" $WF02_ROOT_PW_tmp 1>/dev/null || return 1
+readonly WF02_ROOT_PW=$(Decode_base64 "workflow_host02_admin_password" $WF02_ROOT_PW_tmp)
 
 
 ######## Chef server configuration ########

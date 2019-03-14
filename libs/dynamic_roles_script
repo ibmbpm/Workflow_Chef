@@ -20,15 +20,19 @@ getValueFromPropFile () {
 }
 
 Decode_base64 () {
-  # $1 first input is an encrypted base64 string
-  echo "$1" | base64 -d &> /dev/null
+  # $1 key, description
+  # $2 value, is an encrypted base64 string 
+  local key=$1
+  local value=$2
+
+  echo "$value" | base64 -d &> /dev/null
 
   if (($? != 0)); then
-    printf "Could not decode base64 string, $1, please check your encryption\n" >&2
-  return $?
+    printf "\nError, could not decode base64 string, its value is $value and its key is $key , please check your encryption\n\n" >&2
+    return 1
   fi
 
-  local decrypted_pass=$(echo "$1" | base64 -d)
+  local decrypted_pass=$(echo "$value" | base64 -d)
   echo $decrypted_pass
 }
 
@@ -135,7 +139,7 @@ Auto_Create_WORKFLOW_INSTALL_ROLE () {
   var_Workflow_db2_install=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_install)
   var_Workflow_db2_install=${var_Workflow_db2_install:-"false"}  
   var_Workflow_db2_offering_id="com.ibm.ws.DB2EXP.linuxia64"
-  var_Workflow_db2_port=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_port)
+  var_Workflow_db2_port=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_port)
   var_Workflow_db2_instance_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_instance_username)
   # var_Workflow_db2_instance_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE Workflow_db2_instance_password)
   var_Workflow_db2_fenced_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow01_db2_fenced_username)
@@ -377,45 +381,45 @@ Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
   var_Workflow_db2_install=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_install)
   var_Workflow_db2_install=${var_Workflow_db2_install:-"false"}  
   # "db2_hostname": "10.0.14.215",
-  var_Workflow_db2_hostname=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_hostname)
+  var_Workflow_db2_hostname=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_hostname)
   # "db2_port": "50000",
-  var_Workflow_db2_port=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_port)
+  var_Workflow_db2_port=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_port)
   # "db_alias_user": "db2inst1",
-  var_Workflow_db2_instance_username_config=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_instance_username_config)
+  var_Workflow_db2_instance_username_config=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_instance_username_config)
   # "db_alias_password": "b",
-  # var_Workflow_db2_instance_userpassword_config=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_instance_password_config)
+  # var_Workflow_db2_instance_userpassword_config=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_instance_password_config)
   # "db2_cmndb_name": "CMNDB",
-  var_Workflow_db2_common_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_common_database)
+  var_Workflow_db2_common_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_common_database)
   # "db2_bpmdb_name": "BPMDB",
-  var_Workflow_db2_process_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_process_database)
+  var_Workflow_db2_process_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_process_database)
   # "db2_pdwdb_name": "PDWDB",
-  var_Workflow_db2_perf_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_perf_database)
+  var_Workflow_db2_perf_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_perf_database)
   # "db2_cpedb_name": "CPEDB",
-  var_Workflow_db2_cpe_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_cpe_database)
+  var_Workflow_db2_cpe_database=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_database)
   # "cpedb": {
   #   "icndb": {
   #     "schema": "ICNSA",
-  var_Database_cpe_icndb_schema=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_cpe_icndb_schema)
+  var_Database_cpe_icndb_schema=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_icndb_schema)
   #     "tsicn": "WFICNTS"
-  var_Database_cpe_icndb_tablespace=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_cpe_icndb_tablespace)
+  var_Database_cpe_icndb_tablespace=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_icndb_tablespace)
   #   "dosdb": {
   #     "schema": "DOSSA",
-  var_Database_cpe_dosdb_schema=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_cpe_dosdb_schema)
+  var_Database_cpe_dosdb_schema=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_dosdb_schema)
   #     "tsdosdata": "DOSSA_DATA_TS",
-  var_Database_cpe_dosdb_tsdosdata=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_cpe_dosdb_tsdosdata)
+  var_Database_cpe_dosdb_tsdosdata=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_dosdb_tsdosdata)
   #     "tsdoslob": "DOSSA_LOB_TS",
-  var_Database_cpe_dosdb_tsdoslob=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_cpe_dosdb_tsdoslob)
+  var_Database_cpe_dosdb_tsdoslob=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_dosdb_tsdoslob)
   #     "tsdosidx": "DOSSA_IDX_TS"
-  var_Database_cpe_dosdb_tsdosidx=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_cpe_dosdb_tsdosidx)
+  var_Database_cpe_dosdb_tsdosidx=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_dosdb_tsdosidx)
   #   "tosdb": {
   #     "schema": "TOSSA",
-  var_Database_cpe_tosdb_schema=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_cpe_tosdb_schema)
+  var_Database_cpe_tosdb_schema=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_tosdb_schema)
   #     "tstosdata": "TOSSA_DATA_TS",
-  var_Database_cpe_tosdb_tstosdata=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_cpe_tosdb_tstosdata)
+  var_Database_cpe_tosdb_tstosdata=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_tosdb_tstosdata)
   #     "tstoslob": "TOSSA_LOB_TS",
-  var_Database_cpe_tosdb_tstoslob=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_cpe_tosdb_tstoslob)
+  var_Database_cpe_tosdb_tstoslob=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_tosdb_tstoslob)
   #     "tstosidx": "TOSSA_IDX_TS"
-  var_Database_cpe_tosdb_tstosidx=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_cpe_tosdb_tstosidx)
+  var_Database_cpe_tosdb_tstosidx=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_tosdb_tstosidx)
 
 
   # For Oracle
@@ -564,7 +568,7 @@ Auto_Create_WORKFLOW_SECRETS () {
   local var_Workflow_de_admin_userpassword_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_de_admin_password)
   local var_Workflow_cell_admin_userpassword_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_cell_admin_password)
 
-  local var_Workflow_db2_instance_userpassword_config_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_instance_password_config)
+  local var_Workflow_db2_instance_userpassword_config_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_instance_password_config)
 
   local var_Database_oracle_shareddb_userpassword_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_oracle_shareddb_password)
   local var_Database_oracle_cellonlydb_userpassword_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_oracle_cellonlydb_password)
@@ -578,28 +582,52 @@ Auto_Create_WORKFLOW_SECRETS () {
   local var_metering_apikey_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE metering_apikey)
 
   # Try to decrypt the encrypted password listed above
-  local var_ibm_im_repo_password=$(Decode_base64 $var_ibm_im_repo_password_tmp)
-  local var_ibm_sw_repo_password=$(Decode_base64 $var_ibm_sw_repo_password_tmp)
+  Decode_base64 "ibm_im_repo_password" $var_ibm_im_repo_password_tmp 1>/dev/null || return 1
+  Decode_base64 "ibm_sw_repo_password" $var_ibm_sw_repo_password_tmp 1>/dev/null || return 1
 
-  local var_Workflow_db2_instance_userpassword=$(Decode_base64 $var_Workflow_db2_instance_userpassword_tmp)
-  local var_Workflow_db2_fenced_userpassword=$(Decode_base64 $var_Workflow_db2_fenced_userpassword_tmp) 
-  local var_Workflow_db2_das_userpassword=$(Decode_base64 $var_Workflow_db2_das_userpassword_tmp) 
+  Decode_base64 "workflow_db2_instance_password" $var_Workflow_db2_instance_userpassword_tmp 1>/dev/null || return 1
+  Decode_base64 "workflow01_db2_fenced_password" $var_Workflow_db2_fenced_userpassword_tmp 1>/dev/null || return 1
+  Decode_base64 "workflow01_db2_das_password" $var_Workflow_db2_das_userpassword_tmp 1>/dev/null || return 1
 
-  local var_Workflow_de_admin_userpassword=$(Decode_base64 $var_Workflow_de_admin_userpassword_tmp) 
-  local var_Workflow_cell_admin_userpassword=$(Decode_base64 $var_Workflow_cell_admin_userpassword_tmp) 
+  Decode_base64 "workflow_de_admin_password" $var_Workflow_de_admin_userpassword_tmp 1>/dev/null || return 1
+  Decode_base64 "workflow_cell_admin_password" $var_Workflow_cell_admin_userpassword_tmp 1>/dev/null || return 1
 
-  local var_Workflow_db2_instance_userpassword_config=$(Decode_base64 $var_Workflow_db2_instance_userpassword_config_tmp) 
+  Decode_base64 "database_db2_instance_password_config" $var_Workflow_db2_instance_userpassword_config_tmp 1>/dev/null || return 1
 
-  local var_Database_oracle_shareddb_userpassword=$(Decode_base64 $var_Database_oracle_shareddb_userpassword_tmp)
-  local var_Database_oracle_cellonlydb_userpassword=$(Decode_base64 $var_Database_oracle_cellonlydb_userpassword_tmp) 
-  local var_Database_oracle_psdb_userpassword=$(Decode_base64 $var_Database_oracle_psdb_userpassword_tmp) 
-  local var_Database_oracle_icndb_userpassword=$(Decode_base64 $var_Database_oracle_icndb_userpassword_tmp)
-  local var_Database_oracle_dosdb_userpassword=$(Decode_base64 $var_Database_oracle_dosdb_userpassword_tmp) 
-  local var_Database_oracle_tosdb_userpassword=$(Decode_base64 $var_Database_oracle_tosdb_userpassword_tmp) 
-  local var_Database_oracle_pdwdb_userpassword=$(Decode_base64 $var_Database_oracle_pdwdb_userpassword_tmp)
-  local var_Workflow_ps_pc_alias_password=$(Decode_base64 $var_Workflow_ps_pc_alias_password_tmp) 
+  Decode_base64 "database_oracle_shareddb_password" $var_Database_oracle_shareddb_userpassword_tmp 1>/dev/null || return 1
+  Decode_base64 "database_oracle_cellonlydb_password" $var_Database_oracle_cellonlydb_userpassword_tmp 1>/dev/null || return 1
+  Decode_base64 "database_oracle_psdb_password" $var_Database_oracle_psdb_userpassword_tmp 1>/dev/null || return 1
+  Decode_base64 "database_oracle_icndb_password" $var_Database_oracle_icndb_userpassword_tmp 1>/dev/null || return 1
+  Decode_base64 "database_oracle_dosdb_password" $var_Database_oracle_dosdb_userpassword_tmp 1>/dev/null || return 1
+  Decode_base64 "database_oracle_tosdb_password" $var_Database_oracle_tosdb_userpassword_tmp 1>/dev/null || return 1
+  Decode_base64 "database_oracle_pdwdb_password" $var_Database_oracle_pdwdb_userpassword_tmp 1>/dev/null || return 1
+  Decode_base64 "Workflow_ps_pc_alias_password"  $var_Workflow_ps_pc_alias_password_tmp1>/dev/null || return 1
 
-  local var_metering_apikey=$(Decode_base64 $var_metering_apikey_tmp) 
+  Decode_base64 "metering_apikey" $var_metering_apikey_tmp 1>/dev/null || return 1
+
+
+  local var_ibm_im_repo_password=$(Decode_base64 "ibm_im_repo_password" $var_ibm_im_repo_password_tmp)
+  local var_ibm_sw_repo_password=$(Decode_base64 "ibm_sw_repo_password" $var_ibm_sw_repo_password_tmp)
+
+  local var_Workflow_db2_instance_userpassword=$(Decode_base64 "workflow_db2_instance_password" $var_Workflow_db2_instance_userpassword_tmp)
+  local var_Workflow_db2_fenced_userpassword=$(Decode_base64 "workflow01_db2_fenced_password" $var_Workflow_db2_fenced_userpassword_tmp)
+  local var_Workflow_db2_das_userpassword=$(Decode_base64 "workflow01_db2_das_password" $var_Workflow_db2_das_userpassword_tmp)
+
+  local var_Workflow_de_admin_userpassword=$(Decode_base64 "workflow_de_admin_password" $var_Workflow_de_admin_userpassword_tmp)
+  local var_Workflow_cell_admin_userpassword=$(Decode_base64 "workflow_cell_admin_password" $var_Workflow_cell_admin_userpassword_tmp)
+
+  local var_Workflow_db2_instance_userpassword_config=$(Decode_base64 "database_db2_instance_password_config" $var_Workflow_db2_instance_userpassword_config_tmp)
+
+  local var_Database_oracle_shareddb_userpassword=$(Decode_base64 "database_oracle_shareddb_password" $var_Database_oracle_shareddb_userpassword_tmp)
+  local var_Database_oracle_cellonlydb_userpassword=$(Decode_base64 "database_oracle_cellonlydb_password" $var_Database_oracle_cellonlydb_userpassword_tmp)
+  local var_Database_oracle_psdb_userpassword=$(Decode_base64 "database_oracle_psdb_password" $var_Database_oracle_psdb_userpassword_tmp)
+  local var_Database_oracle_icndb_userpassword=$(Decode_base64 "database_oracle_icndb_password" $var_Database_oracle_icndb_userpassword_tmp)
+  local var_Database_oracle_dosdb_userpassword=$(Decode_base64 "database_oracle_dosdb_password" $var_Database_oracle_dosdb_userpassword_tmp)
+  local var_Database_oracle_tosdb_userpassword=$(Decode_base64 "database_oracle_tosdb_password" $var_Database_oracle_tosdb_userpassword_tmp)
+  local var_Database_oracle_pdwdb_userpassword=$(Decode_base64 "database_oracle_pdwdb_password" $var_Database_oracle_pdwdb_userpassword_tmp)
+  local var_Workflow_ps_pc_alias_password=$(Decode_base64 "Workflow_ps_pc_alias_password"  $var_Workflow_ps_pc_alias_password_tmp)
+
+  local var_metering_apikey=$(Decode_base64 "metering_apikey" $var_metering_apikey_tmp )
 
 # be careful, donot indent these codes below, _EOF_
 readonly RUNTIME_WORKFLOW_SECRETS_JSON=$( eval "cat << _EOF_

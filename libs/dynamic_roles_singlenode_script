@@ -64,7 +64,8 @@ readonly SNODE_ROOT_USERNAME=${SNODE_ROOT_USERNAME:-"root"}
 
 # The encrypted password of the root account for the node
 SNODE_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_password)
-readonly SNODE_ROOT_PW=$(Decode_base64 $SNODE_ROOT_PW_tmp) 
+Decode_base64 "workflow_host01_admin_password" $SNODE_ROOT_PW_tmp 1>/dev/null  || return 1
+readonly SNODE_ROOT_PW=$(Decode_base64 "workflow_host01_admin_password" $SNODE_ROOT_PW_tmp)
 
 
 ######## Chef server configuration ########
