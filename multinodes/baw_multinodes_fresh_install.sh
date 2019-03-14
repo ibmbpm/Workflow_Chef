@@ -14,26 +14,6 @@
 # Host 2, Workflow02 or WF02: IBM Business Automation Workflow Custom Node, one cluster member
 
 
-# Generate temporary dir (do not delete it by this program)
-Create_Log_Dir () {
-
-  local i=0 # The times which attempt to create temporary dir 
-  local logdir=
-
-  while ((++i <= 10)); do
-  logdir=${LOG_DIR:="/var/log/baw_multinodes_noihs_chef/"}
-  mkdir -m 755 -p "$LOG_DIR" 2>/dev/null && break
-  done
-
-  if ((i > 10)); then
-  printf 'Could not create Log directory\n' >&2
-  exit 1
-  fi
-
-  # echo "Log directory $logdir created"
-}
-
-
 Print_TopologyLogs () {
 
   echo
@@ -68,233 +48,6 @@ Upload_Roles () {
   knife role from file $BAW_CHEF_TEMP_DIR/$WF02_ROLE_APPLYIFIX_FILE || return 1
   knife role from file $BAW_CHEF_TEMP_DIR/$WF02_ROLE_CONFIG_FILE || return 1
   knife role from file $BAW_CHEF_TEMP_DIR/$WF02_ROLE_POSTDEV_FILE
-}
-
-######## Monitor ########
-Monitor () {
-
-# $1: switch for enabling baw dependency logic, 0 for disable, others for enable 
-# $2: tasks, an array including all task pids. tasks=( task1, task2, task3, ... ). 
-# $3: the name of the task1, string
-# $4: the name of the task2, string
-# $5: the name of the task3, string
-
-  local enable_baw_boolean=$1
-  local tasks=( $2 )
-  local task_tags=( $2 )
-  local task1_name=$3
-  local task2_name=$4
-  local task3_name=$5
-
-  local sleep_time=10
-  local TOTAL_TASK_NU=${#tasks[*]}
-  readonly TOTAL_TASK_NU
-
-  # Define some tags to mark the exit status for each task
-  local default_status=9999
-  local task1_exit_status=$default_status
-  local task2_exit_status=$default_status
-  local task3_exit_status=$default_status
-
-  # Define boolean tags to ensure each execute only once
-  local trigger1=0
-  local trigger2=0
-  local trigger3=0
-
-  local tasks_do_next_remaining=()
-
-  while (( ${#task_tags[*]} )); do
-     # echo Remaining tasks: "${task_tags[*]}"
-      for tb in ${tasks[@]}; do
-        if [ -n "$(ps -p $tb -o pid=)" ]; then
-          case "$tb" in
-            "${tasks[0]}")  
-              if [ ! -z "$task1_name" -a "$task1_name" != " " ]; then
-                echo $(date -Iseconds), TASK: $task1_name with pid $tb, is in process
-              fi
-            ;;
-            "${tasks[1]}") 
-              if [ ! -z "$task2_name" -a "$task2_name" != " " ]; then
-                echo $(date -Iseconds), TASK: $task2_name with pid $tb, is in process
-              fi
-            ;;
-            "${tasks[2]}") 
-              if [ ! -z "$task3_name" -a "$task3_name" != " " ]; then
-                echo $(date -Iseconds), TASK: $task3_name with pid $tb, is in process
-              fi
-            ;;
-          esac
-        else
-            case "$tb" in
-              "${tasks[0]}")
-                 if [ -n "$(echo ${task_tags[*]} | grep $tb)" ]; then
-                   # echo
-                   # echo TASK: $task1_name with pid $tb exited, checking its exit status
-                   unset "task_tags[0]"
-                   wait $tb
-                   task1_exit_status=$?
-                   if [ $task1_exit_status -eq 0 ]; then
-                     if [ ! -z "$task1_name" -a "$task1_name" != " " ]; then                   
-                      echo
-                      echo $(date -Iseconds), SUCCESS: $task1_name with pid $tb was done successfully
-                      echo
-                     fi
-                   else
-                     echo
-                     echo $(date -Iseconds), ERROR: $task1_name with pid $tb error, with status $task1_exit_status.
-                     echo
-                   fi
-                 fi
-              ;;
-              "${tasks[1]}")
-                  if [ -n "$(echo ${task_tags[*]} | grep $tb)" ]; then
-                    # echo
-                    # echo TASK: $task2_name with pid $tb exited, checking its exit status
-                    unset "task_tags[1]"
-                    wait $tb
-                    task2_exit_status=$?
-                    if [ $task2_exit_status -eq 0 ]; then
-                      if [ ! -z "$task2_name" -a "$task2_name" != " " ]; then                    
-                        echo
-                        echo "$(date -Iseconds), SUCCESS: $task2_name with pid $tb was done successfully"
-                        echo
-                      fi
-                    else
-                      echo
-                      echo $(date -Iseconds), ERROR: $task2_name with pid $tb error occurred, with status $task2_exit_status.
-                      echo
-                    fi
-                  fi
-              ;;
-              "${tasks[2]}")
-                  if [ -n "$(echo ${task_tags[*]} | grep $tb)" ]; then
-                    # echo TASK: $task3_name with pid $tb exited, checking its exit status
-                    unset "task_tags[2]"
-                    wait $tb
-                    task3_exit_status=$?
-                   if [ $task3_exit_status -eq 0 ]; then
-                     if [ ! -z "$task3_name" -a "$task3_name" != " " ]; then                   
-                      echo
-                      echo "$(date -Iseconds), SUCCESS: $task3_name with pid $tb was done successfully"
-                      echo
-                     fi
-                   else
-                     echo
-                     echo $(date -Iseconds), ERROR: $task3_name with pid $tb error, with status $task3_exit_status.
-                     echo
-                   fi
-                 fi
-              ;;
-          esac
-        fi
-      done
-      # When enable_baw_boolean is not 0, check the dependency for BAW
-      # if [ $enable_baw_boolean -ne 0  -a $total_task_nu -ge 2 ]; then
-      if [ $enable_baw_boolean -ne 0 ]; then
-        # echo BAW dependency logic is enabled
-        Monitor_Do_Next_Tasks
-      fi
-      sleep $sleep_time
-  done
-
-    # Return 1 when any one of them failed
-    case $TOTAL_TASK_NU in
-    1)
-      if [ $task1_exit_status -eq 0 ]; then
-        return 0
-        else
-        return 1
-      fi
-    ;;
-    2)
-      if [ $task1_exit_status -eq 0 -a $task2_exit_status -eq 0 ]; then
-        return 0
-        else
-        return 1
-      fi
-    ;;
-    3)
-      if [ $task1_exit_status -eq 0 -a $task2_exit_status -eq 0 -a $task3_exit_status -eq 0 ]; then
-        return 0
-        else
-        return 1
-      fi
-    ;;
-  esac
-}
-
-# When enable_baw_boolean is not 0, check the dependency for BAW
-Monitor_Do_Next_Tasks () {
-  # tasks_do_next_remaining=() # this var was moved to upper function
-  case $TOTAL_TASK_NU in
-    2)
-      # parallel
-      # WF01 step 2 depends on WF01 step 1 ("role[$WF01_ROLE_CONFIG_NAME]") complete
-      if [ $trigger1 -eq 0 -a $task1_exit_status -eq 0 ]; then
-        echo
-        # echo "$(date -Iseconds), MTASK: $LOG_WF01_NAME Step 2 of 2 starts, TASKS LIST: (Post Action)"
-        echo
-        WF01_step2 &
-        local TASK_WF01_step2=$!
-        readonly TASK_WF01_step2&
-        tasks_do_next_remaining+=("$TASK_WF01_step2")
-        trigger1=1
-      fi
-
-      # WF02 step 2 depends on WF02 step 1 "role[$WF02_ROLE_APPLYIFIX]" and WF01 step 1 ("role[$WF01_ROLE_CONFIG_NAME]") complete
-      if [ $trigger2 -eq 0 -a $task2_exit_status -eq 0 -a $task1_exit_status -eq 0 ]; then
-        echo
-        # echo "$(date -Iseconds), MTASK: $LOG_WF02_NAME Step 2 of 2 starts, TASKS List (Configuration, Post Action)"
-        echo
-        WF02_step2 &
-        local TASK_WF02_step2=$!
-        readonly TASK_WF02_step2&
-        tasks_do_next_remaining+=("$TASK_WF02_step2")
-        trigger2=1
-      fi
-
-      # Checking the all the remaining tasks complete before exit
-      if [ $trigger3 -eq 0 -a $task1_exit_status -ne $default_status -a $task2_exit_status -ne $default_status ]; then
-        #echo MTASK: # Checking the all the remaining tasks complete before exit
-        # Monitor 0 "${tasks_do_next_remaining[*]}" "$LOG_WF01_NAME Step 2 of 2" "$LOG_WF02_NAME Step 2 of 2" || return 1
-        Monitor 0 "${tasks_do_next_remaining[*]}" || return 1
-        trigger3=1
-      fi
-    ;;
-    3)
-      # WF01 step 2 depends on IHS ("role[$IHS_ROLE_CONFIG]") complete
-      if [ $trigger1 -eq 0 -a $task1_exit_status -eq 0 -a $task3_exit_status -eq 0 ]; then
-        echo
-        # echo "$(date -Iseconds), MTASK: $LOG_WF01_NAME Step 2 of 2 starts, TASKS LIST: (Configure Web Server, Post Action)"
-        echo
-        WF01_step2 &
-        local TASK_WF01_step2=$!
-        readonly TASK_WF01_step2&
-        tasks_do_next_remaining+=("$TASK_WF01_step2")
-        trigger1=1
-      fi
-
-      # WF02 step 2 depends on WF01 step 1 ("role[$WF01_ROLE_CONFIG_NAME]") complete
-      if [ $trigger2 -eq 0 -a $task2_exit_status -eq 0 -a $task1_exit_status -eq 0 ]; then
-        echo
-        # echo "$(date -Iseconds), MTASK: $LOG_WF02_NAME Step 2 of 2 starts, TASKS List (Configuration, Post Action)"
-        echo
-        WF02_step2 &
-        local TASK_WF02_step2=$!
-        readonly TASK_WF02_step2&
-        tasks_do_next_remaining+=("$TASK_WF02_step2")
-        trigger2=1
-      fi
-
-      # Checking the all the remaining tasks complete before exit
-      if [ $trigger3 -eq 0 -a $task1_exit_status -ne $default_status -a $task2_exit_status -ne $default_status -a $task3_exit_status -ne $default_status ]; then
-        # echo "MTASK: Checking the last tasks before exit"
-        # Monitor 0 "${tasks_do_next_remaining[*]}" "$LOG_WF01_NAME Step 2 of 2" "$LOG_WF02_NAME Step 2 of 2" || return 1
-        Monitor 0 "${tasks_do_next_remaining[*]}" || return 1
-        trigger3=1
-      fi
-    ;;
-  esac
 }
 
 
@@ -461,7 +214,7 @@ MY_DIR=${0%/*}
 if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
 #echo current Dir is $MY_DIR
 
-
+  
 ######## Start the program ########
 BAW_Multiple_Nodes_Chef_Start () {
 # sequential
@@ -521,11 +274,12 @@ Main_Start () {
   echo
 }
 
+  . "$MY_DIR/../libs/utilities_script" &&
 ######## Prepare logs #######
 # define where to log
-LOG_DIR="/var/log/baw_multinodes_noihs_chef"
-BAW_CHEF_LOG="${LOG_DIR}/BAW_CHEF_SCRIPT_chef.log"
-readonly BAW_CHEF_LOG
-Create_Log_Dir
+readonly REQUESTED_LOG_DIR="/var/log/baw_multinodes_noihs_chef"
+readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
+# echo "BAW LOG Dir created $LOG_DIR"
+readonly BAW_CHEF_LOG="${LOG_DIR}/BAW_CHEF_SCRIPT_chef.log"
 
-Main_Start 2>&1 | tee $BAW_CHEF_LOG  
+  Main_Start 2>&1 | tee $BAW_CHEF_LOG  
