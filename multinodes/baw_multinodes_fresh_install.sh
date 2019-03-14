@@ -136,7 +136,7 @@ WF01_step2 () {
   knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P $WF01_ROOT_PW >> $WF01_LOG &
   local TASK_WF01_POSTDEV=$!
   readonly TASK_WF01_POSTDEV
-  Monitor 0 "$TASK_WF01_POSTDEV" "$LOG_WF01_NAME Post Action ( 0 task left )"
+  Monitor 0 "$TASK_WF01_POSTDEV" "$LOG_WF01_NAME Post Action ( 0 tasks left )"
 }
 
 
