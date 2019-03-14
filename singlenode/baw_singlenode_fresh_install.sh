@@ -13,26 +13,6 @@
 # Single host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member.
 
 
-# Generate temporary dir (do not delete it by this program)
-Create_Log_Dir () {
-
-  local i=0 # The times which attempt to create temporary dir 
-  local logdir=
-
-  while ((++i <= 10)); do
-  logdir=${LOG_DIR:="/var/log/baw_singlenode_chef/"}
-  mkdir -m 755 -p "$LOG_DIR" 2>/dev/null && break
-  done
-
-  if ((i > 10)); then
-  printf 'Could not create Log directory\n' >&2
-  exit 1
-  fi
-
-  # echo "Log directory $logdir created"
-}
-
-
 Print_TopologyLogs () {
 
   echo
@@ -103,30 +83,30 @@ BAW_Single_Node_Installation_Start () {
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_INSTALL_NAME]" || return 1
     knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_INSTALL_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client  2>/dev/null || { echo "Error when updating chef vault"; return 1; }
-    echo "Installation is in process, please wait"
+    echo "$(date -Iseconds), Installation is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_UPGRADE_NAME]" || return 1
     knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_UPGRADE_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-    echo "Upgrade is in process, please wait"
+    echo "$(date -Iseconds), Upgrade is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_APPLYIFIX_NAME]" || return 1
     knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_APPLYIFIX_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-    echo "Applyifix is in process, please wait"
+    echo "$(date -Iseconds), Applyifix is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_CONFIG_NAME]" || return 1
     knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_CONFIG_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-    echo "Configuration is in process, please wait"
+    echo "$(date -Iseconds), Configuration is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
 
     knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_POSTDEV_NAME]" || return 1
-    echo "POST Action is in process, please wait"
+    echo "$(date -Iseconds), POST Action is in process, please wait"
     echo
     knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P $SNODE_ROOT_PW >> $SNODE_LOG || return 1
     echo "$(date -Iseconds), STATUS: $LOG_SNODE_NAME TASK List (Installation, Upgrade, Applyifix, Configuration, POST Action) was done successfully"
@@ -194,11 +174,12 @@ Main_Start () {
   echo
 }
 
+  . "$MY_DIR/../libs/utilities_script" &&
 ######## Prepare logs #######
 # define where to log
-LOG_DIR="/var/log/baw_singlenode_chef/"
-BAW_CHEF_LOG="${LOG_DIR}BAW_CHEF_SCRIPT_chef.log"
-readonly BAW_CHEF_LOG
-Create_Log_Dir
+readonly REQUESTED_LOG_DIR="/var/log/baw_singlenode_chef/"
+readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
+# echo "BAW LOG Dir created $LOG_DIR"
+readonly BAW_CHEF_LOG="${LOG_DIR}/BAW_CHEF_SCRIPT_chef.log"
 
  Main_Start 2>&1 | tee $BAW_CHEF_LOG

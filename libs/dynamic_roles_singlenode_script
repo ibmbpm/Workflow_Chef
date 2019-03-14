@@ -1,25 +1,6 @@
 #!/bin/bash
 # set -e
 
-# Generate temporary dir
-Create_Temp_Dir () {
-
-  local i=0 # The times which attempt to create temporary dir 
-  local tempdir=
-
-  while ((++i <= 10)); do
-  tempdir=${TMPDIR:-/tmp}/baw_tmp/singlenode
-  mkdir -m 755 -p "$tempdir" 2>/dev/null && break
-  done
-
-  if ((i > 10)); then
-  printf 'Could not create temporary directory\n' >&2
-  exit 1
-  fi
-
-  echo $tempdir
-}
-
 
 Generate_SNODE_Roles () {
 
@@ -55,7 +36,8 @@ MY_DIR=${0%/*}
 if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
 #echo "read and create current Dir is $MY_DIR"
 
-  . "$MY_DIR/../libs/dynamic_roles_script"
+  . "$MY_DIR/../libs/utilities_script" &&
+  . "$MY_DIR/../libs/dynamic_roles_script"  &&
   
 readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
 # ./baw_singlenode.properties
@@ -65,7 +47,8 @@ getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
 
 
 # temp dir
-readonly BAW_CHEF_TEMP_DIR="$( Create_Temp_Dir )"
+readonly REQUESTED_TEMP_DIR="/tmp/baw_tmp/singlenode"
+readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
 echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
 
