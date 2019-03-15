@@ -280,6 +280,6 @@ Main_Start () {
 readonly REQUESTED_LOG_DIR="/var/log/baw_multinodes_noihs_chef"
 readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
-readonly BAW_CHEF_LOG="${LOG_DIR}/BAW_CHEF_SCRIPT_chef.log"
+readonly BAW_CHEF_LOG="${LOG_DIR}/BAW_CHEF_SHELL_SCRIPT.log"
 
   Main_Start 2>&1 | tee $BAW_CHEF_LOG  
