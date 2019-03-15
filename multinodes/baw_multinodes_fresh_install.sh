@@ -81,7 +81,7 @@ Create_Chef_Vaults () {
 
   # Generate_CHEFVAULT 
   WORKFLOW_SECRETS_TMPL_FILE=$workflow_secrets_TMPL_FILE
-  Auto_Create_WORKFLOW_SECRETS return 1
+  Auto_Create_WORKFLOW_SECRETS || return 1
   # RUNTIME_WORKFLOW_SECRETS_JSON
   
   if [ $( eval "knife vault list -M client | grep ^$BAW_CHEF_VAULT_NAME$" ) ]; then

@@ -152,7 +152,7 @@ Main_Start () {
   # $SNODE_IP_ADDR depend on . "$MY_DIR/../libs/dynamic_roles_singlenode_script"
   LOG_SNODE_NAME="Single Host($SNODE_IP_ADDR), Workflow"  
   readonly LOG_SNODE_NAME
-  SNODE_LOG="${LOG_DIR}SNODE_${SNODE_IP_ADDR}_chef.log"
+  SNODE_LOG="${LOG_DIR}/SNODE_${SNODE_IP_ADDR}_chef.log"
   readonly SNODE_LOG
 
   Print_TopologyLogs
@@ -183,7 +183,7 @@ Main_Start () {
   . "$MY_DIR/../libs/utilities_script" &&
 ######## Prepare logs #######
 # define where to log
-readonly REQUESTED_LOG_DIR="/var/log/baw_singlenode_chef/"
+readonly REQUESTED_LOG_DIR="/var/log/baw_singlenode_chef"
 readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
 readonly BAW_CHEF_LOG="${LOG_DIR}/BAW_CHEF_SCRIPT_chef.log"

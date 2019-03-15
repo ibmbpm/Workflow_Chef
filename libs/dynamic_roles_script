@@ -636,5 +636,5 @@ _EOF_" )
 
 echo "Workflow Secrets Generated"
 # TODO: For debug only, delete it before release
-echo "Workflow Secrets: $RUNTIME_WORKFLOW_SECRETS_JSON"
+# echo "Workflow Secrets: $RUNTIME_WORKFLOW_SECRETS_JSON"
 }
