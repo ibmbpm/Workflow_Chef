@@ -99,28 +99,28 @@ WF01_step1 () {
   knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" >> $WF01_LOG &
   local TASK_WF01_INSTALL=$!
   readonly TASK_WF01_INSTALL
-  Monitor 0 "$TASK_WF01_INSTALL" "$LOG_WF01_NAME Installation ( 4 tasks left )" || return 1
+  Monitor 0 "$TASK_WF01_INSTALL" "$LOG_WF01_NAME Installation(4 tasks left)" || return 1
 
   knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_UPGRADE_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF01_ROLE_UPGRADE_NAME" -C "$WF01_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
   knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" >> $WF01_LOG &
   local TASK_WF01_UPGRADE=$!
   readonly TASK_WF01_UPGRADE
-  Monitor 0 "$TASK_WF01_UPGRADE" "$LOG_WF01_NAME Upgrade ( 3 tasks left )" || return 1
+  Monitor 0 "$TASK_WF01_UPGRADE" "$LOG_WF01_NAME Upgrade(3 tasks left)" || return 1
 
   knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_APPLYIFIX_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF01_ROLE_APPLYIFIX_NAME" -C "$WF01_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
   knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" >> $WF01_LOG &
   local TASK_WF01_APPLYIFIX=$!
   readonly TASK_ WF01_APPLYIFIX
-  Monitor 0 "$TASK_WF01_APPLYIFIX" "$LOG_WF01_NAME Applyifix ( 2 tasks left )" || return 1
+  Monitor 0 "$TASK_WF01_APPLYIFIX" "$LOG_WF01_NAME Applyifix(2 tasks left)" || return 1
 
   knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_CONFIG_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF01_ROLE_CONFIG_NAME" -C "$WF01_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
   knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" >> $WF01_LOG &
   local TASK_WF01_CONFIG=$!
   readonly  TASK_WF01_CONFIG
-  Monitor 0 "$TASK_WF01_CONFIG" "$LOG_WF01_NAME Configuration ( 1 task left )"
+  Monitor 0 "$TASK_WF01_CONFIG" "$LOG_WF01_NAME Configuration(1 task left)"
 }
 
 WF01_step2 () {
@@ -136,7 +136,7 @@ WF01_step2 () {
   knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" >> $WF01_LOG &
   local TASK_WF01_POSTDEV=$!
   readonly TASK_WF01_POSTDEV
-  Monitor 0 "$TASK_WF01_POSTDEV" "$LOG_WF01_NAME Post Action ( 0 tasks left )"
+  Monitor 0 "$TASK_WF01_POSTDEV" "$LOG_WF01_NAME Post Action(0 tasks left)"
 }
 
 
@@ -149,21 +149,21 @@ WF02_step1 () {
   knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" >> $WF02_LOG &
   local TASK_WF02_INSTALL=$!
   readonly TASK_WF02_INSTALL
-  Monitor 0 "$TASK_WF02_INSTALL" "$LOG_WF02_NAME Installation ( 4 Tasks left )" || return 1
+  Monitor 0 "$TASK_WF02_INSTALL" "$LOG_WF02_NAME Installation(4 Tasks left)" || return 1
 
   knife node run_list add $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_UPGRADE_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF02_ROLE_UPGRADE_NAME" -C "$WF02_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
   knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" >> $WF02_LOG &
   local TASK_WF02_UPGRADE=$!
   readonly TASK_WF02_UPGRADE
-  Monitor 0 "$TASK_WF02_UPGRADE" "$LOG_WF02_NAME Upgrade ( 3 Tasks left )" || return 1
+  Monitor 0 "$TASK_WF02_UPGRADE" "$LOG_WF02_NAME Upgrade(3 Tasks left)" || return 1
 
   knife node run_list add $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_APPLYIFIX_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF02_ROLE_APPLYIFIX_NAME" -C "$WF02_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
   knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" >> $WF02_LOG &
   local TASK_WF02_APPLYIFIX=$!
   readonly TASK_WF02_APPLYIFIX
-  Monitor 0 "$TASK_WF02_APPLYIFIX" "$LOG_WF02_NAME Applyifix ( 2 Tasks left )"
+  Monitor 0 "$TASK_WF02_APPLYIFIX" "$LOG_WF02_NAME Applyifix(2 Tasks left)"
 }
 
 WF02_step2 () {
@@ -174,13 +174,13 @@ WF02_step2 () {
   knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" >> $WF02_LOG &
   local TASK_WF02_CONFIG=$!
   readonly  TASK_WF02_CONFIG
-  Monitor 0 "$TASK_WF02_CONFIG" "$LOG_WF02_NAME Configuration ( 1 task left )" || return 1
+  Monitor 0 "$TASK_WF02_CONFIG" "$LOG_WF02_NAME Configuration(1 task left)" || return 1
 
   knife node run_list add $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_POSTDEV_NAME]" &&
   knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" >> $WF02_LOG &
   local TASK_WF02_POSTDEV=$!
   readonly TASK_WF02_POSTDEV
-  Monitor 0 "$TASK_WF02_POSTDEV" "$LOG_WF02_NAME Post Action ( 0 tasks left )"
+  Monitor 0 "$TASK_WF02_POSTDEV" "$LOG_WF02_NAME Post Action(0 tasks left)"
 }
 
 
@@ -233,20 +233,20 @@ Main_Start () {
   echo "Starting at: $(date -Iseconds)"
   echo
 
-  . "$MY_DIR/../libs/dynamic_roles_multinodes_script" &&
+  Generate_Roles
 
   ######## Prepare logs for nodes #######
   # $WF01_IP_ADDR depend on . "$MY_DIR/../libs/dynamic_roles_singlenode_script"
   # The name for WF01 in log printing
-  LOG_WF01_NAME="Host($WF01_IP_ADDR), Workflow01"  
+  LOG_WF01_NAME="Host_${var_Workflow01_name}($WF01_IP_ADDR), Workflow01"  
   readonly LOG_WF01_NAME
   # The name for WF02 in log printing
-  LOG_WF02_NAME="Host($WF02_IP_ADDR), Workflow02"
+  LOG_WF02_NAME="Host_${var_Workflow02_name}($WF02_IP_ADDR), Workflow02"
   readonly LOG_WF02_NAME
 
-  WF01_LOG="${LOG_DIR}/WF01_${WF01_IP_ADDR}_chef.log"
+  WF01_LOG="${LOG_DIR}/WF01_${var_Workflow01_name}_${WF01_IP_ADDR}_chef.log"
   readonly WF01_LOG
-  WF02_LOG="${LOG_DIR}/WF02_${WF02_IP_ADDR}_chef.log"
+  WF02_LOG="${LOG_DIR}/WF02_${var_Workflow02_name}_${WF02_IP_ADDR}_chef.log"
   readonly WF02_LOG
 
   Print_TopologyLogs
@@ -275,11 +275,13 @@ Main_Start () {
 }
 
   . "$MY_DIR/../libs/utilities_script" &&
+  . "$MY_DIR/../libs/dynamic_roles_multinodes_script" &&
+
 ######## Prepare logs #######
 # define where to log
-readonly REQUESTED_LOG_DIR="/var/log/baw_multinodes_noihs_chef"
+readonly REQUESTED_LOG_DIR="/var/log/baw_chef_shell_log/multinodes_noihs/hosts_${var_Workflow01_name}_${var_Workflow02_name}/fresh_install"
 readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
-readonly BAW_CHEF_LOG="${LOG_DIR}/BAW_CHEF_SHELL_SCRIPT.log"
+readonly BAW_CHEF_LOG="${LOG_DIR}/Monitor_${var_Workflow01_name}_${var_Workflow02_name}.log"
 
   Main_Start 2>&1 | tee $BAW_CHEF_LOG  

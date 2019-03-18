@@ -88,21 +88,21 @@ BAW_Single_Node_Installation_Start () {
   knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" >> $SNODE_LOG &
   local TASK_SNODE_INSTALL=$!
   readonly TASK_SNODE_INSTALL
-  Monitor 0 "$TASK_SNODE_INSTALL" "$LOG_SNODE_NAME Installation ( 4 tasks left )" || return 1
+  Monitor 0 "$TASK_SNODE_INSTALL" "$LOG_SNODE_NAME Installation(4 tasks left)" || return 1
 
   knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_UPGRADE_NAME]" || return 1
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_UPGRADE_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
   knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" >> $SNODE_LOG &
   local TASK_SNODE_UPGRADE=$!
   readonly TASK_SNODE_UPGRADE
-  Monitor 0 "$TASK_SNODE_UPGRADE" "$LOG_SNODE_NAME Upgrade ( 3 tasks left )" || return 1
+  Monitor 0 "$TASK_SNODE_UPGRADE" "$LOG_SNODE_NAME Upgrade(3 tasks left)" || return 1
 
   knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_APPLYIFIX_NAME]" || return 1
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_APPLYIFIX_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
   knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" >> $SNODE_LOG || return 1
   local TASK_SNODE_APPLYIFIX=$!
   readonly TASK_ SNODE_APPLYIFIX
-  Monitor 0 "$TASK_SNODE_APPLYIFIX" "$LOG_SNODE_NAME Applyifix ( 2 tasks left )" || return 1
+  Monitor 0 "$TASK_SNODE_APPLYIFIX" "$LOG_SNODE_NAME Applyifix(2 tasks left)" || return 1
 
 
   knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_CONFIG_NAME]" || return 1
@@ -110,13 +110,13 @@ BAW_Single_Node_Installation_Start () {
   knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" >> $SNODE_LOG &
   local TASK_SNODE_CONFIG=$!
   readonly  TASK_SNODE_CONFIG
-  Monitor 0 "$TASK_SNODE_CONFIG" "$LOG_SNODE_NAME Configuration ( 1 task left )" || return 1
+  Monitor 0 "$TASK_SNODE_CONFIG" "$LOG_SNODE_NAME Configuration(1 task left)" || return 1
 
   knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_POSTDEV_NAME]" || return 1
   knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" >> $SNODE_LOG &
   local TASK_SNODE_POSTDEV=$!
   readonly TASK_SNODE_POSTDEV
-  Monitor 0 "$TASK_SNODE_POSTDEV" "$LOG_SNODE_NAME Post Action ( 0 tasks left )"
+  Monitor 0 "$TASK_SNODE_POSTDEV" "$LOG_SNODE_NAME Post Action(0 tasks left)"
 }
 
 
@@ -145,14 +145,14 @@ Main_Start () {
   echo "Starting at: $(date -Iseconds)"
   echo
   
-  . "$MY_DIR/../libs/dynamic_roles_singlenode_script" &&
+  Generate_Roles
 
   ######## Prepare logs for nodes #######
   # The name for SNode in log printing
   # $SNODE_IP_ADDR depend on . "$MY_DIR/../libs/dynamic_roles_singlenode_script"
-  LOG_SNODE_NAME="Single Host($SNODE_IP_ADDR), Workflow"  
+  LOG_SNODE_NAME="Host_${var_Workflow01_name}($SNODE_IP_ADDR), Workflow"  
   readonly LOG_SNODE_NAME
-  SNODE_LOG="${LOG_DIR}/SNODE_${SNODE_IP_ADDR}_chef.log"
+  SNODE_LOG="${LOG_DIR}/WF_${var_Workflow01_name}_${WF01_IP_ADDR}_chef.log"
   readonly SNODE_LOG
 
   Print_TopologyLogs
@@ -181,11 +181,13 @@ Main_Start () {
 }
 
   . "$MY_DIR/../libs/utilities_script" &&
+  . "$MY_DIR/../libs/dynamic_roles_singlenode_script" &&
+
 ######## Prepare logs #######
 # define where to log
-readonly REQUESTED_LOG_DIR="/var/log/baw_singlenode_chef"
+readonly REQUESTED_LOG_DIR="/var/log/baw_chef_shell_log/singlenode/host_${var_Workflow01_name}/fresh_install"
 readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
-readonly BAW_CHEF_LOG="${LOG_DIR}/BAW_CHEF_SHELL_SCRIPT.log"
+readonly BAW_CHEF_LOG="${LOG_DIR}/Monitor_${var_Workflow01_name}.log"
 
  Main_Start 2>&1 | tee $BAW_CHEF_LOG

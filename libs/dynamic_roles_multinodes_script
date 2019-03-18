@@ -63,6 +63,12 @@ Generate_WF02_Roles () {
 
 Generate_Roles () {
 
+
+  # temp dir
+  readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/multinodes/roles_${var_Workflow01_name}_${var_Workflow02_name}"
+  readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
+  echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
+
   # Customize for multinodes
   # "node_hostname": "kvm-018074.test.local",
   var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
@@ -103,12 +109,6 @@ readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
 readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_multinodes.properties"
 # Test if $BAW_CHEF_PROPERTIES_FILE exists 
 getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
-
-
-# temp dir
-readonly REQUESTED_TEMP_DIR="/tmp/baw_tmp/multinodes"
-readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
-echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
 
 # ######## Inputs ########
@@ -204,5 +204,3 @@ WF02_ROLE_POSTDEV_FILE="$WF02_ROLE_POSTDEV_NAME.json"
 # Chef vault, these two lines should be executed before "Generate_Roles"
 readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_${var_Workflow01_name}_${var_Workflow02_name}"
 readonly BAW_CHEF_VAULT_ITEM="secrets"
-
-Generate_Roles
