@@ -183,6 +183,20 @@ Main_Start () {
   . "$MY_DIR/../libs/utilities_script" &&
   . "$MY_DIR/../libs/dynamic_roles_singlenode_script" &&
 
+  # Reference to properties dir
+  readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
+  # ./baw_singlenode.properties
+  readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_singlenode.properties"
+  # Test if $BAW_CHEF_PROPERTIES_FILE exists 
+  getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
+
+  # Get basic info
+  var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
+  var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
+
+  # Reference to templates dir
+  readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../templates
+
 ######## Prepare logs #######
 # define where to log
 readonly REQUESTED_LOG_DIR="/var/log/baw_chef_shell_log/singlenode/host_${var_Workflow01_name}/fresh_install"

@@ -1,40 +1,6 @@
 #!/bin/bash
 # set -e
 
-# echo Get the vaule by key from properties file $BAW_CHEF_PROPERTIES_FILE
-getValueFromPropFile () {
-
-  if [ ! -f $1 ]; then
-      echo "File $1 not found!"
-      return 1
-  fi
-
-  local src_file=$1
-  # local key=$2 # this way have issues with empty value property
-  # local value=$( cat $src_file | grep -w ^${key} | cut -d= -f2 )
-  # local key=$2"=" to solve the key without any value situations, like "key= " defined in the properties file only
-  # cut -d= -f2-  cut with delimiter '=', and only the first '=' counts. for example if input is 'abcd==efg=h==', the output is '=efg=h=='
-  local key=$2"="
-  local value=$( cat $src_file | grep ^${key} | cut -d= -f2- )
-  echo $value
-}
-
-Decode_base64 () {
-  # $1 key, description
-  # $2 value, is an encrypted base64 string 
-  local key=$1
-  local value=$2
-
-  echo "$value" | base64 -d &> /dev/null
-
-  if (($? != 0)); then
-    printf "\nError, could not decode base64 string, its value is $value and its key is $key , please check your encryption\n\n" >&2
-    return 1
-  fi
-
-  local decrypted_pass=$(echo "$value" | base64 -d)
-  echo $decrypted_pass
-}
 
 getFormatedStringListForiFixpack () {
 
@@ -361,10 +327,10 @@ Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
 
   if [ ! -z "$var_Workflow01_name" -a ! -z "$var_Workflow01_domain" ]
   then
-  # "dmgr_hostname": "kvm-018074.test.local",
-  local_dmgr_hostnames="$var_Workflow01_name.$var_Workflow01_domain"
-  # "node_hostname": "kvm-018074.test.local",
-  local_node_hostnames=${local_node_hostnames:-"$var_Workflow01_name.$var_Workflow01_domain"}
+    # "dmgr_hostname": "kvm-018074.test.local",
+    local_dmgr_hostnames="$var_Workflow01_name.$var_Workflow01_domain"
+    # "node_hostname": "kvm-018074.test.local",
+    local_node_hostnames=${local_node_hostnames:-"$var_Workflow01_name.$var_Workflow01_domain"}
   fi
 
   if [ ! -z "$var_IHS_name" -a ! -z "$var_IHS_domain" ]

@@ -64,143 +64,107 @@ Generate_WF02_Roles () {
 Generate_Roles () {
 
 
+  ######## Include libs ########
+  MY_DIR=${0%/*}
+  if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
+  #echo "read and create current Dir is $MY_DIR"
+
+    . "$MY_DIR/../libs/utilities_script" &&
+    . "$MY_DIR/../libs/dynamic_roles_script"  &&
+
+
+  # ######## Inputs ########
+  # ######## Two nodes, Node 1, 2 configuration ########
+
+  # Node 1, Dmgr and Workflow01 (WF01) configuration
+  #The ip address of the node where Dmgr and WF01 should be installed
+  readonly WF01_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_ipv4_address)
+  # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
+  WF01_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_user)
+  readonly WF01_ROOT_USERNAME=${WF01_ROOT_USERNAME:-"root"}
+
+  # The encrypted password of the root account for the node
+  WF01_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_password)
+  Decode_base64 "workflow_host01_admin_password" $WF01_ROOT_PW_tmp 1>/dev/null || return 1
+  readonly WF01_ROOT_PW=$(Decode_base64 "workflow_host01_admin_password" $WF01_ROOT_PW_tmp)
+
+
+  # Node 2, Workflow02 (WF02) configuration
+  # The ip address of the node where WF02 should be installed
+  readonly WF02_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_ipv4_address)
+  # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
+  WF02_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_admin_user)
+
+  # The encrypted password of the root account for the node
+  WF02_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_admin_password)
+  Decode_base64 "workflow_host02_admin_password" $WF02_ROOT_PW_tmp 1>/dev/null || return 1
+  readonly WF02_ROOT_PW=$(Decode_base64 "workflow_host02_admin_password" $WF02_ROOT_PW_tmp)
+
+
+  # The templates path
+  # readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../templates
+  readonly BAW_CHEF_ROLES_TMPL_DIR=$BAW_CHEF_TMPL_DIR/roles
+
+  readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
+
+  readonly workflow_v18_0_201806_install_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_install.json.tmpl
+  readonly workflow_upgrade_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_upgrade.json.tmpl
+  readonly workflow_applyifix_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_applyifix.json.tmpl
+  readonly workflow_v18_0_201806_create_singlecluster_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_create_singlecluster.json.tmpl
+  readonly workflow_v18_0_201809_create_singleclusters_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201809_create_singleclusters.json.tmpl
+  readonly workflow_post_deployment_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_post_deployment.json.tmpl
+
+  ########  generate roles based on properties file set by users########
+
+  #Dynamic Role names are need to be defined ahead of time
+  # The roles from json files which assigned to Node 1, WF01
+  WF01_ROLE_INSTALL_NAME="workflow_v18_0_20180_install_$var_Workflow01_name"
+  WF01_ROLE_UPGRADE_NAME="workflow_upgrade_$var_Workflow01_name"
+  WF01_ROLE_APPLYIFIX_NAME="workflow_applyifix_$var_Workflow01_name"
+  WF01_ROLE_CONFIG_NAME="workflow_v18_0_201809_create_singleclusters_$var_Workflow01_name"
+  WF01_ROLE_POSTDEV_NAME="workflow_post_deployment_$var_Workflow01_name"
+
+  # The roles from json files which assigned to Node 2, WF02
+  WF02_ROLE_INSTALL_NAME="workflow_v18_0_201806_install_$var_Workflow02_name"
+  WF02_ROLE_UPGRADE_NAME="workflow_upgrade_$var_Workflow02_name"
+  WF02_ROLE_APPLYIFIX_NAME="workflow_applyifix_$var_Workflow02_name"
+  WF02_ROLE_CONFIG_NAME="workflow_v18_0_201809_create_singleclusters_$var_Workflow02_name"
+  WF02_ROLE_POSTDEV_NAME="workflow_post_deployment_$var_Workflow02_name"
+
+  WF01_ROLE_INSTALL_FILE="$WF01_ROLE_INSTALL_NAME.json"
+  WF01_ROLE_UPGRADE_FILE="$WF01_ROLE_UPGRADE_NAME.json"
+  WF01_ROLE_APPLYIFIX_FILE="$WF01_ROLE_APPLYIFIX_NAME.json"
+  WF01_ROLE_CONFIG_FILE="$WF01_ROLE_CONFIG_NAME.json"
+  WF01_ROLE_POSTDEV_FILE="$WF01_ROLE_POSTDEV_NAME.json"
+
+  WF02_ROLE_INSTALL_FILE="$WF02_ROLE_INSTALL_NAME.json"
+  WF02_ROLE_UPGRADE_FILE="$WF02_ROLE_UPGRADE_NAME.json"
+  WF02_ROLE_APPLYIFIX_FILE="$WF02_ROLE_APPLYIFIX_NAME.json"
+  WF02_ROLE_CONFIG_FILE="$WF02_ROLE_CONFIG_NAME.json"
+  WF02_ROLE_POSTDEV_FILE="$WF02_ROLE_POSTDEV_NAME.json"
+
+  var_Workflow_config_cluster_type="SingleClusters"
+
+
+  ######## Chef server configuration ########
+  #The unique name to give the node on your chef server
+  # For Node 1 # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow01_node_name"
+  WF01_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow01_on_chef_server)
+  readonly WF01_ON_CHEF_SERVER=${WF01_ON_CHEF_SERVER:-$var_Workflow01_name}
+
+  # For Node 2 # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow02_node_name"
+  WF02_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow02_on_chef_server)
+  readonly WF02_ON_CHEF_SERVER=${WF02_ON_CHEF_SERVER:-$var_Workflow02_name}
+
+  # Chef vault, these two lines should be executed before "Generate_Roles"
+  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_${var_Workflow01_name}_${var_Workflow02_name}"
+  readonly BAW_CHEF_VAULT_ITEM="secrets"
+
   # temp dir
   readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/multinodes/roles_${var_Workflow01_name}_${var_Workflow02_name}"
   readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
   echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
-  # Customize for multinodes
-  # "node_hostname": "kvm-018074.test.local",
-  var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
-  var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
-  if [ ! -z $(echo $var_Workflow01_FQDN | grep '\.' ) ]
-  then
-    var_Workflow01_domain=$(echo $var_Workflow01_FQDN | cut -d '.' -f2-)
-  fi
-
-  # "node_hostname": "kvm-018075.test.local",
-  var_Workflow02_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_fqdn_name)
-  var_Workflow02_name=$(echo $var_Workflow02_FQDN | cut -d '.' -f1)
-  if [ ! -z $(echo $var_Workflow02_FQDN | grep '\.' ) ]
-  then
-    var_Workflow02_domain=$(echo $var_Workflow02_FQDN | cut -d '.' -f2-)
-  fi
-
-  local_node_hostnames="$var_Workflow01_name.$var_Workflow01_domain,$var_Workflow02_name.$var_Workflow02_domain"
-
-  var_Workflow_config_cluster_type="SingleClusters"
-
   Generate_WF01_Roles &&
   Generate_WF02_Roles
 }
-
-
-######## Include libs ########
-MY_DIR=${0%/*}
-if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
-#echo "read and create current Dir is $MY_DIR"
-
-  . "$MY_DIR/../libs/utilities_script" &&
-  . "$MY_DIR/../libs/dynamic_roles_script"  &&
-  
-# The properties file path 
-readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
-# ./baw_singlenode.properties
-readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_multinodes.properties"
-# Test if $BAW_CHEF_PROPERTIES_FILE exists 
-getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
-
-
-# ######## Inputs ########
-# ######## Two nodes, Node 1, 2 configuration ########
-
-# Node 1, Dmgr and Workflow01 (WF01) configuration
-#The ip address of the node where Dmgr and WF01 should be installed
-readonly WF01_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_ipv4_address)
-# TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
-WF01_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_user)
-readonly WF01_ROOT_USERNAME=${WF01_ROOT_USERNAME:-"root"}
-
-# The encrypted password of the root account for the node
-WF01_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_password)
-Decode_base64 "workflow_host01_admin_password" $WF01_ROOT_PW_tmp 1>/dev/null || return 1
-readonly WF01_ROOT_PW=$(Decode_base64 "workflow_host01_admin_password" $WF01_ROOT_PW_tmp)
-
-
-# Node 2, Workflow02 (WF02) configuration
-# The ip address of the node where WF02 should be installed
-readonly WF02_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_ipv4_address)
-# TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
-WF02_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_admin_user)
-
-# The encrypted password of the root account for the node
-WF02_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_admin_password)
-Decode_base64 "workflow_host02_admin_password" $WF02_ROOT_PW_tmp 1>/dev/null || return 1
-readonly WF02_ROOT_PW=$(Decode_base64 "workflow_host02_admin_password" $WF02_ROOT_PW_tmp)
-
-
-######## Chef server configuration ########
-
-#The unique name to give the node on your chef server
-
-# For Node 1 # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow01_node_name"
-WF01_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow01_on_chef_server)
-var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
-var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
-readonly WF01_ON_CHEF_SERVER=${WF01_ON_CHEF_SERVER:-$var_Workflow01_name}
-
-# For Node 2 # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow02_node_name"
-WF02_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow02_on_chef_server)
-var_Workflow02_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_fqdn_name)
-var_Workflow02_name=$(echo $var_Workflow02_FQDN | cut -d '.' -f1)
-readonly WF02_ON_CHEF_SERVER=${WF02_ON_CHEF_SERVER:-$var_Workflow02_name}
-
-
-# The templates path
-readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../templates
-readonly BAW_CHEF_ROLES_TMPL_DIR=$BAW_CHEF_TMPL_DIR/roles
-
-readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
-
-readonly workflow_v18_0_201806_install_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_install.json.tmpl
-readonly workflow_upgrade_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_upgrade.json.tmpl
-readonly workflow_applyifix_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_applyifix.json.tmpl
-readonly workflow_v18_0_201806_create_singlecluster_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_create_singlecluster.json.tmpl
-readonly workflow_v18_0_201809_create_singleclusters_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201809_create_singleclusters.json.tmpl
-readonly workflow_post_deployment_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_post_deployment.json.tmpl
-
-
-########  generate roles based on properties file set by users########
-
-#Dynamic Role names are need to be defined ahead of time
-
-# The roles from json files which assigned to Node 1, WF01
-WF01_ROLE_INSTALL_NAME="workflow_v18_0_20180_install_$var_Workflow01_name"
-WF01_ROLE_UPGRADE_NAME="workflow_upgrade_$var_Workflow01_name"
-WF01_ROLE_APPLYIFIX_NAME="workflow_applyifix_$var_Workflow01_name"
-WF01_ROLE_CONFIG_NAME="workflow_v18_0_201809_create_singleclusters_$var_Workflow01_name"
-WF01_ROLE_POSTDEV_NAME="workflow_post_deployment_$var_Workflow01_name"
-
-# The roles from json files which assigned to Node 2, WF02
-WF02_ROLE_INSTALL_NAME="workflow_v18_0_201806_install_$var_Workflow02_name"
-WF02_ROLE_UPGRADE_NAME="workflow_upgrade_$var_Workflow02_name"
-WF02_ROLE_APPLYIFIX_NAME="workflow_applyifix_$var_Workflow02_name"
-WF02_ROLE_CONFIG_NAME="workflow_v18_0_201809_create_singleclusters_$var_Workflow02_name"
-WF02_ROLE_POSTDEV_NAME="workflow_post_deployment_$var_Workflow02_name"
-
-
-WF01_ROLE_INSTALL_FILE="$WF01_ROLE_INSTALL_NAME.json"
-WF01_ROLE_UPGRADE_FILE="$WF01_ROLE_UPGRADE_NAME.json"
-WF01_ROLE_APPLYIFIX_FILE="$WF01_ROLE_APPLYIFIX_NAME.json"
-WF01_ROLE_CONFIG_FILE="$WF01_ROLE_CONFIG_NAME.json"
-WF01_ROLE_POSTDEV_FILE="$WF01_ROLE_POSTDEV_NAME.json"
-
-WF02_ROLE_INSTALL_FILE="$WF02_ROLE_INSTALL_NAME.json"
-WF02_ROLE_UPGRADE_FILE="$WF02_ROLE_UPGRADE_NAME.json"
-WF02_ROLE_APPLYIFIX_FILE="$WF02_ROLE_APPLYIFIX_NAME.json"
-WF02_ROLE_CONFIG_FILE="$WF02_ROLE_CONFIG_NAME.json"
-WF02_ROLE_POSTDEV_FILE="$WF02_ROLE_POSTDEV_NAME.json"
-
-# Chef vault, these two lines should be executed before "Generate_Roles"
-readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_${var_Workflow01_name}_${var_Workflow02_name}"
-readonly BAW_CHEF_VAULT_ITEM="secrets"

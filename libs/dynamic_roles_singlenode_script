@@ -28,6 +28,72 @@ Generate_SNODE_Roles () {
 Generate_Roles () {
 
 
+  ######## Include libs ########
+  MY_DIR=${0%/*}
+  if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
+  #echo "read and create current Dir is $MY_DIR"
+
+    . "$MY_DIR/../libs/utilities_script" &&
+    . "$MY_DIR/../libs/dynamic_roles_script"  &&
+    
+  ######## Inputs ########
+  ######## SNode configuration ########
+
+  # The ip address of the node where BAW should be installed
+  readonly SNODE_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_ipv4_address)
+
+  # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
+  SNODE_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_user)
+  readonly SNODE_ROOT_USERNAME=${SNODE_ROOT_USERNAME:-"root"}
+
+  # The encrypted password of the root account for the node
+  SNODE_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_password)
+  Decode_base64 "workflow_host01_admin_password" $SNODE_ROOT_PW_tmp 1>/dev/null  || return 1
+  readonly SNODE_ROOT_PW=$(Decode_base64 "workflow_host01_admin_password" $SNODE_ROOT_PW_tmp)
+
+
+  # The templates path
+  # readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../templates
+  readonly BAW_CHEF_ROLES_TMPL_DIR=$BAW_CHEF_TMPL_DIR/roles
+
+  readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
+
+  readonly workflow_v18_0_201806_install_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_install.json.tmpl
+  readonly workflow_upgrade_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_upgrade.json.tmpl
+  readonly workflow_applyifix_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_applyifix.json.tmpl
+  readonly workflow_v18_0_201806_create_singlecluster_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_create_singlecluster.json.tmpl
+  readonly workflow_post_deployment_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_post_deployment.json.tmpl
+
+
+  ########  generate roles based on properties file set by users########
+
+  #Dynamic Role names are need to be defined ahead of time
+  SNODE_ROLE_INSTALL_NAME="workflow_v18_0_201806_install_$var_Workflow01_name"
+  SNODE_ROLE_UPGRADE_NAME="workflow_upgrade_$var_Workflow01_name"
+  SNODE_ROLE_APPLYIFIX_NAME="workflow_applyifix_$var_Workflow01_name"
+  SNODE_ROLE_CONFIG_NAME="workflow_v18_0_201806_create_singlecluster_$var_Workflow01_name"
+  SNODE_ROLE_POSTDEV_NAME="workflow_post_deployment_$var_Workflow01_name"
+
+  # Use default role.json as its name
+  SNODE_ROLE_INSTALL_FILE="$SNODE_ROLE_INSTALL_NAME.json"
+  SNODE_ROLE_UPGRADE_FILE="$SNODE_ROLE_UPGRADE_NAME.json"
+  SNODE_ROLE_APPLYIFIX_FILE="$SNODE_ROLE_APPLYIFIX_NAME.json"
+  SNODE_ROLE_CONFIG_FILE="$SNODE_ROLE_CONFIG_NAME.json"
+  SNODE_ROLE_POSTDEV_FILE="$SNODE_ROLE_POSTDEV_NAME.json"
+
+
+  ######## Chef server configuration ########
+
+  #The unique name to give the node on your chef server
+  # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow01_node_name"
+  SNODE_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow01_on_chef_server)
+  readonly SNODE_ON_CHEF_SERVER=${SNODE_ON_CHEF_SERVER:-$var_Workflow01_name}
+
+  # Chef vault, these two lines should be executed before "Generate_Roles"
+  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_$var_Workflow01_name"
+  readonly BAW_CHEF_VAULT_ITEM="secrets"
+
+
   # temp dir
   readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/singlenode/roles_${var_Workflow01_name}"
   readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
@@ -35,80 +101,3 @@ Generate_Roles () {
 
   Generate_SNODE_Roles
 }
-
-
-######## Include libs ########
-MY_DIR=${0%/*}
-if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
-#echo "read and create current Dir is $MY_DIR"
-
-  . "$MY_DIR/../libs/utilities_script" &&
-  . "$MY_DIR/../libs/dynamic_roles_script"  &&
-  
-readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
-# ./baw_singlenode.properties
-readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_singlenode.properties"
-# Test if $BAW_CHEF_PROPERTIES_FILE exists 
-getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
-
-
-######## Inputs ########
-######## SNode configuration ########
-
-# The ip address of the node where BAW should be installed
-readonly SNODE_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_ipv4_address)
-
-# TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
-SNODE_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_user)
-readonly SNODE_ROOT_USERNAME=${SNODE_ROOT_USERNAME:-"root"}
-
-# The encrypted password of the root account for the node
-SNODE_ROOT_PW_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_password)
-Decode_base64 "workflow_host01_admin_password" $SNODE_ROOT_PW_tmp 1>/dev/null  || return 1
-readonly SNODE_ROOT_PW=$(Decode_base64 "workflow_host01_admin_password" $SNODE_ROOT_PW_tmp)
-
-
-######## Chef server configuration ########
-
-#The unique name to give the node on your chef server
-# if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow01_node_name"
-SNODE_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow01_on_chef_server)
-var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
-var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
-
-readonly SNODE_ON_CHEF_SERVER=${SNODE_ON_CHEF_SERVER:-$var_Workflow01_name}
-
-
-# The templates path
-readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../templates
-readonly BAW_CHEF_ROLES_TMPL_DIR=$BAW_CHEF_TMPL_DIR/roles
-
-readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
-
-readonly workflow_v18_0_201806_install_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_install.json.tmpl
-readonly workflow_upgrade_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_upgrade.json.tmpl
-readonly workflow_applyifix_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_applyifix.json.tmpl
-readonly workflow_v18_0_201806_create_singlecluster_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_create_singlecluster.json.tmpl
-readonly workflow_post_deployment_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_post_deployment.json.tmpl
-
-
-########  generate roles based on properties file set by users########
-
-#Dynamic Role names are need to be defined ahead of time
-
-SNODE_ROLE_INSTALL_NAME="workflow_v18_0_201806_install_$var_Workflow01_name"
-SNODE_ROLE_UPGRADE_NAME="workflow_upgrade_$var_Workflow01_name"
-SNODE_ROLE_APPLYIFIX_NAME="workflow_applyifix_$var_Workflow01_name"
-SNODE_ROLE_CONFIG_NAME="workflow_v18_0_201806_create_singlecluster_$var_Workflow01_name"
-SNODE_ROLE_POSTDEV_NAME="workflow_post_deployment_$var_Workflow01_name"
-
-# Use default role.json as its name
-SNODE_ROLE_INSTALL_FILE="$SNODE_ROLE_INSTALL_NAME.json"
-SNODE_ROLE_UPGRADE_FILE="$SNODE_ROLE_UPGRADE_NAME.json"
-SNODE_ROLE_APPLYIFIX_FILE="$SNODE_ROLE_APPLYIFIX_NAME.json"
-SNODE_ROLE_CONFIG_FILE="$SNODE_ROLE_CONFIG_NAME.json"
-SNODE_ROLE_POSTDEV_FILE="$SNODE_ROLE_POSTDEV_NAME.json"
-
-# Chef vault, these two lines should be executed before "Generate_Roles"
-readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_$var_Workflow01_name"
-readonly BAW_CHEF_VAULT_ITEM="secrets"
