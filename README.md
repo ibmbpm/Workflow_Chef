@@ -12,20 +12,24 @@ Version: version 2.1, 2.2 <br>
 
 
 ### Single node 
+#### Fresh install
+baw_chef_shellscript/singlenode/baw_singlenode_fresh_install.sh
 #### Single Node Topology:
-  IBM Business Automation Workflow Enterprise V19.0 - Single Cluster <br>
+  Single host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member.<br>
 #### Software Deployed
 IBM WebSphere Application Server Network Deployment V8.5.5 <br>
-IBM Business Automation Workflow Enterprise V19.0 <br>
+IBM Business Automation Workflow Enterprise V18 or V19.0 <br>
 IBM DB2 Enterprise Server Edition V11 <br>
 <br>
 
 
 ### Multinodes
+#### Fresh install
+baw_chef_shellscript/multinodes/baw_multinodes_fresh_install.sh
 #### Multinodes Topology:
 Host 1: IBM Business Automation Workflow Deployment Manager, Custom Node, one cluster member <br>
 Host 2: IBM Business Automation Workflow Custom Node, one cluster member <br>
 #### Software Deployed
 IBM WebSphere Application Server Network Deployment V8.5.5 <br>
-IBM Business Automation Workflow Enterprise V19.0 <br>
+IBM Business Automation Workflow Enterprise V18 or V19.0 <br>
 <br>
