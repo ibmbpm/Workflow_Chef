@@ -4,6 +4,11 @@
 
 Generate_SNODE_Roles () {
 
+  # temp dir
+  readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/singlenode/host_${var_Workflow01_name}_roles/fresh_install"
+  readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
+  echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
+
   WORKFLOW_INSTALL_ROLE_TMPL_FILE=$workflow_v18_0_201806_install_TMPL_FILE
   WORKFLOW_INSTALL_ROLE_NAME="$SNODE_ROLE_INSTALL_NAME"
   Auto_Create_WORKFLOW_INSTALL_ROLE
@@ -93,11 +98,6 @@ Generate_Roles () {
   readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_$var_Workflow01_name"
   readonly BAW_CHEF_VAULT_ITEM="secrets"
 
-
-  # temp dir
-  readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/singlenode/roles_${var_Workflow01_name}"
-  readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
-  echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
   Generate_SNODE_Roles
 }

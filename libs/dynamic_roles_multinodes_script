@@ -4,6 +4,11 @@
 
 Generate_WF01_Roles () {
   
+  # temp dir
+  readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/multinodes/hosts_${var_Workflow01_name}_${var_Workflow02_name}_roles/fresh_install"
+  readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
+  echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
+
   # WF01, use default
 
   WORKFLOW_INSTALL_ROLE_TMPL_FILE=$workflow_v18_0_201806_install_TMPL_FILE
@@ -160,10 +165,6 @@ Generate_Roles () {
   readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_${var_Workflow01_name}_${var_Workflow02_name}"
   readonly BAW_CHEF_VAULT_ITEM="secrets"
 
-  # temp dir
-  readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/multinodes/roles_${var_Workflow01_name}_${var_Workflow02_name}"
-  readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
-  echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
   Generate_WF01_Roles &&
   Generate_WF02_Roles
