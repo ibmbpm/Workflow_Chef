@@ -9,6 +9,13 @@ Generate_SNODE_Roles () {
   readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
   echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
+  # Chef vault, these two lines should be executed before generate roles"
+  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_fresh_install_$var_Workflow01_name"
+  readonly BAW_CHEF_VAULT_ITEM="secrets"
+
+    # for chef vault
+  readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
+
   WORKFLOW_INSTALL_ROLE_TMPL_FILE=$workflow_v18_0_201806_install_TMPL_FILE
   WORKFLOW_INSTALL_ROLE_NAME="$SNODE_ROLE_INSTALL_NAME"
   Auto_Create_WORKFLOW_INSTALL_ROLE
@@ -30,16 +37,78 @@ Generate_SNODE_Roles () {
   Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
 }
 
+
+Generate_SNODE_Roles_Apply_Ifix () {
+
+  # temp dir
+  readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/singlenode/host_${var_Workflow01_name}_roles/apply_ifix"
+  readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
+  echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
+
+  # Chef vault, these two lines should be executed before generate roles"
+  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_apply_ifix_$var_Workflow01_name"
+  readonly BAW_CHEF_VAULT_ITEM="secrets"
+
+  # for chef vault
+  readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets_upgrade.json.tmpl
+
+  WORKFLOW_APPLYIFIX_ROLE_TMPL_FILE=$workflow_applyifix_TMPL_FILE
+  WORKFLOW_APPLYIFIX_ROLE_NAME="$SNODE_ROLE_APPLYIFIX_NAME"
+  Auto_Create_WORKFLOW_APPLYIFIX_ROLE
+
+  WORKFLOW_POST_DEPLOYMENT_ROLE_TMPL_FILE=$workflow_post_deployment_TMPL_FILE
+  WORKFLOW_POST_DEPLOYMENT_ROLE_NAME="$SNODE_ROLE_POSTDEV_NAME"
+  Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE 
+}
+
+
+Generate_SNODE_Roles_Upgrade () {
+
+  # Chef vault, these two lines should be executed before generate roles"
+  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_upgrade_$var_Workflow01_name"
+  readonly BAW_CHEF_VAULT_ITEM="secrets"
+
+  # temp dir
+  readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/singlenode/host_${var_Workflow01_name}_roles/upgrade"
+  readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
+  echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
+
+  # for chef vault
+  readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets_upgrade.json.tmpl
+  
+  WORKFLOW_UPGRADE_ROLE_TMPL_FILE=$workflow_upgrade_TMPL_FILE
+  WORKFLOW_UPGRADE_ROLE_NAME="$SNODE_ROLE_UPGRADE_NAME"
+  Auto_Create_WORKFLOW_UPGRADE_ROLE
+
+  WORKFLOW_APPLYIFIX_ROLE_TMPL_FILE=$workflow_applyifix_TMPL_FILE
+  WORKFLOW_APPLYIFIX_ROLE_NAME="$SNODE_ROLE_APPLYIFIX_NAME"
+  Auto_Create_WORKFLOW_APPLYIFIX_ROLE
+
+  WORKFLOW_POST_DEPLOYMENT_ROLE_TMPL_FILE=$workflow_post_deployment_TMPL_FILE
+  WORKFLOW_POST_DEPLOYMENT_ROLE_NAME="$SNODE_ROLE_POSTDEV_NAME"
+  Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
+}
+
+
 Generate_Roles () {
 
+  # $1 indicate which role generator type to execute : fresh_install, apply_ifix, upgrade_fixpack. the default is fresh_install
+  role_generator_type=$1
+  local readonly GEN_TYPE_FRESH_INSTALL="fresh_install"
+  local readonly GEN_TYPE_APPLY_IFIX="apply_ifix"
+  local readonly GEN_TYPE_UPGRADE_FIXPACK="upgrade_fixpack"
 
-  ######## Include libs ########
-  MY_DIR=${0%/*}
-  if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
-  #echo "read and create current Dir is $MY_DIR"
+  if [ -z $role_generator_type ]; then
+      role_generator_type=$GEN_TYPE_FRESH_INSTALL
+  fi
 
-    . "$MY_DIR/../libs/utilities_script" &&
-    . "$MY_DIR/../libs/dynamic_roles_script"  &&
+  # ######## Include libs ########
+  # MY_DIR=${0%/*}
+  # if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
+  # #echo "read and create current Dir is $MY_DIR"
+
+  #   . "$MY_DIR/../libs/utilities_script" &&
+  #   . "$MY_DIR/../libs/dynamic_roles_script"  &&
     
   ######## Inputs ########
   ######## SNode configuration ########
@@ -60,8 +129,6 @@ Generate_Roles () {
   # The templates path
   # readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../templates
   readonly BAW_CHEF_ROLES_TMPL_DIR=$BAW_CHEF_TMPL_DIR/roles
-
-  readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
 
   readonly workflow_v18_0_201806_install_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_install.json.tmpl
   readonly workflow_upgrade_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_upgrade.json.tmpl
@@ -94,10 +161,24 @@ Generate_Roles () {
   SNODE_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow01_on_chef_server)
   readonly SNODE_ON_CHEF_SERVER=${SNODE_ON_CHEF_SERVER:-$var_Workflow01_name}
 
-  # Chef vault, these two lines should be executed before "Generate_Roles"
-  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_$var_Workflow01_name"
-  readonly BAW_CHEF_VAULT_ITEM="secrets"
 
+  case $role_generator_type in
+    "$GEN_TYPE_FRESH_INSTALL")
+      echo "role_generator_type is $GEN_TYPE_FRESH_INSTALL"
+      Generate_SNODE_Roles
+      ;;
+    "$GEN_TYPE_APPLY_IFIX")
+      echo "role_generator_type is $GEN_TYPE_APPLY_IFIX"
+      Generate_SNODE_Roles_Apply_Ifix
+      ;;
+    "$GEN_TYPE_UPGRADE_FIXPACK")
+      echo "role_generator_type is $GEN_TYPE_APPLY_IFIX" 
+      Generate_SNODE_Roles_Upgrade
+      ;;
+    *)
+      echo "Error: role_generator_type=$role_generator_type is unknown" 
+      return 1
+      ;;
+  esac
 
-  Generate_SNODE_Roles
 }
