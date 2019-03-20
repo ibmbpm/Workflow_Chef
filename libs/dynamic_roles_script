@@ -209,6 +209,8 @@ Auto_Create_WORKFLOW_UPGRADE_ROLE () {
   var_Workflow_fixpack_names_tmp_array=( ${var_Workflow_fixpack_names_tmp[*]} ${var_WAS_fixpack_names_tmp[*]} )
   var_Workflow_fixpack_names=$(getFormatedStringListForiFixpack "${var_Workflow_fixpack_names_tmp_array[*]}")
 
+  # to be compatible with Workflow COOKBOOK proejct (version >= 2.1), we need "fixpack_names_list=$var_Workflow_fixpack_names_list"
+  var_Workflow_fixpack_names_list=$var_Workflow_fixpack_names
   
 # be careful, donot indent these codes below, _EOF_
 eval "cat << _EOF_
