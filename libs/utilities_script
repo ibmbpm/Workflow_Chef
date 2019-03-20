@@ -37,7 +37,7 @@ Decode_base64 () {
 }
 
 
-Create_Chef_Vaults () {
+Create_Chef_Vaults_SNode () {
 
   # Generate_CHEFVAULT 
   WORKFLOW_SECRETS_TMPL_FILE=$workflow_secrets_TMPL_FILE
@@ -47,9 +47,21 @@ Create_Chef_Vaults () {
   if [ $( eval "knife vault list -M client | grep ^$BAW_CHEF_VAULT_NAME$" ) ]; then
     knife vault delete $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -M client -y 
   fi
-  knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when creating chef vault"; return 1; } 
+  knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -M client || { echo "Error when creating chef vault"; return 1; } 
 }
 
+Create_Chef_Vaults_WF01_WF02 () {
+
+  # Generate_CHEFVAULT 
+  WORKFLOW_SECRETS_TMPL_FILE=$workflow_secrets_TMPL_FILE
+  Auto_Create_WORKFLOW_SECRETS || return 1
+  # RUNTIME_WORKFLOW_SECRETS_JSON
+  
+  if [ $( eval "knife vault list -M client | grep ^$BAW_CHEF_VAULT_NAME$" ) ]; then
+    knife vault delete $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -M client -y 
+  fi
+  knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -C "$WF01_ON_CHEF_SERVER,$WF02_ON_CHEF_SERVER" -M client || { echo "Error when creating chef vault"; return 1; }
+}
 
 ######## Monitor ########
 Monitor () {

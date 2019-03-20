@@ -111,7 +111,7 @@ BAW_Single_Nodes_Chef_Start () {
 
   Upload_Roles || return 1
   Bootstrap || return 1
-  Create_Chef_Vaults || return 1
+  Create_Chef_Vaults_SNode || return 1
   BAW_Single_Node_Installation_Start
 }
 
@@ -123,7 +123,7 @@ Main_Start () {
   echo "Starting at: $(date -Iseconds)"
   echo
   
-  Generate_Roles
+  Generate_Roles "fresh_install"
 
   ######## Prepare logs for nodes #######
   # The name for SNode in log printing
