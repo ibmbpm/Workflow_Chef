@@ -116,6 +116,8 @@ Generate_Roles () {
   # The ip address of the node where BAW should be installed
   readonly SNODE_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_ipv4_address)
 
+  Validation_Prop "$SNODE_IP_ADDR"  "workflow_host01_ipv4_address" || return 1
+
   # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
   SNODE_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_user)
   readonly SNODE_ROOT_USERNAME=${SNODE_ROOT_USERNAME:-"root"}

@@ -222,6 +222,9 @@ Generate_Roles () {
   # Node 1, Dmgr and Workflow01 (WF01) configuration
   #The ip address of the node where Dmgr and WF01 should be installed
   readonly WF01_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_ipv4_address)
+
+  Validation_Prop "$WF01_IP_ADDR"  "workflow_host01_ipv4_address" || return 1
+
   # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
   WF01_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_admin_user)
   readonly WF01_ROOT_USERNAME=${WF01_ROOT_USERNAME:-"root"}
@@ -235,6 +238,9 @@ Generate_Roles () {
   # Node 2, Workflow02 (WF02) configuration
   # The ip address of the node where WF02 should be installed
   readonly WF02_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_ipv4_address)
+
+  Validation_Prop "$WF02_IP_ADDR"  "workflow_host02_ipv4_address" || return 1
+
   # TODO, change the knife commands, add -x $SNODE_ROOT_USERNAME option
   WF02_ROOT_USERNAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_admin_user)
 

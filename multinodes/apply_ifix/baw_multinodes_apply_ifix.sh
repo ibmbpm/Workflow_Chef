@@ -141,12 +141,12 @@ BAW_Multiple_Nodes_Chef_Start () {
 Main_Start () {
 
   echo
-  echo "Start to install and configure IBM Business Automation Workflow Enterprise on two hosts."
+  echo "Start to apply interim fix packs to IBM Business Automation Workflow Enterprise on two hosts."
   echo
   echo "Starting at: $(date -Iseconds)"
   echo
 
-  Generate_Roles "apply_ifix"
+  Generate_Roles "apply_ifix" || return 1
 
   ######## Prepare logs for nodes #######
   # $WF01_IP_ADDR depend on . "$MY_DIR/../libs/dynamic_roles_singlenode_script"
@@ -199,40 +199,14 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
   . "$MY_DIR/../../libs/dynamic_roles_script"  &&
   . "$MY_DIR/../../libs/dynamic_roles_multinodes_script" &&
 
-    # The properties file path 
-    readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
-    # ./baw_singlenode.properties
-    readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_multinodes_apply_ifix.properties"
-    # Test if $BAW_CHEF_PROPERTIES_FILE exists 
-    getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
+  # The properties file path 
+  readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
+  # ./baw_singlenode.properties
+  readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_multinodes_apply_ifix.properties"
+  # Test if $BAW_CHEF_PROPERTIES_FILE exists 
+  getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
 
-    # "node_hostname": "kvm-018074.test.local",
-    var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
-    var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
-    if [ ! -z $(echo $var_Workflow01_FQDN | grep '\.' ) ]
-    then
-      var_Workflow01_domain=$(echo $var_Workflow01_FQDN | cut -d '.' -f2-)
-    fi
-
-    # "node_hostname": "kvm-018075.test.local",
-    var_Workflow02_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_fqdn_name)
-    var_Workflow02_name=$(echo $var_Workflow02_FQDN | cut -d '.' -f1)
-    if [ ! -z $(echo $var_Workflow02_FQDN | grep '\.' ) ]
-    then
-      var_Workflow02_domain=$(echo $var_Workflow02_FQDN | cut -d '.' -f2-)
-    fi
-
-    if [ ! -z "$var_Workflow01_name" -a ! -z "$var_Workflow01_domain" ]
-    then
-      if [ ! -z "$var_Workflow02_name" -a ! -z "$var_Workflow02_domain" ]
-      then
-        local_node_hostnames="$var_Workflow01_name.$var_Workflow01_domain,$var_Workflow02_name.$var_Workflow02_domain"
-      else
-        local_node_hostnames="$var_Workflow01_name.$var_Workflow01_domain"
-      fi
-    else
-      local_node_hostnames="$var_Workflow02_name.$var_Workflow02_domain"
-    fi
+  Load_Host_Name_Multinodes || exit 1
 
   # Reference to templates dir
   readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../../templates

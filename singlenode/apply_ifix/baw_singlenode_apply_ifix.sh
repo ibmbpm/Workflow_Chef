@@ -69,12 +69,12 @@ BAW_Single_Nodes_Chef_Start () {
 Main_Start () {
 
   echo
-  echo "Start to apply interim fix packs tp IBM Business Automation Workflow Enterprise on one single host."
+  echo "Start to apply interim fix packs to IBM Business Automation Workflow Enterprise on one single host."
   echo
   echo "Starting at: $(date -Iseconds)"
   echo
   
-  Generate_Roles "apply_ifix"
+  Generate_Roles "apply_ifix" || return 1
 
   ######## Prepare logs for nodes #######
   # The name for SNode in log printing
@@ -128,9 +128,7 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
   # Test if $BAW_CHEF_PROPERTIES_FILE exists 
   getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
 
-  # Get basic info
-  var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
-  var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
+  Load_Host_Name_Singlenode || exit 1
 
   # Reference to templates dir
   readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../../templates

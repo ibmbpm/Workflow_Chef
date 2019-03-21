@@ -123,7 +123,7 @@ Main_Start () {
   echo "Starting at: $(date -Iseconds)"
   echo
   
-  Generate_Roles "fresh_install"
+  Generate_Roles "fresh_install"  || return 1
 
   ######## Prepare logs for nodes #######
   # The name for SNode in log printing
@@ -175,11 +175,9 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
   # ./baw_singlenode.properties
   readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_singlenode_fresh_install.properties"
   # Test if $BAW_CHEF_PROPERTIES_FILE exists 
-  getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
+  getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || exit 1
 
-  # Get basic info
-  var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
-  var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
+  Load_Host_Name_Singlenode || exit 1
 
   # Reference to templates dir
   readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../templates
