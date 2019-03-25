@@ -2,6 +2,60 @@
 # set -e
 
 
+getFormatedFixpackJSONArrayList () {
+
+  # $1 An array include all fixpacks
+  
+  # For example
+  # INPUT workflow.18002.delta.repository.zip 8.5.5-WS-WAS-FP014-part1.zip; 8.5.5-WS-WAS-FP014-part2.zip; 8.5.5-WS-WAS-FP014-part3.zip test1.zip; test2; test3 test1.zip
+
+  # OUTPUT "workflow.18002.delta.repository.zip", "8.5.5-WS-WAS-FP014-part1.zip;8.5.5-WS-WAS-FP014-part2.zip;8.5.5-WS-WAS-FP014-part3.zip", "test1.zip;test2;test3", "test1.zip"
+  local input_unformated_fixpack_names_arrary=( $1 )
+  local input_unformated_fixpack_names_arrary_length=${#input_unformated_fixpack_names_arrary[*]}
+  local begin_of_one_multifixpacks=1 # boolen, if it is the begining of one multiple fixpacks, 1 means true, 0 means false
+  # output is a string
+  local output_formated_fixpack_names_string=""
+  for (( i=0; i<$input_unformated_fixpack_names_arrary_length; i++ ));
+    do 
+      if echo ${input_unformated_fixpack_names_arrary[$i]} | grep ";$" > /dev/null 2>&1
+      then
+        # For multiple fixpacks 
+        # Add left double quotation mark to the beginning of the multiple fixpacks
+        if (( begin_of_one_multifixpacks ))
+        then
+          output_formated_fixpack_names_string+='"'
+          begin_of_one_multifixpacks=0 # set it to false
+        fi
+        output_formated_fixpack_names_string+=${input_unformated_fixpack_names_arrary[$i]}
+        if echo ${input_unformated_fixpack_names_arrary[$i+1]} | grep ";$" > /dev/null 2>&1
+          then
+          # It is not the end yet
+          continue
+        else
+          # The end of one multiple fixpacks, predict
+          output_formated_fixpack_names_string+=${input_unformated_fixpack_names_arrary[$i+1]}
+          (( i++ ))
+          begin_of_one_multifixpacks=1 # set it to true, for next multiple fixpacks
+        fi
+      else
+        # For single fixpack, add it to the list
+        # For single fixpack, add the left double quotation mark
+        output_formated_fixpack_names_string+='"'${input_unformated_fixpack_names_arrary[$i]}
+      fi
+
+      # if true, add right double quotation mark to the end of the list, for the end of single fixpack and multiple fixpacks
+      # if false, add right double quotation mark and comma to the end of one element, there should be some other element left
+      if (( $i+1 == $input_unformated_fixpack_names_arrary_length ))
+      then
+        output_formated_fixpack_names_string+='"'
+      else
+        output_formated_fixpack_names_string+='", '
+      fi
+    done
+  echo '['$output_formated_fixpack_names_string']'
+}
+
+
 getFormatedStringListForiFixpack () {
 
   # $1 An array include all fixpacks
@@ -173,7 +227,7 @@ Auto_Create_WORKFLOW_UPGRADE_ROLE () {
   var_WAS_fixpack_names_tmp=( $(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE was_fixpack_names) )
 
   var_Workflow_fixpack_names_tmp_array=( ${var_Workflow_fixpack_names_tmp[*]} ${var_WAS_fixpack_names_tmp[*]} )
-  var_Workflow_fixpack_names=$(getFormatedStringListForiFixpack "${var_Workflow_fixpack_names_tmp_array[*]}")
+  var_Workflow_fixpack_names=$(getFormatedFixpackJSONArrayList "${var_Workflow_fixpack_names_tmp_array[*]}")
 
   # to be compatible with Workflow COOKBOOK proejct (version >= 2.1), we need "fixpack_names_list=$var_Workflow_fixpack_names_list"
   var_Workflow_fixpack_names_list=$var_Workflow_fixpack_names
