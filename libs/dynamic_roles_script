@@ -110,8 +110,12 @@ Auto_Create_WORKFLOW_INSTALL_ROLE () {
  
   var_ibm_sw_repo=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo)
   var_ibm_sw_repo_user=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo_user)
-  var_ibm_im_repo=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo)
-  var_ibm_im_repo_user=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo_user)
+  # var_ibm_im_repo=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo)
+  # var_ibm_im_repo_user=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo_user)
+
+  # we donot support IHS now, we use these default values for IMRepo
+  var_ibm_im_repo=${var_ibm_sw_repo}/IMRepo
+  var_ibm_im_repo_user=$var_ibm_sw_repo_user
 
   # ######## TODO encryption
   # var_ibm_im_repo_password=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo_password)
@@ -580,8 +584,9 @@ echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_POST_DEPLOYMENT_ROLE_FILE created"
 Auto_Create_WORKFLOW_SECRETS () {
 
   # The encrypted password
-  local var_ibm_im_repo_password_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo_password)
   local var_ibm_sw_repo_password_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo_password)
+  # local var_ibm_im_repo_password_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_im_repo_password)
+  local var_ibm_im_repo_password_tmp=$var_ibm_sw_repo_password_tmp
 
   local var_Workflow_db2_instance_userpassword_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_db2_instance_password)
   local var_Workflow_db2_fenced_userpassword_tmp=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow01_db2_fenced_password)
