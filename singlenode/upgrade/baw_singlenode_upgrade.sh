@@ -90,17 +90,16 @@ Main_Start () {
   # $SNODE_IP_ADDR depend on . "$MY_DIR/../libs/dynamic_roles_singlenode_script"
   LOG_SNODE_NAME="Host_${var_Workflow01_name}($SNODE_IP_ADDR), Workflow"  
   readonly LOG_SNODE_NAME
-  SNODE_LOG="${LOG_DIR}/WF_${var_Workflow01_name}_${WF01_IP_ADDR}_chef.log"
+  SNODE_LOG="${LOG_DIR}/WF_${var_Workflow01_name}_${SNODE_IP_ADDR}_chef.log"
   readonly SNODE_LOG
+
+  echo  >> $SNODE_LOG
+  echo "Starting at: $(date -Iseconds)" >> $SNODE_LOG
 
   Print_TopologyLogs
 
   BAW_Single_Nodes_Chef_Start 
   local task_main_exit_status=$?
-
-  echo
-  echo "Done at: $(date -Iseconds)"
-  echo
 
   if [ $task_main_exit_status -eq 0 ]
   then
@@ -113,7 +112,12 @@ Main_Start () {
       echo
   fi
 
+  echo "Done at: $(date -Iseconds)" >> $SNODE_LOG
+  
   Print_TopologyLogs
+
+  echo
+  echo "Done at: $(date -Iseconds)"
   echo
   echo
 }
@@ -149,4 +153,4 @@ readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
 readonly BAW_CHEF_LOG="${LOG_DIR}/Monitor_${var_Workflow01_name}.log"
 
- Main_Start 2>&1 | tee $BAW_CHEF_LOG
+ Main_Start 2>&1 | tee -a $BAW_CHEF_LOG

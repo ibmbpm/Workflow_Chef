@@ -162,14 +162,15 @@ Main_Start () {
   WF02_LOG="${LOG_DIR}/WF02_${var_Workflow02_name}_${WF02_IP_ADDR}_chef.log"
   readonly WF02_LOG
 
+  echo  >> $WF01_LOG
+  echo "Starting at: $(date -Iseconds)" >> $WF01_LOG
+  echo  >> $WF02_LOG
+  echo "Starting at: $(date -Iseconds)" >> $WF02_LOG
+
   Print_TopologyLogs
 
   BAW_Multiple_Nodes_Chef_Start
   local task_main_exit_status=$?
-
-  echo
-  echo "Done at: $(date -Iseconds)"
-  echo
 
   if [ $task_main_exit_status -eq 0 ]
   then
@@ -182,7 +183,13 @@ Main_Start () {
       echo
   fi
 
+  echo "Done at: $(date -Iseconds)" >> $WF01_LOG
+  echo "Done at: $(date -Iseconds)" >> $WF02_LOG
+  
   Print_TopologyLogs
+
+  echo
+  echo "Done at: $(date -Iseconds)"
   echo
   echo
 }
@@ -218,4 +225,4 @@ readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
 readonly BAW_CHEF_LOG="${LOG_DIR}/Monitor_${var_Workflow01_name}_${var_Workflow02_name}.log"
 
-  Main_Start 2>&1 | tee $BAW_CHEF_LOG  
+  Main_Start 2>&1 | tee -a $BAW_CHEF_LOG  

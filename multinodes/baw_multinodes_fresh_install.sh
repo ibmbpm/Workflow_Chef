@@ -57,14 +57,14 @@ Bootstrap () {
 
   local task_bootstraps=( )
 
-  knife bootstrap $WF01_IP_ADDR -N $WF01_ON_CHEF_SERVER -P "$WF01_ROOT_PW" -y > $WF01_LOG &
+  knife bootstrap $WF01_IP_ADDR -N $WF01_ON_CHEF_SERVER -P "$WF01_ROOT_PW" -y >> $WF01_LOG &
   local TASK_WF01_BOOTSTRAP=$!
   readonly TASK_WF01_BOOTSTRAP
   task_bootstraps+=("$TASK_WF01_BOOTSTRAP")
   echo
   echo "$(date -Iseconds), MTASK: $LOG_WF01_NAME Bootstrap starts"
 
-  knife bootstrap $WF02_IP_ADDR -N $WF02_ON_CHEF_SERVER -P "$WF02_ROOT_PW" -y > $WF02_LOG  &
+  knife bootstrap $WF02_IP_ADDR -N $WF02_ON_CHEF_SERVER -P "$WF02_ROOT_PW" -y >> $WF02_LOG  &
   local TASK_WF02_BOOTSTRAP=$!
   readonly TASK_WF02_BOOTSTRAP
   task_bootstraps+=("$TASK_WF02_BOOTSTRAP")
@@ -228,14 +228,15 @@ Main_Start () {
   WF02_LOG="${LOG_DIR}/WF02_${var_Workflow02_name}_${WF02_IP_ADDR}_chef.log"
   readonly WF02_LOG
 
+  echo  >> $WF01_LOG
+  echo "Starting at: $(date -Iseconds)" >> $WF01_LOG
+  echo  >> $WF02_LOG
+  echo "Starting at: $(date -Iseconds)" >> $WF02_LOG
+  
   Print_TopologyLogs
 
   BAW_Multiple_Nodes_Chef_Start
   local task_main_exit_status=$?
-
-  echo
-  echo "Done at: $(date -Iseconds)"
-  echo
 
   if [ $task_main_exit_status -eq 0 ]
   then
@@ -248,7 +249,13 @@ Main_Start () {
       echo
   fi
 
+  echo "Done at: $(date -Iseconds)" >> $WF01_LOG
+  echo "Done at: $(date -Iseconds)" >> $WF02_LOG
+  
   Print_TopologyLogs
+
+  echo
+  echo "Done at: $(date -Iseconds)"
   echo
   echo
 }
@@ -284,4 +291,4 @@ readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
 readonly BAW_CHEF_LOG="${LOG_DIR}/Monitor_${var_Workflow01_name}_${var_Workflow02_name}.log"
 
-  Main_Start 2>&1 | tee $BAW_CHEF_LOG  
+  Main_Start 2>&1 | tee -a $BAW_CHEF_LOG  
