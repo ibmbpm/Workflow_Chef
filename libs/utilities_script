@@ -38,11 +38,16 @@ Decode_base64 () {
   echo "$value" | base64 -d &> /dev/null
 
   if (($? != 0)); then
-    printf "\nError, could not decode base64 string, its value is $value and its key is $key , please check your encryption\n\n" >&2
+    printf "\nError, could not decode base64 string, the encrypted base64 string is $value and its key is $key , please check your encryption\n\n" >&2
     return 1
   fi
 
   local decrypted_pass=$(echo "$value" | base64 -d)
+
+  if [[ $decrypted_pass = *[![:ascii:]]* ]]; then
+    printf "\nWARNING, the value we decoded contains non-ASCII characters, the encrypted base64 string is $value and its key is $key\n\n" >&2
+  fi
+
   echo $decrypted_pass
 }
 
