@@ -53,13 +53,13 @@ WF01_step1 () {
 
   knife node run_list set $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_APPLYIFIX_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF01_ROLE_APPLYIFIX_NAME" -C "$WF01_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" >> $WF01_LOG &
+  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
   local TASK_WF01_APPLYIFIX=$!
-  readonly TASK_ WF01_APPLYIFIX
+  readonly TASK_WF01_APPLYIFIX
   Monitor 0 "$TASK_WF01_APPLYIFIX" "$LOG_WF01_NAME Applyifix(1 task left)" || return 1
 
   knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_POSTDEV_NAME]" &&
-  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" >> $WF01_LOG &
+  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
   local TASK_WF01_POSTDEV=$!
   readonly TASK_WF01_POSTDEV
   Monitor 0 "$TASK_WF01_POSTDEV" "$LOG_WF01_NAME Post Action(0 tasks left)"
@@ -69,13 +69,13 @@ WF01_step2 () {
   # sequential
 
   # knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_WEBSERVER]" &&
-  # knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" >> $WF01_LOG &
+  # knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
   # local TASK_WF01_WEBSERVER=$!
   # readonly TASK_WF01_WEBSERVER
   # Monitor 0 "$TASK_WF01_WEBSERVER" "$LOG_WF01_NAME Configure Web Server" || return 1
 
   # knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_POSTDEV_NAME]" &&
-  # knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" >> $WF01_LOG &
+  # knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
   # local TASK_WF01_POSTDEV=$!
   # readonly TASK_WF01_POSTDEV
   # Monitor 0 "$TASK_WF01_POSTDEV" "$LOG_WF01_NAME Post Action(0 tasks left)"
@@ -89,7 +89,7 @@ WF02_step1 () {
 
   knife node run_list set $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_APPLYIFIX_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF02_ROLE_APPLYIFIX_NAME" -C "$WF02_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" >> $WF02_LOG &
+  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
   local TASK_WF02_APPLYIFIX=$!
   readonly TASK_WF02_APPLYIFIX
   Monitor 0 "$TASK_WF02_APPLYIFIX" "$LOG_WF02_NAME Applyifix(1 Task left)"
@@ -99,7 +99,7 @@ WF02_step2 () {
 # sequential
 
   knife node run_list add $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_POSTDEV_NAME]" &&
-  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" >> $WF02_LOG &
+  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW"  | Purification_Logs >> $WF02_LOG &
   local TASK_WF02_POSTDEV=$!
   readonly TASK_WF02_POSTDEV
   Monitor 0 "$TASK_WF02_POSTDEV" "$LOG_WF02_NAME Post Action(0 tasks left)"
@@ -143,7 +143,7 @@ Main_Start () {
   echo
   echo "Start to apply interim fix packs to IBM Business Automation Workflow Enterprise on two hosts."
   echo
-  echo "Starting at: $(date -Iseconds)"
+  echo "BAW Chef Shell Starting at: $(date -Iseconds)"
   echo
 
   Generate_Roles "apply_ifix" || return 1
@@ -163,9 +163,9 @@ Main_Start () {
   readonly WF02_LOG
 
   echo  >> $WF01_LOG
-  echo "Starting at: $(date -Iseconds)" >> $WF01_LOG
+  echo "BAW Chef Shell Starting at: $(date -Iseconds)" >> $WF01_LOG
   echo  >> $WF02_LOG
-  echo "Starting at: $(date -Iseconds)" >> $WF02_LOG
+  echo "BAW Chef Shell Starting at: $(date -Iseconds)" >> $WF02_LOG
 
   Print_TopologyLogs
 
@@ -183,13 +183,13 @@ Main_Start () {
       echo
   fi
 
-  echo "Done at: $(date -Iseconds)" >> $WF01_LOG
-  echo "Done at: $(date -Iseconds)" >> $WF02_LOG
+  echo "BAW Chef Shell Done at: $(date -Iseconds)" >> $WF01_LOG
+  echo "BAW Chef Shell Done at: $(date -Iseconds)" >> $WF02_LOG
   
   Print_TopologyLogs
 
   echo
-  echo "Done at: $(date -Iseconds)"
+  echo "BAW Chef Shell Done at: $(date -Iseconds)"
   echo
   echo
 }

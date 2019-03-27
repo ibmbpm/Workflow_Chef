@@ -29,6 +29,11 @@ Validation_Prop() {
   if [ -z "$1" ]; then echo "Validation Failed: $2 can not be empty in properties file"; return 1; fi
 }
 
+Purification_Logs () {
+
+  sed 's/[\x01-\x1F\x7F]\[[0-9]\+\(;[0-9]\+\)*m\|[\x01-\x1F\x7F]//g' -u
+}
+
 Decode_base64 () {
   # $1 key, description
   # $2 value, is an encrypted base64 string 
@@ -139,6 +144,9 @@ Monitor () {
 # $4: the name of the task2, string
 # $5: the name of the task3, string
 
+# Set the exit status $? to the exit code of the last program to exit non-zero or zero if exited successfully
+  set -o pipefail
+
   local enable_baw_boolean=$1
   local tasks=( $2 )
   local task_tags=( $2 )
@@ -170,17 +178,17 @@ Monitor () {
           case "$tb" in
             "${tasks[0]}")  
               if [ ! -z "$task1_name" -a "$task1_name" != " " ]; then
-                echo $(date -Iseconds), TASK: $task1_name with pid $tb, is in process
+                echo $(date -Iseconds), TASK: $task1_name PID: $tb is in process
               fi
             ;;
             "${tasks[1]}") 
               if [ ! -z "$task2_name" -a "$task2_name" != " " ]; then
-                echo $(date -Iseconds), TASK: $task2_name with pid $tb, is in process
+                echo $(date -Iseconds), TASK: $task2_name PID: $tb is in process
               fi
             ;;
             "${tasks[2]}") 
               if [ ! -z "$task3_name" -a "$task3_name" != " " ]; then
-                echo $(date -Iseconds), TASK: $task3_name with pid $tb, is in process
+                echo $(date -Iseconds), TASK: $task3_name PID: $tb is in process
               fi
             ;;
           esac
@@ -189,19 +197,19 @@ Monitor () {
               "${tasks[0]}")
                  if [ -n "$(echo ${task_tags[*]} | grep $tb)" ]; then
                    # echo
-                   # echo TASK: $task1_name with pid $tb exited, checking its exit status
+                   # echo TASK: $task1_name PID: $tb exited, checking its exit status
                    unset "task_tags[0]"
                    wait $tb
                    task1_exit_status=$?
                    if [ $task1_exit_status -eq 0 ]; then
                      if [ ! -z "$task1_name" -a "$task1_name" != " " ]; then                   
                       echo
-                      echo $(date -Iseconds), SUCCESS: $task1_name with pid $tb was done successfully
+                      echo $(date -Iseconds), SUCCESS: $task1_name PID: $tb was done successfully
                       echo
                      fi
                    else
                      echo
-                     echo $(date -Iseconds), ERROR: $task1_name with pid $tb error, with status $task1_exit_status.
+                     echo $(date -Iseconds), ERROR: $task1_name PID: $tb error, with status $task1_exit_status.
                      echo
                    fi
                  fi
@@ -209,38 +217,38 @@ Monitor () {
               "${tasks[1]}")
                   if [ -n "$(echo ${task_tags[*]} | grep $tb)" ]; then
                     # echo
-                    # echo TASK: $task2_name with pid $tb exited, checking its exit status
+                    # echo TASK: $task2_name PID: $tb exited, checking its exit status
                     unset "task_tags[1]"
                     wait $tb
                     task2_exit_status=$?
                     if [ $task2_exit_status -eq 0 ]; then
                       if [ ! -z "$task2_name" -a "$task2_name" != " " ]; then                    
                         echo
-                        echo "$(date -Iseconds), SUCCESS: $task2_name with pid $tb was done successfully"
+                        echo "$(date -Iseconds), SUCCESS: $task2_name PID: $tb was done successfully"
                         echo
                       fi
                     else
                       echo
-                      echo $(date -Iseconds), ERROR: $task2_name with pid $tb error occurred, with status $task2_exit_status.
+                      echo $(date -Iseconds), ERROR: $task2_name PID: $tb error occurred, with status $task2_exit_status.
                       echo
                     fi
                   fi
               ;;
               "${tasks[2]}")
                   if [ -n "$(echo ${task_tags[*]} | grep $tb)" ]; then
-                    # echo TASK: $task3_name with pid $tb exited, checking its exit status
+                    # echo TASK: $task3_name PID: $tb exited, checking its exit status
                     unset "task_tags[2]"
                     wait $tb
                     task3_exit_status=$?
                    if [ $task3_exit_status -eq 0 ]; then
                      if [ ! -z "$task3_name" -a "$task3_name" != " " ]; then                   
                       echo
-                      echo "$(date -Iseconds), SUCCESS: $task3_name with pid $tb was done successfully"
+                      echo "$(date -Iseconds), SUCCESS: $task3_name PID: $tb was done successfully"
                       echo
                      fi
                    else
                      echo
-                     echo $(date -Iseconds), ERROR: $task3_name with pid $tb error, with status $task3_exit_status.
+                     echo $(date -Iseconds), ERROR: $task3_name PID: $tb error, with status $task3_exit_status.
                      echo
                    fi
                  fi

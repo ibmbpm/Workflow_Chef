@@ -47,20 +47,20 @@ BAW_Single_Node_Installation_Start () {
 
   knife node run_list set $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_UPGRADE_NAME]" || return 1
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_UPGRADE_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" >> $SNODE_LOG &
+  knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" | Purification_Logs >> $SNODE_LOG &
   local TASK_SNODE_UPGRADE=$!
   readonly TASK_SNODE_UPGRADE
   Monitor 0 "$TASK_SNODE_UPGRADE" "$LOG_SNODE_NAME Upgrade(2 tasks left)" || return 1
 
   knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_APPLYIFIX_NAME]" || return 1
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_APPLYIFIX_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" >> $SNODE_LOG &
+  knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" | Purification_Logs >> $SNODE_LOG &
   local TASK_SNODE_APPLYIFIX=$!
-  readonly TASK_ SNODE_APPLYIFIX
+  readonly TASK_SNODE_APPLYIFIX
   Monitor 0 "$TASK_SNODE_APPLYIFIX" "$LOG_SNODE_NAME Applyifix(1 task left)" || return 1
 
   knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_POSTDEV_NAME]" || return 1
-  knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" >> $SNODE_LOG &
+  knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" | Purification_Logs >> $SNODE_LOG &
   local TASK_SNODE_POSTDEV=$!
   readonly TASK_SNODE_POSTDEV
   Monitor 0 "$TASK_SNODE_POSTDEV" "$LOG_SNODE_NAME Post Action(0 tasks left)"
@@ -80,7 +80,7 @@ Main_Start () {
   echo
   echo "Start to upgrade IBM Business Automation Workflow Enterprise with fix packs on one single host."
   echo
-  echo "Starting at: $(date -Iseconds)"
+  echo "BAW Chef Shell Starting at: $(date -Iseconds)"
   echo
   
   Generate_Roles "upgrade_fixpack" || return 1
@@ -94,7 +94,7 @@ Main_Start () {
   readonly SNODE_LOG
 
   echo  >> $SNODE_LOG
-  echo "Starting at: $(date -Iseconds)" >> $SNODE_LOG
+  echo "BAW Chef Shell Starting at: $(date -Iseconds)" >> $SNODE_LOG
 
   Print_TopologyLogs
 
@@ -112,12 +112,12 @@ Main_Start () {
       echo
   fi
 
-  echo "Done at: $(date -Iseconds)" >> $SNODE_LOG
+  echo "BAW Chef Shell Done at: $(date -Iseconds)" >> $SNODE_LOG
   
   Print_TopologyLogs
 
   echo
-  echo "Done at: $(date -Iseconds)"
+  echo "BAW Chef Shell Done at: $(date -Iseconds)"
   echo
   echo
 }
