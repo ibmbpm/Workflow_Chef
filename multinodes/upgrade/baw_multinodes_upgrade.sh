@@ -64,7 +64,7 @@ WF01_step1 () {
   knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
   local TASK_WF01_APPLYIFIX=$!
   readonly TASK_WF01_APPLYIFIX
-  Monitor 0 "$TASK_WF01_APPLYIFIX" "$LOG_WF01_NAME Applyifix(1 tasks left)" || return 1
+  Monitor 0 "$TASK_WF01_APPLYIFIX" "$LOG_WF01_NAME Applyifix(1 task left)" || return 1
 
   knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_POSTDEV_NAME]" &&
   knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
@@ -94,14 +94,14 @@ WF02_step1 () {
   knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
   local TASK_WF02_UPGRADE=$!
   readonly TASK_WF02_UPGRADE
-  Monitor 0 "$TASK_WF02_UPGRADE" "$LOG_WF02_NAME Upgrade(2 Tasks left)" || return 1
+  Monitor 0 "$TASK_WF02_UPGRADE" "$LOG_WF02_NAME Upgrade(2 tasks left)" || return 1
 
   knife node run_list add $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_APPLYIFIX_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF02_ROLE_APPLYIFIX_NAME" -C "$WF02_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
   knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
   local TASK_WF02_APPLYIFIX=$!
   readonly TASK_WF02_APPLYIFIX
-  Monitor 0 "$TASK_WF02_APPLYIFIX" "$LOG_WF02_NAME Applyifix(1 Task left)"
+  Monitor 0 "$TASK_WF02_APPLYIFIX" "$LOG_WF02_NAME Applyifix(1 task left)"
 }
 
 WF02_step2 () {
@@ -166,9 +166,9 @@ Main_Start () {
   LOG_WF02_NAME="Host_${var_Workflow02_name}($WF02_IP_ADDR), Workflow02"
   readonly LOG_WF02_NAME
 
-  WF01_LOG="${LOG_DIR}/WF01_${var_Workflow01_name}_${WF01_IP_ADDR}_chef.log"
+  WF01_LOG="${LOG_DIR}/wf01_${var_Workflow01_name}_${WF01_IP_ADDR}_chef.log"
   readonly WF01_LOG
-  WF02_LOG="${LOG_DIR}/WF02_${var_Workflow02_name}_${WF02_IP_ADDR}_chef.log"
+  WF02_LOG="${LOG_DIR}/wf02_${var_Workflow02_name}_${WF02_IP_ADDR}_chef.log"
   readonly WF02_LOG
 
   echo  >> $WF01_LOG
@@ -220,7 +220,7 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
   # ./baw_singlenode.properties
   readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_multinodes_upgrade.properties"
   # Test if $BAW_CHEF_PROPERTIES_FILE exists 
-  getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
+  getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || exit 1
 
   Load_Host_Name_Multinodes || exit 1 
 
@@ -232,6 +232,6 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
 readonly REQUESTED_LOG_DIR="/var/log/baw_chef_shell_log/multinodes_noihs/hosts_${var_Workflow01_name}_${var_Workflow02_name}/upgrade"
 readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
-readonly BAW_CHEF_LOG="${LOG_DIR}/Monitor_${var_Workflow01_name}_${var_Workflow02_name}.log"
+readonly BAW_CHEF_LOG="${LOG_DIR}/monitor_${var_Workflow01_name}_${var_Workflow02_name}.log"
 
   Main_Start 2>&1 | tee -a $BAW_CHEF_LOG  

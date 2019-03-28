@@ -92,7 +92,7 @@ WF02_step1 () {
   knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
   local TASK_WF02_APPLYIFIX=$!
   readonly TASK_WF02_APPLYIFIX
-  Monitor 0 "$TASK_WF02_APPLYIFIX" "$LOG_WF02_NAME Applyifix(1 Task left)"
+  Monitor 0 "$TASK_WF02_APPLYIFIX" "$LOG_WF02_NAME Applyifix(1 task left)"
 }
 
 WF02_step2 () {
@@ -157,9 +157,9 @@ Main_Start () {
   LOG_WF02_NAME="Host_${var_Workflow02_name}($WF02_IP_ADDR), Workflow02"
   readonly LOG_WF02_NAME
 
-  WF01_LOG="${LOG_DIR}/WF01_${var_Workflow01_name}_${WF01_IP_ADDR}_chef.log"
+  WF01_LOG="${LOG_DIR}/wf01_${var_Workflow01_name}_${WF01_IP_ADDR}_chef.log"
   readonly WF01_LOG
-  WF02_LOG="${LOG_DIR}/WF02_${var_Workflow02_name}_${WF02_IP_ADDR}_chef.log"
+  WF02_LOG="${LOG_DIR}/wf02_${var_Workflow02_name}_${WF02_IP_ADDR}_chef.log"
   readonly WF02_LOG
 
   echo  >> $WF01_LOG
@@ -211,7 +211,7 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
   # ./baw_singlenode.properties
   readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_multinodes_apply_ifix.properties"
   # Test if $BAW_CHEF_PROPERTIES_FILE exists 
-  getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || return 1
+  getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || exit 1
 
   Load_Host_Name_Multinodes || exit 1
 
@@ -223,6 +223,6 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
 readonly REQUESTED_LOG_DIR="/var/log/baw_chef_shell_log/multinodes_noihs/hosts_${var_Workflow01_name}_${var_Workflow02_name}/apply_ifix"
 readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
-readonly BAW_CHEF_LOG="${LOG_DIR}/Monitor_${var_Workflow01_name}_${var_Workflow02_name}.log"
+readonly BAW_CHEF_LOG="${LOG_DIR}/monitor_${var_Workflow01_name}_${var_Workflow02_name}.log"
 
   Main_Start 2>&1 | tee -a $BAW_CHEF_LOG  

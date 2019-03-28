@@ -130,7 +130,7 @@ Main_Start () {
   # $SNODE_IP_ADDR depend on . "$MY_DIR/../libs/dynamic_roles_singlenode_script"
   LOG_SNODE_NAME="Host_${var_Workflow01_name}($SNODE_IP_ADDR), Workflow"  
   readonly LOG_SNODE_NAME
-  SNODE_LOG="${LOG_DIR}/WF_${var_Workflow01_name}_${SNODE_IP_ADDR}_chef.log"
+  SNODE_LOG="${LOG_DIR}/wf_${var_Workflow01_name}_${SNODE_IP_ADDR}_chef.log"
   readonly SNODE_LOG
 
   echo  >> $SNODE_LOG
@@ -191,6 +191,6 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
 readonly REQUESTED_LOG_DIR="/var/log/baw_chef_shell_log/singlenode/host_${var_Workflow01_name}/fresh_install"
 readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
-readonly BAW_CHEF_LOG="${LOG_DIR}/Monitor_${var_Workflow01_name}.log"
+readonly BAW_CHEF_LOG="${LOG_DIR}/monitor_${var_Workflow01_name}.log"
 
  Main_Start 2>&1 | tee -a $BAW_CHEF_LOG
