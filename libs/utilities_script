@@ -1,6 +1,8 @@
 #!/bin/bash
 # set -e
 
+readonly LOCAL_CHEF_CLIENT_LOG="/var/log/baw_shell_chef_client.log"
+
 # echo Get the vaule by key from properties file $BAW_CHEF_PROPERTIES_FILE
 getValueFromPropFile () {
 
@@ -108,21 +110,7 @@ Load_Host_Name_Multinodes () {
   fi 
 }
 
-
-Create_Chef_Vaults_SNode () {
-
-  # Generate_CHEFVAULT 
-  WORKFLOW_SECRETS_TMPL_FILE=$workflow_secrets_TMPL_FILE
-  Auto_Create_WORKFLOW_SECRETS || return 1
-  # RUNTIME_WORKFLOW_SECRETS_JSON
-
-  if [ $( eval "knife vault list -M client | grep ^$BAW_CHEF_VAULT_NAME$" ) ]; then
-    knife vault delete $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -M client -y 
-  fi
-  knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -M client || { echo "Error when creating chef vault"; return 1; } 
-}
-
-Create_Chef_Vaults_WF01_WF02 () {
+Common_Create_Chef_Vaults () {
 
   # Generate_CHEFVAULT 
   WORKFLOW_SECRETS_TMPL_FILE=$workflow_secrets_TMPL_FILE
@@ -131,8 +119,53 @@ Create_Chef_Vaults_WF01_WF02 () {
   
   if [ $( eval "knife vault list -M client | grep ^$BAW_CHEF_VAULT_NAME$" ) ]; then
     knife vault delete $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -M client -y 
-  fi
+  fi 
+}
+
+Create_Chef_Vaults_Singlenode () {
+
+  Common_Create_Chef_Vaults || return 1
+  knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -M client || { echo "Error when creating chef vault"; return 1; } 
+}
+
+Create_Chef_Vaults_Multinodes () {
+
+  Common_Create_Chef_Vaults || return 1
   knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -C "$WF01_ON_CHEF_SERVER,$WF02_ON_CHEF_SERVER" -M client || { echo "Error when creating chef vault"; return 1; }
+}
+
+Common_Print_TopologyLogs () {
+
+  echo
+  echo "The logs on Chef Workstation are under $LOG_DIR directory"
+  echo
+  echo "  The monitor"
+  echo "  Log to $BAW_CHEF_LOG"
+  echo
+  echo "  Topology"
+  echo
+}
+Print_TopologyLogs_Singlenode () {
+
+  Common_Print_TopologyLogs || return 1
+  echo "  Single Host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member."
+  echo "  Log to $SNODE_LOG"
+  echo
+  echo "The log on Chef Client is $LOCAL_CHEF_CLIENT_LOG"
+  echo
+}
+
+Print_TopologyLogs_Multinodes () {
+
+  Common_Print_TopologyLogs || return 1
+  echo "  Host 1, Workflow01 or WF01: IBM Business Automation Workflow Deployment Manager (Dmgr), Custom Node, one cluster member,"
+  echo "  Log to $WF01_LOG"
+  echo
+  echo "  Host 2, Workflow02 or WF02: IBM Business Automation Workflow Custom Node, one cluster member,"
+  echo "  Log to $WF02_LOG"
+  echo
+  echo "The log on Chef Client is $LOCAL_CHEF_CLIENT_LOG"
+  echo
 }
 
 ######## Monitor ########

@@ -13,22 +13,6 @@
 # Single host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member.
 
 
-Print_TopologyLogs () {
-
-  echo
-  echo "Logs for details are under $LOG_DIR directory"
-  echo
-  echo "The monitor"
-  echo "  Log to $BAW_CHEF_LOG"
-  echo
-  echo "Topology"
-  echo
-  echo "  Single Host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member."
-  echo "  Log to $SNODE_LOG"
-  echo
-}
-
-
 # Upload all roles to the chef server
 Upload_Roles () {
   
@@ -46,13 +30,13 @@ BAW_Single_Node_Installation_Start () {
 
   knife node run_list set $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_APPLYIFIX_NAME]" || return 1
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$SNODE_ROLE_APPLYIFIX_NAME" -C "$SNODE_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" | Purification_Logs >> $SNODE_LOG &
+  knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" | Purification_Logs >> $SNODE_LOG &
   local TASK_SNODE_APPLYIFIX=$!
   readonly TASK_SNODE_APPLYIFIX
   Monitor 0 "$TASK_SNODE_APPLYIFIX" "$LOG_SNODE_NAME Applyifix(1 task left)" || return 1
 
   knife node run_list add $SNODE_ON_CHEF_SERVER "role[$SNODE_ROLE_POSTDEV_NAME]" || return 1
-  knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" | Purification_Logs >> $SNODE_LOG &
+  knife ssh "name:$SNODE_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $SNODE_ROOT_USERNAME -P "$SNODE_ROOT_PW" | Purification_Logs >> $SNODE_LOG &
   local TASK_SNODE_POSTDEV=$!
   readonly TASK_SNODE_POSTDEV
   Monitor 0 "$TASK_SNODE_POSTDEV" "$LOG_SNODE_NAME Post Action(0 tasks left)"
@@ -62,7 +46,7 @@ BAW_Single_Node_Installation_Start () {
 BAW_Single_Nodes_Chef_Start () {
 
   Upload_Roles || return 1
-  Create_Chef_Vaults_SNode || return 1
+  Create_Chef_Vaults_Singlenode || return 1
   BAW_Single_Node_Installation_Start
 }
 
@@ -87,7 +71,7 @@ Main_Start () {
   echo  >> $SNODE_LOG
   echo "BAW Chef Shell Starting at: $(date -Iseconds)" >> $SNODE_LOG
   
-  Print_TopologyLogs
+  Print_TopologyLogs_Singlenode
 
   BAW_Single_Nodes_Chef_Start 
   local task_main_exit_status=$?
@@ -105,7 +89,7 @@ Main_Start () {
 
   echo "BAW Chef Shell Done at: $(date -Iseconds)" >> $SNODE_LOG
 
-  Print_TopologyLogs
+  Print_TopologyLogs_Singlenode
 
   echo
   echo "BAW Chef Shell Done at: $(date -Iseconds)"
@@ -143,7 +127,6 @@ readonly REQUESTED_LOG_DIR="/var/log/baw_chef_shell_log/singlenode/host_${var_Wo
 readonly LOG_DIR="$( Create_Dir $REQUESTED_LOG_DIR )"
 # echo "BAW LOG Dir created $LOG_DIR"
 readonly BAW_CHEF_LOG="${LOG_DIR}/monitor_${var_Workflow01_name}.log"
-
 
 ######## Start the program ########
  Main_Start 2>&1 | tee -a $BAW_CHEF_LOG
