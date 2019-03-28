@@ -87,9 +87,9 @@ For example: ibm_sw_repo=file:///opt/swRepo or ibm_sw_repo=https://9.180.111.29:
  b. Remote HTTPS Server <br>
  Two additional properties required in properties files for remote authentication.<br>
  For example: <br>
-    #Software Repository User Name: ibm_sw_repo_user can be empty when using local repo
+    #Software Repository User Name: ibm_sw_repo_user can be empty when using local repo<br>
     ibm_sw_repo_user=repouser<br>
-    #Software Repository User Password - Base 64 encoded: ibm_sw_repo_password can be empty when using local repo
+    #Software Repository User Password - Base 64 encoded: ibm_sw_repo_password can be empty when using local repo<br>
     ibm_sw_repo_password=cGFzc3cwcmQ=
     
  The following table shows the required images and their required path.
