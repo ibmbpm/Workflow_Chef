@@ -131,9 +131,9 @@ BAW_Multiple_Nodes_Chef_Start () {
 Main_Start () {
 
   echo
-  echo "Start to upgrade IBM Business Automation Workflow Enterprise on two hosts."
   echo
-  echo "BAW Chef Shell Starting at: $(date -Iseconds)"
+  Print_Start_Flag
+  echo "Start to upgrade IBM Business Automation Workflow Enterprise on two hosts."
   echo
 
   Generate_Roles "upgrade_fixpack" || return 1
@@ -153,33 +153,22 @@ Main_Start () {
   readonly WF02_LOG
 
   echo  >> $WF01_LOG
-  echo "BAW Chef Shell Starting at: $(date -Iseconds)" >> $WF01_LOG
+  Print_Start_Flag >> $WF01_LOG
   echo  >> $WF02_LOG
-  echo "BAW Chef Shell Starting at: $(date -Iseconds)" >> $WF02_LOG
+  Print_Start_Flag >> $WF02_LOG
 
   Print_TopologyLogs_Multinodes
 
   BAW_Multiple_Nodes_Chef_Start
-  local task_main_exit_status=$?
+  Print_Main_Exist_Status "$?" || return 1
 
-  if [ $task_main_exit_status -eq 0 ]
-  then
-      echo
-      echo "All Tasks Complete successfully."
-      echo
-  else
-      echo
-      echo "Failed, There may be errors occurred."
-      echo
-  fi
-
-  echo "BAW Chef Shell Done at: $(date -Iseconds)" >> $WF01_LOG
-  echo "BAW Chef Shell Done at: $(date -Iseconds)" >> $WF02_LOG
+  Print_End_Flag >> $WF01_LOG
+  Print_End_Flag >> $WF02_LOG
   
   Print_TopologyLogs_Multinodes
   
   echo
-  echo "BAW Chef Shell Done at: $(date -Iseconds)"
+  Print_End_Flag
   echo
   echo
 }

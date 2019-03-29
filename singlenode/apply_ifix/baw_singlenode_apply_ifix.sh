@@ -53,9 +53,9 @@ BAW_Single_Nodes_Chef_Start () {
 Main_Start () {
 
   echo
-  echo "Start to apply interim fix packs to IBM Business Automation Workflow Enterprise on one single host."
   echo
-  echo "BAW Chef Shell Starting at: $(date -Iseconds)"
+  Print_Start_Flag
+  echo "Start to apply interim fix packs to IBM Business Automation Workflow Enterprise on one single host."
   echo
   
   Generate_Roles "apply_ifix" || return 1
@@ -69,30 +69,19 @@ Main_Start () {
   readonly SNODE_LOG
 
   echo  >> $SNODE_LOG
-  echo "BAW Chef Shell Starting at: $(date -Iseconds)" >> $SNODE_LOG
+  Print_Start_Flag >> $SNODE_LOG
   
   Print_TopologyLogs_Singlenode
 
   BAW_Single_Nodes_Chef_Start 
-  local task_main_exit_status=$?
+  Print_Main_Exist_Status "$?" || return 1
 
-  if [ $task_main_exit_status -eq 0 ]
-  then
-      echo
-      echo "All Tasks Complete successfully."
-      echo
-  else
-      echo
-      echo "Failed, There may be errors occurred."
-      echo
-  fi
-
-  echo "BAW Chef Shell Done at: $(date -Iseconds)" >> $SNODE_LOG
+  Print_End_Flag >> $SNODE_LOG
 
   Print_TopologyLogs_Singlenode
 
   echo
-  echo "BAW Chef Shell Done at: $(date -Iseconds)"
+  Print_End_Flag
   echo
   echo
 }

@@ -64,6 +64,26 @@ Decode_base64 () {
   echo $decrypted_pass
 }
 
+# Generate dir
+Create_Dir () {
+
+  local i=0 # The times which attempt to create dir 
+  local created_dir=
+
+  local REQUESTED_DIR=$1
+
+  while ((++i <= 10)); do
+  created_dir=${REQUESTED_DIR:="/tmp/baw_chef/"}
+  mkdir -m 755 -p "$created_dir" 2>/dev/null && break
+  done
+
+  if ((i > 10)); then
+  printf 'Could not create directory, $created_dir\n' >&2
+  exit 1
+  fi
+
+  echo $created_dir
+}
 
 Load_Host_Name_Singlenode () {
 
@@ -74,7 +94,6 @@ Load_Host_Name_Singlenode () {
 
   var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
 }
-
 
 Load_Host_Name_Multinodes () {
 
@@ -145,6 +164,7 @@ Common_Print_TopologyLogs () {
   echo "  Topology"
   echo
 }
+
 Print_TopologyLogs_Singlenode () {
 
   Common_Print_TopologyLogs || return 1
@@ -166,6 +186,37 @@ Print_TopologyLogs_Multinodes () {
   echo
   echo "The log on Chef Client is $LOCAL_CHEF_CLIENT_LOG"
   echo
+}
+
+Print_Start_Flag () {
+
+  echo "BAW Chef Shell Starting at: $(date -Iseconds)"
+}
+
+Print_End_Flag () {
+
+  echo "BAW Chef Shell Done at: $(date -Iseconds)"
+}
+
+Print_Main_Exist_Status () {
+
+  if (($# != 1)); then
+    echo "Usage: The first parameter is required"
+    return 1
+  fi
+
+  local task_main_exit_status=$1
+
+  if [ $task_main_exit_status -eq 0 ]
+  then
+      echo
+      echo "All Tasks Complete successfully."
+      echo
+  else
+      echo
+      echo "Failed, There may be errors occurred. Please check logs for details"
+      echo
+  fi
 }
 
 ######## Monitor ########
@@ -396,26 +447,4 @@ Monitor_Do_Next_Tasks () {
       fi
     ;;
   esac
-}
-
-
-# Generate dir
-Create_Dir () {
-
-  local i=0 # The times which attempt to create dir 
-  local created_dir=
-
-  local REQUESTED_DIR=$1
-
-  while ((++i <= 10)); do
-  created_dir=${REQUESTED_DIR:="/tmp/baw_chef/"}
-  mkdir -m 755 -p "$created_dir" 2>/dev/null && break
-  done
-
-  if ((i > 10)); then
-  printf 'Could not create directory, $created_dir\n' >&2
-  exit 1
-  fi
-
-  echo $created_dir
 }
