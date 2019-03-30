@@ -1,11 +1,9 @@
 #!/bin/bash
 # set -e
 
-
 Generate_WF01_Roles () {
 
   # WF01, use default
-
   WORKFLOW_INSTALL_ROLE_TMPL_FILE=$workflow_v18_0_201806_install_TMPL_FILE
   WORKFLOW_INSTALL_ROLE_NAME="$WF01_ROLE_INSTALL_NAME"
   Auto_Create_WORKFLOW_INSTALL_ROLE
@@ -27,11 +25,9 @@ Generate_WF01_Roles () {
   Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
 }
 
-
 Generate_WF02_Roles () {
 
   # Customize for WF02
-  # var_Workflow_baw_os_user_name
   var_Workflow02_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_fqdn_name)
   var_Workflow02_name=$(echo $var_Workflow02_FQDN | cut -d '.' -f1)
 
@@ -60,9 +56,7 @@ Generate_WF02_Roles () {
   Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
 }
 
-
 Generate_WF01_WF02_Roles () {
-
   
   # temp dir
   readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/multinodes/hosts_${var_Workflow01_name}_${var_Workflow02_name}_roles/fresh_install"
@@ -73,18 +67,16 @@ Generate_WF01_WF02_Roles () {
   readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_fresh_install_${var_Workflow01_name}_${var_Workflow02_name}"
   readonly BAW_CHEF_VAULT_ITEM="secrets"
 
-    # for chef vault
+  # for chef vault
   readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
 
   Generate_WF01_Roles &&
   Generate_WF02_Roles
 }
 
-
 Generate_WF01_Roles_Apply_Ifix () {
 
   # WF01, use default
-
   WORKFLOW_APPLYIFIX_ROLE_TMPL_FILE=$workflow_applyifix_TMPL_FILE
   WORKFLOW_APPLYIFIX_ROLE_NAME="$WF01_ROLE_APPLYIFIX_NAME"
   Auto_Create_WORKFLOW_APPLYIFIX_ROLE
@@ -94,11 +86,9 @@ Generate_WF01_Roles_Apply_Ifix () {
   Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
 }
 
-
 Generate_WF02_Roles_Apply_Ifix () {
 
   # Customize for WF02
-  # var_Workflow_baw_os_user_name
   var_Workflow02_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_fqdn_name)
   var_Workflow02_name=$(echo $var_Workflow02_FQDN | cut -d '.' -f1)
 
@@ -113,7 +103,6 @@ Generate_WF02_Roles_Apply_Ifix () {
   WORKFLOW_POST_DEPLOYMENT_ROLE_NAME="$WF02_ROLE_POSTDEV_NAME"
   Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
 }
-
 
 Generate_WF01_WF02_Roles_Apply_Ifix () {
 
@@ -133,11 +122,9 @@ Generate_WF01_WF02_Roles_Apply_Ifix () {
   Generate_WF02_Roles_Apply_Ifix
 }
 
-
 Generate_WF01_Roles_Upgrade () {
 
   # WF01, use default
-
   WORKFLOW_UPGRADE_ROLE_TMPL_FILE=$workflow_upgrade_TMPL_FILE
   WORKFLOW_UPGRADE_ROLE_NAME="$WF01_ROLE_UPGRADE_NAME"
   Auto_Create_WORKFLOW_UPGRADE_ROLE
@@ -151,11 +138,9 @@ Generate_WF01_Roles_Upgrade () {
   Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
 }
 
-
 Generate_WF02_Roles_Upgrade () {
 
   # Customize for WF02
-  # var_Workflow_baw_os_user_name
   var_Workflow02_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_fqdn_name)
   var_Workflow02_name=$(echo $var_Workflow02_FQDN | cut -d '.' -f1)
 
@@ -175,7 +160,6 @@ Generate_WF02_Roles_Upgrade () {
   Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
 }
 
-
 Generate_WF01_WF02_Roles_Upgrade () {
 
   # temp dir
@@ -194,7 +178,6 @@ Generate_WF01_WF02_Roles_Upgrade () {
   Generate_WF02_Roles_Upgrade
 }
 
-
 Generate_Roles () {
 
   # $1 indicate which role generator type to execute : fresh_install, apply_ifix, upgrade_fixpack. the default is fresh_install
@@ -206,7 +189,7 @@ Generate_Roles () {
   if [ -z $role_generator_type ]; then
       role_generator_type=$GEN_TYPE_FRESH_INSTALL
   fi
-
+ 
   # ######## Include libs ########
   # MY_DIR=${0%/*}
   # if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
@@ -214,7 +197,6 @@ Generate_Roles () {
 
   #   . "$MY_DIR/../libs/utilities_script" &&
   #   . "$MY_DIR/../libs/dynamic_roles_script"  &&
-
 
   # ######## Inputs ########
   # ######## Two nodes, Node 1, 2 configuration ########
@@ -234,7 +216,6 @@ Generate_Roles () {
   Decode_base64 "workflow_host01_admin_password" $WF01_ROOT_PW_tmp 1>/dev/null || return 1
   readonly WF01_ROOT_PW=$(Decode_base64 "workflow_host01_admin_password" $WF01_ROOT_PW_tmp)
 
-
   # Node 2, Workflow02 (WF02) configuration
   # The ip address of the node where WF02 should be installed
   readonly WF02_IP_ADDR=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host02_ipv4_address)
@@ -249,7 +230,6 @@ Generate_Roles () {
   Decode_base64 "workflow_host02_admin_password" $WF02_ROOT_PW_tmp 1>/dev/null || return 1
   readonly WF02_ROOT_PW=$(Decode_base64 "workflow_host02_admin_password" $WF02_ROOT_PW_tmp)
 
-
   # The templates path
   # readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../templates
   readonly BAW_CHEF_ROLES_TMPL_DIR=$BAW_CHEF_TMPL_DIR/roles
@@ -262,7 +242,6 @@ Generate_Roles () {
   readonly workflow_post_deployment_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_post_deployment.json.tmpl
 
   ########  generate roles based on properties file set by users########
-
   #Dynamic Role names are need to be defined ahead of time
   # The roles from json files which assigned to Node 1, WF01
   WF01_ROLE_INSTALL_NAME="workflow_v18_0_20180_install_$var_Workflow01_name"
@@ -292,7 +271,6 @@ Generate_Roles () {
 
   var_Workflow_config_cluster_type="SingleClusters"
 
-
   ######## Chef server configuration ########
   #The unique name to give the node on your chef server
   # For Node 1 # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow01_node_name"
@@ -303,22 +281,21 @@ Generate_Roles () {
   WF02_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow02_on_chef_server)
   readonly WF02_ON_CHEF_SERVER=${WF02_ON_CHEF_SERVER:-$var_Workflow02_name}
 
-
   case $role_generator_type in
   "$GEN_TYPE_FRESH_INSTALL")
-    echo "role_generator_type is $GEN_TYPE_FRESH_INSTALL"
+    echo "Role Generator Type is $GEN_TYPE_FRESH_INSTALL"
     Generate_WF01_WF02_Roles
     ;;
   "$GEN_TYPE_APPLY_IFIX")
-    echo "role_generator_type is $GEN_TYPE_APPLY_IFIX"
+    echo "Role Generator Type is $GEN_TYPE_APPLY_IFIX"
     Generate_WF01_WF02_Roles_Apply_Ifix
     ;;
   "$GEN_TYPE_UPGRADE_FIXPACK")
-    echo "role_generator_type is $GEN_TYPE_APPLY_IFIX" 
+    echo "Role Generator Type is $GEN_TYPE_UPGRADE_FIXPACK" 
     Generate_WF01_WF02_Roles_Upgrade
     ;;
   *)
-    echo "Error: role_generator_type=$role_generator_type is unknown" 
+    echo "Error: Role Generator Type: $role_generator_type is unknown" 
     return 1
     ;;
   esac

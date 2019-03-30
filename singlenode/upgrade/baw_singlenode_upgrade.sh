@@ -12,15 +12,13 @@
 # Topology
 # Single host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member.
 
-
-# Upload all roles to the chef server
+######## Upload all roles to the chef server ######## 
 Upload_Roles () {
   
-    knife role from file $BAW_CHEF_TEMP_DIR/$SNODE_ROLE_UPGRADE_FILE || return 1
-    knife role from file $BAW_CHEF_TEMP_DIR/$SNODE_ROLE_APPLYIFIX_FILE || return 1
-    knife role from file $BAW_CHEF_TEMP_DIR/$SNODE_ROLE_POSTDEV_FILE
+  knife role from file $BAW_CHEF_TEMP_DIR/$SNODE_ROLE_UPGRADE_FILE || return 1
+  knife role from file $BAW_CHEF_TEMP_DIR/$SNODE_ROLE_APPLYIFIX_FILE || return 1
+  knife role from file $BAW_CHEF_TEMP_DIR/$SNODE_ROLE_POSTDEV_FILE
 }
-
 
 ######## BAW Installation ########
 BAW_Single_Node_Installation_Start () {
@@ -50,7 +48,6 @@ BAW_Single_Node_Installation_Start () {
   Monitor 0 "$TASK_SNODE_POSTDEV" "$LOG_SNODE_NAME Post Action(0 tasks left)"
 }
 
-
 ######## Start the program ########
 BAW_Single_Nodes_Chef_Start () {
 
@@ -61,8 +58,6 @@ BAW_Single_Nodes_Chef_Start () {
 
 Main_Start () {
 
-  echo
-  echo
   Print_Start_Flag
   echo "Start to upgrade IBM Business Automation Workflow Enterprise with fix packs on one single host."
   echo
@@ -77,7 +72,6 @@ Main_Start () {
   SNODE_LOG="${LOG_DIR}/wf_${var_Workflow01_name}_${SNODE_IP_ADDR}_chef.log"
   readonly SNODE_LOG
 
-  echo  >> $SNODE_LOG
   Print_Start_Flag >> $SNODE_LOG
 
   Print_TopologyLogs_Singlenode
@@ -89,15 +83,10 @@ Main_Start () {
   
   Print_TopologyLogs_Singlenode
 
-  echo
   Print_End_Flag
-  echo
-  echo
 }
 
-
 ######## Programs below ########
-
 ######## Include libs ########
 MY_DIR=${0%/*}
 if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
@@ -107,17 +96,17 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
   . "$MY_DIR/../../libs/dynamic_roles_script"  &&
   . "$MY_DIR/../../libs/dynamic_roles_singlenode_script" &&
 
-  # Reference to properties dir
-  readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
-  # ./baw_singlenode.properties
-  readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_singlenode_upgrade.properties"
-  # Test if $BAW_CHEF_PROPERTIES_FILE exists 
-  getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || exit 1
+# Reference to properties dir
+readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
+# ./baw_singlenode.properties
+readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_singlenode_upgrade.properties"
+# Test if $BAW_CHEF_PROPERTIES_FILE exists 
+getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || exit 1
 
-  Load_Host_Name_Singlenode || exit 1
+Load_Host_Name_Singlenode || exit 1
 
-  # Reference to templates dir
-  readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../../templates
+# Reference to templates dir
+readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../../templates
 
 ######## Prepare logs #######
 # define where to log

@@ -1,7 +1,6 @@
 #!/bin/bash
 # set -e
 
-
 Generate_SNODE_Roles () {
 
   # temp dir
@@ -13,7 +12,7 @@ Generate_SNODE_Roles () {
   readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_fresh_install_$var_Workflow01_name"
   readonly BAW_CHEF_VAULT_ITEM="secrets"
 
-    # for chef vault
+  # for chef vault
   readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
 
   WORKFLOW_INSTALL_ROLE_TMPL_FILE=$workflow_v18_0_201806_install_TMPL_FILE
@@ -37,7 +36,6 @@ Generate_SNODE_Roles () {
   Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
 }
 
-
 Generate_SNODE_Roles_Apply_Ifix () {
 
   # temp dir
@@ -60,7 +58,6 @@ Generate_SNODE_Roles_Apply_Ifix () {
   WORKFLOW_POST_DEPLOYMENT_ROLE_NAME="$SNODE_ROLE_POSTDEV_NAME"
   Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE 
 }
-
 
 Generate_SNODE_Roles_Upgrade () {
 
@@ -88,7 +85,6 @@ Generate_SNODE_Roles_Upgrade () {
   WORKFLOW_POST_DEPLOYMENT_ROLE_NAME="$SNODE_ROLE_POSTDEV_NAME"
   Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE
 }
-
 
 Generate_Roles () {
 
@@ -127,7 +123,6 @@ Generate_Roles () {
   Decode_base64 "workflow_host01_admin_password" $SNODE_ROOT_PW_tmp 1>/dev/null  || return 1
   readonly SNODE_ROOT_PW=$(Decode_base64 "workflow_host01_admin_password" $SNODE_ROOT_PW_tmp)
 
-
   # The templates path
   # readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../templates
   readonly BAW_CHEF_ROLES_TMPL_DIR=$BAW_CHEF_TMPL_DIR/roles
@@ -138,9 +133,7 @@ Generate_Roles () {
   readonly workflow_v18_0_201806_create_singlecluster_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_v18_0_201806_create_singlecluster.json.tmpl
   readonly workflow_post_deployment_TMPL_FILE=$BAW_CHEF_ROLES_TMPL_DIR/workflow_post_deployment.json.tmpl
 
-
   ########  generate roles based on properties file set by users########
-
   #Dynamic Role names are need to be defined ahead of time
   SNODE_ROLE_INSTALL_NAME="workflow_v18_0_201806_install_$var_Workflow01_name"
   SNODE_ROLE_UPGRADE_NAME="workflow_upgrade_$var_Workflow01_name"
@@ -155,30 +148,27 @@ Generate_Roles () {
   SNODE_ROLE_CONFIG_FILE="$SNODE_ROLE_CONFIG_NAME.json"
   SNODE_ROLE_POSTDEV_FILE="$SNODE_ROLE_POSTDEV_NAME.json"
 
-
   ######## Chef server configuration ########
-
   #The unique name to give the node on your chef server
   # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow01_node_name"
   SNODE_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow01_on_chef_server)
   readonly SNODE_ON_CHEF_SERVER=${SNODE_ON_CHEF_SERVER:-$var_Workflow01_name}
 
-
   case $role_generator_type in
     "$GEN_TYPE_FRESH_INSTALL")
-      echo "role_generator_type is $GEN_TYPE_FRESH_INSTALL"
+      echo "Role Generator Type is $GEN_TYPE_FRESH_INSTALL"
       Generate_SNODE_Roles
       ;;
     "$GEN_TYPE_APPLY_IFIX")
-      echo "role_generator_type is $GEN_TYPE_APPLY_IFIX"
+      echo "Role Generator Type is $GEN_TYPE_APPLY_IFIX"
       Generate_SNODE_Roles_Apply_Ifix
       ;;
     "$GEN_TYPE_UPGRADE_FIXPACK")
-      echo "role_generator_type is $GEN_TYPE_APPLY_IFIX" 
+      echo "Role Generator Type is $GEN_TYPE_UPGRADE_FIXPACK" 
       Generate_SNODE_Roles_Upgrade
       ;;
     *)
-      echo "Error: role_generator_type=$role_generator_type is unknown" 
+      echo "Error: Role Generator Type: $role_generator_type is unknown" 
       return 1
       ;;
   esac

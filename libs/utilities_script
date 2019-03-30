@@ -190,6 +190,7 @@ Print_TopologyLogs_Multinodes () {
 
 Print_Start_Flag () {
 
+  echo ""
   echo "BAW Chef Shell Starting at: $(date -Iseconds)"
 }
 
@@ -211,24 +212,22 @@ Print_Main_Exist_Status () {
   then
       echo
       echo "All Tasks Complete successfully."
-      echo
   else
       echo
       echo "Failed, There may be errors occurred. Please check logs for details"
-      echo
   fi
 }
 
 ######## Monitor ########
 Monitor () {
 
-# $1: switch for enabling baw dependency logic, 0 for disable, others for enable 
-# $2: tasks, an array including all task pids. tasks=( task1, task2, task3, ... ). 
-# $3: the name of the task1, string
-# $4: the name of the task2, string
-# $5: the name of the task3, string
+  # $1: switch for enabling baw dependency logic, 0 for disable, others for enable 
+  # $2: tasks, an array including all task pids. tasks=( task1, task2, task3, ... ). 
+  # $3: the name of the task1, string
+  # $4: the name of the task2, string
+  # $5: the name of the task3, string
 
-# Set the exit status $? to the exit code of the last program to exit non-zero or zero if exited successfully
+  # Set the exit status $? to the exit code of the last program to exit non-zero or zero if exited successfully
   set -o pipefail
 
   local enable_baw_boolean=$1
@@ -383,9 +382,9 @@ Monitor_Do_Next_Tasks () {
       # parallel
       # WF01 step 2 depends on WF01 step 1 ("role[$WF01_ROLE_CONFIG_NAME]") complete
       if [ $trigger1 -eq 0 -a $task1_exit_status -eq 0 ]; then
-        echo
+        # echo
         # echo "$(date -Iseconds), MTASK: $LOG_WF01_NAME Step 2 of 2 starts, TASKS LIST: (Post Action)"
-        echo
+        # echo
         WF01_step2 &
         local TASK_WF01_step2=$!
         readonly TASK_WF01_step2&
@@ -395,9 +394,9 @@ Monitor_Do_Next_Tasks () {
 
       # WF02 step 2 depends on WF02 step 1 "role[$WF02_ROLE_APPLYIFIX]" and WF01 step 1 ("role[$WF01_ROLE_CONFIG_NAME]") complete
       if [ $trigger2 -eq 0 -a $task2_exit_status -eq 0 -a $task1_exit_status -eq 0 ]; then
-        echo
+        # echo
         # echo "$(date -Iseconds), MTASK: $LOG_WF02_NAME Step 2 of 2 starts, TASKS List (Configuration, Post Action)"
-        echo
+        # echo
         WF02_step2 &
         local TASK_WF02_step2=$!
         readonly TASK_WF02_step2&
@@ -416,9 +415,9 @@ Monitor_Do_Next_Tasks () {
     3)
       # WF01 step 2 depends on IHS ("role[$IHS_ROLE_CONFIG]") complete
       if [ $trigger1 -eq 0 -a $task1_exit_status -eq 0 -a $task3_exit_status -eq 0 ]; then
-        echo
+        # echo
         # echo "$(date -Iseconds), MTASK: $LOG_WF01_NAME Step 2 of 2 starts, TASKS LIST: (Configure Web Server, Post Action)"
-        echo
+        # echo
         WF01_step2 &
         local TASK_WF01_step2=$!
         readonly TASK_WF01_step2&
@@ -428,9 +427,9 @@ Monitor_Do_Next_Tasks () {
 
       # WF02 step 2 depends on WF01 step 1 ("role[$WF01_ROLE_CONFIG_NAME]") complete
       if [ $trigger2 -eq 0 -a $task2_exit_status -eq 0 -a $task1_exit_status -eq 0 ]; then
-        echo
+        # echo
         # echo "$(date -Iseconds), MTASK: $LOG_WF02_NAME Step 2 of 2 starts, TASKS List (Configuration, Post Action)"
-        echo
+        # echo
         WF02_step2 &
         local TASK_WF02_step2=$!
         readonly TASK_WF02_step2&

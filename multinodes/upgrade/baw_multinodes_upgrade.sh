@@ -13,8 +13,7 @@
 # Host 1, Workflow01 or WF01: IBM Business Automation Workflow Deployment Manager (Dmgr), Custom Node, one cluster member
 # Host 2, Workflow02 or WF02: IBM Business Automation Workflow Custom Node, one cluster member
 
-
-# Upload all roles to the chef server
+######## Upload all roles to the chef server ########
 Upload_Roles () {
 
   knife role from file $BAW_CHEF_TEMP_DIR/$WF01_ROLE_UPGRADE_FILE || return 1
@@ -26,9 +25,7 @@ Upload_Roles () {
   knife role from file $BAW_CHEF_TEMP_DIR/$WF02_ROLE_POSTDEV_FILE
 }
 
-
 ######## Define BAW multiple node installation dependency logic units #######
-
 ######## NODE Workflow01, WF01, step 1, 2 ########
 WF01_step1 () {
   # sequential
@@ -65,7 +62,6 @@ WF01_step2 () {
   :
 }
 
-
 ######## NODE Workflow02 WF02, step 1, 2 ########
 WF02_step1 () {
   # sequential
@@ -95,7 +91,6 @@ WF02_step2 () {
   Monitor 0 "$TASK_WF02_POSTDEV" "$LOG_WF02_NAME Post Action(0 tasks left)"
 }
 
-
 ######## BAW Installation, WF01, WF02 ########
 BAW_Multiple_Nodes_Installation_Start () {
 # parallel
@@ -118,7 +113,6 @@ BAW_Multiple_Nodes_Installation_Start () {
   Monitor 1 "${tasks_baw_multinodes_install[*]}"
 }
 
-  
 ######## Start the program ########
 BAW_Multiple_Nodes_Chef_Start () {
 # sequential
@@ -130,8 +124,6 @@ BAW_Multiple_Nodes_Chef_Start () {
 
 Main_Start () {
 
-  echo
-  echo
   Print_Start_Flag
   echo "Start to upgrade IBM Business Automation Workflow Enterprise on two hosts."
   echo
@@ -152,9 +144,7 @@ Main_Start () {
   WF02_LOG="${LOG_DIR}/wf02_${var_Workflow02_name}_${WF02_IP_ADDR}_chef.log"
   readonly WF02_LOG
 
-  echo  >> $WF01_LOG
   Print_Start_Flag >> $WF01_LOG
-  echo  >> $WF02_LOG
   Print_Start_Flag >> $WF02_LOG
 
   Print_TopologyLogs_Multinodes
@@ -167,15 +157,10 @@ Main_Start () {
   
   Print_TopologyLogs_Multinodes
   
-  echo
   Print_End_Flag
-  echo
-  echo
 }
 
-
 ######## Programs below ########
-
 ######## Include libs ########
 MY_DIR=${0%/*}
 if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
@@ -185,17 +170,17 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; readonly MY_DIR; fi
   . "$MY_DIR/../../libs/dynamic_roles_script"  &&
   . "$MY_DIR/../../libs/dynamic_roles_multinodes_script" &&
 
-  # The properties file path 
-  readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
-  # ./baw_singlenode.properties
-  readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_multinodes_upgrade.properties"
-  # Test if $BAW_CHEF_PROPERTIES_FILE exists 
-  getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || exit 1
+# The properties file path 
+readonly BAW_CHEF_PROPERTIES_DIR="$MY_DIR"
+# ./baw_singlenode.properties
+readonly BAW_CHEF_PROPERTIES_FILE="$BAW_CHEF_PROPERTIES_DIR/baw_multinodes_upgrade.properties"
+# Test if $BAW_CHEF_PROPERTIES_FILE exists 
+getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE || exit 1
 
-  Load_Host_Name_Multinodes || exit 1 
+Load_Host_Name_Multinodes || exit 1 
 
-  # Reference to templates dir
-  readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../../templates
+# Reference to templates dir
+readonly BAW_CHEF_TMPL_DIR=$MY_DIR/../../templates
 
 ######## Prepare logs #######
 # define where to log

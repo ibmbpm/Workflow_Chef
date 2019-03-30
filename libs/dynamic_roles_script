@@ -1,14 +1,11 @@
 #!/bin/bash
 # set -e
 
-
 getFormatedFixpackJSONArrayList () {
 
   # $1 An array include all fixpacks
-  
   # For example
   # INPUT workflow.18002.delta.repository.zip 8.5.5-WS-WAS-FP014-part1.zip; 8.5.5-WS-WAS-FP014-part2.zip; 8.5.5-WS-WAS-FP014-part3.zip test1.zip; test2; test3 test1.zip
-
   # OUTPUT "workflow.18002.delta.repository.zip", "8.5.5-WS-WAS-FP014-part1.zip;8.5.5-WS-WAS-FP014-part2.zip;8.5.5-WS-WAS-FP014-part3.zip", "test1.zip;test2;test3", "test1.zip"
   local input_unformated_fixpack_names_arrary=( $1 )
   local input_unformated_fixpack_names_arrary_length=${#input_unformated_fixpack_names_arrary[*]}
@@ -55,11 +52,9 @@ getFormatedFixpackJSONArrayList () {
   echo '['$output_formated_fixpack_names_string']'
 }
 
-
 getFormatedStringListForiFixpack () {
 
   # $1 An array include all fixpacks
-  
   # For example
   # INPUT workflow.18002.delta.repository.zip 8.5.5-WS-WAS-FP014-part1.zip; 8.5.5-WS-WAS-FP014-part2.zip; 8.5.5-WS-WAS-FP014-part3.zip test1.zip; test2; test3 test1.zip
   # OUTPUT "workflow.18002.delta.repository.zip, 8.5.5-WS-WAS-FP014-part1.zip;8.5.5-WS-WAS-FP014-part2.zip;8.5.5-WS-WAS-FP014-part3.zip, test1.zip;test2;test3, test1.zip"
@@ -98,14 +93,11 @@ getFormatedStringListForiFixpack () {
   echo $output_formated_fixpack_names_string
 }
 
-
 Auto_Create_WORKFLOW_INSTALL_ROLE () {
-
 
   #Role name is need to be defined ahead of time
   # Default
   WORKFLOW_INSTALL_ROLE_NAME=${WORKFLOW_INSTALL_ROLE_NAME:-"workflow_v18_0_201806_install"}
-
   WORKFLOW_INSTALL_ROLE_FILE="$WORKFLOW_INSTALL_ROLE_NAME.json"
  
   var_ibm_sw_repo=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE ibm_sw_repo)
@@ -179,9 +171,7 @@ _EOF_" > $BAW_CHEF_TEMP_DIR/$WORKFLOW_INSTALL_ROLE_FILE
 echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_INSTALL_ROLE_FILE created"
 }
 
-
 Auto_Create_WORKFLOW_UPGRADE_ROLE () {
-
   
   #Role name is need to be defined ahead of time
   # Default
@@ -244,9 +234,7 @@ _EOF_" > $BAW_CHEF_TEMP_DIR/$WORKFLOW_UPGRADE_ROLE_FILE
 echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_UPGRADE_ROLE_FILE created"
 }
 
-
 Auto_Create_WORKFLOW_APPLYIFIX_ROLE () {
-
 
   #Role name is need to be defined ahead of time
   # Default
@@ -295,7 +283,6 @@ Auto_Create_WORKFLOW_APPLYIFIX_ROLE () {
 
   var_Workflow_ifix_names_tmp_array=( ${var_Workflow_ifix_names_tmp[*]} ${var_WAS_ifix_names_tmp[*]} )
   var_Workflow_ifix_names=$(getFormatedStringListForiFixpack "${var_Workflow_ifix_names_tmp_array[*]}")
-
  
 # be careful, donot indent these codes below, _EOF_
 eval "cat << _EOF_
@@ -304,7 +291,6 @@ _EOF_" > $BAW_CHEF_TEMP_DIR/$WORKFLOW_APPLYIFIX_ROLE_FILE
 
 echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_APPLYIFIX_ROLE_FILE created"
 }
-
 
 Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
 
@@ -355,7 +341,6 @@ Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
     local local_ip_hostname_pairs='"'"$WF02_IP_ADDR"'": "'"$var_Workflow02_name.$var_Workflow02_domain"'"'
   fi
 
-
   local_Workflow_install_dir="/home/${var_Workflow_baw_os_user_name}/IBM/Workflow"
   # "install_mode": "nonAdmin",
   local_Workflow_install_mode=${local_Workflow_install_mode:-"nonAdmin"}
@@ -373,7 +358,6 @@ Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
   var_Workflow_cell_admin_username=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_cell_admin_username)
   # "celladmin_alias_password": "b",
   # var_Workflow_cell_admin_userpassword=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_cell_admin_password)
-
 
   var_Workflow01_FQDN=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_host01_fqdn_name)
   var_Workflow01_name=$(echo $var_Workflow01_FQDN | cut -d '.' -f1)
@@ -446,7 +430,6 @@ Auto_Create_WORKFLOW_CREATE_SINGLECLUSTER_ROLE () {
   var_Database_cpe_tosdb_tstoslob=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_tosdb_tstoslob)
   #     "tstosidx": "TOSSA_IDX_TS"
   var_Database_cpe_tosdb_tstosidx=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE database_db2_cpe_tosdb_tstosidx)
-
 
   # For Oracle
   # "oracle": {
@@ -532,7 +515,6 @@ _EOF_" > $BAW_CHEF_TEMP_DIR/$WORKFLOW_v18_0_201806_CREATE_SINGLECLUSTER_ROLE_FIL
 echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_v18_0_201806_CREATE_SINGLECLUSTER_ROLE_FILE created"
 }
 
-
 Auto_Create_WORKFLOW_POST_DEPLOYMENT_ROLE () {
 
   #Role name is needed to be defined ahead of time
@@ -578,7 +560,6 @@ _EOF_" > $BAW_CHEF_TEMP_DIR/$WORKFLOW_POST_DEPLOYMENT_ROLE_FILE
 
 echo "ROLE: $BAW_CHEF_TEMP_DIR/$WORKFLOW_POST_DEPLOYMENT_ROLE_FILE created"
 }
-
 
 # Return $RUNTIME_WORKFLOW_SECRETS_JSON
 Auto_Create_WORKFLOW_SECRETS () {
@@ -632,7 +613,6 @@ Auto_Create_WORKFLOW_SECRETS () {
 
   Decode_base64 "metering_apikey" $var_metering_apikey_tmp 1>/dev/null || return 1
 
-
   local var_ibm_im_repo_password=$(Decode_base64 "ibm_im_repo_password" $var_ibm_im_repo_password_tmp)
   local var_ibm_sw_repo_password=$(Decode_base64 "ibm_sw_repo_password" $var_ibm_sw_repo_password_tmp)
 
@@ -662,6 +642,4 @@ readonly RUNTIME_WORKFLOW_SECRETS_JSON=$( eval "cat << _EOF_
 _EOF_" )
 
 echo "Workflow Secrets Generated"
-# TODO: For debug only, delete it before release
-# echo "Workflow Secrets: $RUNTIME_WORKFLOW_SECRETS_JSON"
 }
