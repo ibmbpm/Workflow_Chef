@@ -1,12 +1,15 @@
 #!/bin/bash
 # set -e
 
-getFormatedFixpackJSONArrayList () {
+# Either getFormatedJSONArrayForiFixpack or getFormatedStringListForiFixpack
+readonly ENABLE_getFormatedJSONArrayForiFixpack=${ENABLE_getFormatedJSONArrayForiFixpack:=0}
+
+getFormatedJSONArrayForiFixpack () {
 
   # $1 An array include all fixpacks
   # For example
   # INPUT workflow.18002.delta.repository.zip 8.5.5-WS-WAS-FP014-part1.zip; 8.5.5-WS-WAS-FP014-part2.zip; 8.5.5-WS-WAS-FP014-part3.zip test1.zip; test2; test3 test1.zip
-  # OUTPUT "workflow.18002.delta.repository.zip", "8.5.5-WS-WAS-FP014-part1.zip;8.5.5-WS-WAS-FP014-part2.zip;8.5.5-WS-WAS-FP014-part3.zip", "test1.zip;test2;test3", "test1.zip"
+  # OUTPUT ["workflow.18002.delta.repository.zip", "8.5.5-WS-WAS-FP014-part1.zip;8.5.5-WS-WAS-FP014-part2.zip;8.5.5-WS-WAS-FP014-part3.zip", "test1.zip;test2;test3", "test1.zip"]
   local input_unformated_fixpack_names_arrary=( $1 )
   local input_unformated_fixpack_names_arrary_length=${#input_unformated_fixpack_names_arrary[*]}
   local begin_of_one_multifixpacks=1 # boolen, if it is the begining of one multiple fixpacks, 1 means true, 0 means false
@@ -90,7 +93,8 @@ getFormatedStringListForiFixpack () {
         output_formated_fixpack_names_string+=', '
       fi
     done
-  echo $output_formated_fixpack_names_string
+  # Add \"\" to output_formated_fixpack_names_string, to be compatibale with json array in JSON Template ("fixpack_names": $var_Workflow_fixpack_names,)
+  echo "\"$output_formated_fixpack_names_string\""
 }
 
 Auto_Create_WORKFLOW_INSTALL_ROLE () {
@@ -221,7 +225,14 @@ Auto_Create_WORKFLOW_UPGRADE_ROLE () {
   var_WAS_fixpack_names_tmp=( $(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE was_fixpack_names) )
 
   var_Workflow_fixpack_names_tmp_array=( ${var_Workflow_fixpack_names_tmp[*]} ${var_WAS_fixpack_names_tmp[*]} )
-  var_Workflow_fixpack_names=$(getFormatedFixpackJSONArrayList "${var_Workflow_fixpack_names_tmp_array[*]}")
+
+  var_Workflow_fixpack_names=$(getFormatedStringListForiFixpack "${var_Workflow_fixpack_names_tmp_array[*]}")
+
+  # to be compatible with Workflow COOKBOOK proejct (version < 2.1), we need "ENABLE_getFormatedJSONArrayForiFixpack=1"
+  if (( $ENABLE_getFormatedJSONArrayForiFixpack )) 
+  then
+    var_Workflow_fixpack_names=$(getFormatedJSONArrayForiFixpack "${var_Workflow_fixpack_names_tmp_array[*]}")
+  fi
 
   # to be compatible with Workflow COOKBOOK proejct (version >= 2.1), we need "fixpack_names_list=$var_Workflow_fixpack_names_list"
   var_Workflow_fixpack_names_list=$var_Workflow_fixpack_names

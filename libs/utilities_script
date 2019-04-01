@@ -3,6 +3,14 @@
 
 readonly LOCAL_CHEF_CLIENT_LOG="/var/log/baw_shell_chef_client.log"
 
+date() {
+  if [ "$1" = "-Iseconds" ]; then
+    command date "+%Y-%m-%dT%H:%M:%S%z"
+  else
+  command date "$@"
+  fi
+}
+
 # echo Get the vaule by key from properties file $BAW_CHEF_PROPERTIES_FILE
 getValueFromPropFile () {
 
@@ -42,14 +50,14 @@ Decode_base64 () {
   local key=$1
   local value=$2
 
-  echo "$value" | base64 -d &> /dev/null
+  echo "$value" | base64 --decode &> /dev/null
 
   if (($? != 0)); then
     printf "\nError, could not decode base64 string, the encrypted base64 string is $value and its key is $key , please check your encryption\n\n" >&2
     return 1
   fi
 
-  local decrypted_pass=$(echo "$value" | base64 -d)
+  local decrypted_pass=$(echo "$value" | base64 --decode)
 
   echo $decrypted_pass | iconv --from-code=UTF-8 &> /dev/null
 
