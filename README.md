@@ -2,12 +2,12 @@
 
 ## Description
 
-This script work with Chef and IBM Business Automation Workflow Cookbook project to deploy IBM Business Automation Workflow Enterprise automatically.
+Use this script to work with Chef and the IBM Business Automation Workflow Cookbook project to deploy IBM Business Automation Workflow Enterprise automatically.
 
 ## Scenarios
 
 ### Single node scenario
-This script work with IBM Business Automation Workflow Cookbook project to deploy IBM Business Automation Workflow Enterprise on a single host. <br> 
+This script works with IBM Business Automation Workflow Cookbook project to deploy IBM Business Automation Workflow Enterprise on a single host. <br> 
 
 #### Single Node Topology:
 Single host: IBM Business Automation Workflow Enterprise - Deployment Manager and Custom Node, one cluster member. <br>
@@ -16,10 +16,10 @@ IBM WebSphere Application Server Network Deployment V8.5.5 <br>
 IBM Business Automation Workflow Enterprise V19 <br>
 IBM DB2 Enterprise Server Edition V11 <br>
 
-### Multinodes scenario
-This script work with IBM Business Automation Workflow Cookbook project to deploy IBM Business Automation Workflow Enterprise on two hosts. <br>
+### Multinode scenario
+This script works with IBM Business Automation Workflow Cookbook project to deploy IBM Business Automation Workflow Enterprise on two hosts. <br>
 
-#### Multinodes Topology:
+#### Multinode Topology:
 Host 1: IBM Business Automation Workflow Deployment Manager, Custom Node, one cluster member <br>
 Host 2: IBM Business Automation Workflow Custom Node, one cluster member <br>
 #### Software Deployed
@@ -28,7 +28,7 @@ IBM Business Automation Workflow Enterprise V19 <br>
 
 ## Preparation
 
- 1. Setup Chef environment, Chef Server and Chef Workstation are required. Detailed configuration of Chef Server and Chef Workstation refers to https://docs.chef.io/chef_overview.html.
+ 1. Set up the Chef environment, Chef Server and Chef Workstation. For information about configuring the Chef Server and Chef Workstation, refers to https://docs.chef.io/chef_overview.html.
 
  2. Make sure that you have the latest version of the cookbooks. 
  <table>
@@ -54,13 +54,13 @@ IBM Business Automation Workflow Enterprise V19 <br>
    </tr>  
  </table>
  
- 3. Upload cookbook to Chef Server from local repository.<br>
+ 3. Upload the cookbooks to the Chef Server.<br>
     For example: 
     <pre>knife cookbook upload ibm_cloud_utils linux workflow</pre>
 
- 4. Download Workflow_Chef from https://github.ibm.com/bpm/Workflow_Chef to Chef Workstation. Unzip it to directory "Workflow_Chef" under "chef-repo" https://docs.chef.io/chef_repo.html directory, where knife commands can be executed.
+ 4. Download Workflow_Chef project from https://github.ibm.com/bpm/Workflow_Chef to the Chef Workstation. Unzip it to the  "Workflow_Chef" directory under the "chef-repo" (https://docs.chef.io/chef_repo.html) directory, from where you can run the knife commands.
  
- 5. Update /etc/hosts file for all involved hosts with Chef Server, Chef Workstations and Chef Clients information. <br>
+ 5. Update the /etc/hosts file for all involved hosts with the Chef Server, Chef Workstations, and Chef Clients information. <br>
     For example:
     <pre>cat /etc/hosts
     #configuration for chef
@@ -75,24 +75,25 @@ IBM Business Automation Workflow Enterprise V19 <br>
     #Chef Client host, Single node, BAW on single node
     10.0.15.4 kvm-018879.test.local kvm-018879
     </pre>
- 6. Download IBM Business Automation Workflow packages from https://www.ibm.com/software/passportadvantage/pao_customer.html. You need parts CNTA0ML, CNTA1ML, CNTA2ML.
+ 6. Download the IBM Business Automation Workflow packages from https://www.ibm.com/software/passportadvantage/pao_customer.html. You need parts CNTA0ML, CNTA1ML, CNTA2ML.
  Download workflow.19001.delta.repository.zip, 8.5.5-WS-WAS-FP015-part1.zip; 8.5.5-WS-WAS-FP015-part2.zip and 8.5.5-WS-WAS-FP015-part3.zip from IBM Fix Central https://www-945.ibm.com/support/fixcentral/
 
  7. If you are installing IBM Business Automation Workflow using an Oracle database server, prepare one of the following JDBC drivers: ojdbc6.jar, ojdbc7.jar, ojdbc8.jar.
  
- 8. Prepare software repository.<br>
+ 8. Prepare the software repository.<br>
     Upload the IBM Business Automation Workflow installation images to the software repository. The permission for the software repository must be at least 755 for the deployment to succeed. You must include the mandatory fix pack packages and interim fixes.<br> 
-    There are two ways to prepare software repository, one is local software repository on each Chef Client, another is remote HTTPS Server shared among Chef Clients. The root path of software repository should be configured in __properties files__ before running shell script.<br>
-    For example: 
+    You can prepare the software repository in one of the following ways: 
+    1. As a local software repository on each Chef Client
+    2. As a remote HTTPS Server shared among the Chef Clients
+    
+    Before you run the shell script, configure the root path of software repository in the __properties files__ .<br>
+    For example, for a local software repository: 
     <pre>ibm_sw_repo=file:///opt/swRepo 
     </pre>
-    or 
+    For example, for a remote HTTPS server: 
     <pre>ibm_sw_repo=https://9.180.111.29:9999/
     </pre>
-    1.  Local software repository on Chef Client<br>
-     Software repository must be set on each Chef Client when using local path as software repository. <br>
-    2. Remote HTTPS Server <br>
-     Two additional properties required in __properties files__ for remote authentication.<br>
+     Two additional properties are required in the __properties files__ for remote authentication.<br>
      For example: <br>
       <pre>
       #Software Repository User Name: ibm_sw_repo_user can be empty when using local repo
@@ -101,7 +102,7 @@ IBM Business Automation Workflow Enterprise V19 <br>
       ibm_sw_repo_password=cGFzc3cwcmQ=</pre>
 
     The following table shows the required images and their required path.
-    Notes: [ibm_sw_repo] should be replaced by the value of "ibm_sw_repo" defined in properties files.
+    Notes: Replace [ibm_sw_repo] with the value of "ibm_sw_repo" defined in the properties files.
 
  <table>
    <tr>
@@ -287,25 +288,25 @@ Script root directory:
 </pre>
 
 ### Prepare properties
-The properties files (\*.properties) must be filled before running the script (\*.sh), the location of properties and scripts are listed below
+Before you run a script(*.sh), ensure that you configure the appropriate properties in the corresponding properties files (\*.properties). The locations of the properties files and scripts are listed in the following sections.
 
-    Notes: All password in properties file must be Base 64 encoded.
+    Notes: All passwords in properties file must be Base 64 encoded.
 
 #### Single node 
 ##### Installation and configuration
-Start to install and configure IBM Business Automation Workflow Enterprise on one single host. <br>
+Install and configure IBM Business Automation Workflow Enterprise on a single host. <br>
 <pre>
 ./singlenode/baw_singlenode_fresh_install.properties
 ./singlenode/baw_singlenode_fresh_install.sh
 </pre>
 ##### Upgrade
-Start to upgrade IBM Business Automation Workflow Enterprise with fix packs on one single host. <br>
+Upgrade IBM Business Automation Workflow Enterprise with fix packs on a single host. <br>
 <pre>
 ./singlenode/upgrade/baw_singlenode_upgrade.properties
 ./singlenode/upgrade/baw_singlenode_upgrade.sh
 </pre>
 ##### Apply interim fix
-Start to apply interim fix packs to IBM Business Automation Workflow Enterprise on one single host. <br>
+Apply interim fix packs to IBM Business Automation Workflow Enterprise on one single host. <br>
 <pre>
 ./singlenode/apply_ifix/baw_singlenode_apply_ifix.properties
 ./singlenode/apply_ifix/baw_singlenode_apply_ifix.sh
@@ -313,35 +314,35 @@ Start to apply interim fix packs to IBM Business Automation Workflow Enterprise 
 
 #### Multiple nodes
 ##### Installation and configuration
-Start to install and configure IBM Business Automation Workflow Enterprise on two hosts.<br>
+Install and configure IBM Business Automation Workflow Enterprise on two hosts.<br>
 <pre>
 ./multinodes/baw_multinodes_fresh_install.properties
 ./multinodes/baw_multinodes_fresh_install.sh
 </pre>
 ##### Upgrade
-Start to upgrade IBM Business Automation Workflow Enterprise on two hosts.
+Upgrade IBM Business Automation Workflow Enterprise on two hosts.
 <pre>
 ./multinodes/upgrade/baw_multinodes_upgrade.properties
 ./multinodes/upgrade/baw_multinodes_upgrade.sh
 </pre>
 ##### Apply interim fix
-Start to apply interim fix packs to IBM Business Automation Workflow Enterprise on two hosts. <br>
+Apply interim fix packs to IBM Business Automation Workflow Enterprise on two hosts. <br>
 <pre>
 ./multinodes/apply_ifix/baw_multinodes_apply_ifix.properties
 ./multinodes/apply_ifix/baw_multinodes_apply_ifix.sh
 </pre>
 
-### Running the script
-After preparing the properties file, running the shell script (*.sh).<br>
+### Running the scripts
+After you prepare the properties file, you can run the corresponding shell script (*.sh).<br>
 For example: 
 <pre>
 ./singlenode/baw_singlenode_fresh_install.sh
 </pre>
 
-### The generated roles and logs
+### Generated roles and logs
     Notes: "kvm-018784, kvm-018785, kvm-018786, kvm-018787, kvm-018788, kvm-018789" are host short names
 
-#### The roles generated directory structure
+#### The directory structure of the generated roles
 <pre>/tmp/baw_chef_shell_tmp/
 ├── multinodes
 │   ├── hosts_kvm-018786_kvm-018785_roles
@@ -363,7 +364,7 @@ For example:
         └── upgrade
 </pre>
 
-#### The logs generated directory structure
+#### The directory structure of the generated logs
 
 <pre>/var/log/baw_chef_shell_log/
 ├── multinodes_noihs
