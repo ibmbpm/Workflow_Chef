@@ -40,7 +40,7 @@ IBM Business Automation Workflow Enterprise V19 <br>
    <tr>
      <td>IBM Business Automation Workflow Cookbook</td>
      <td>https://github.com/IBM-CAMHub-Open/cookbook_ibm_workflow_multios</td>
-     <td>2.2</td>
+     <td>3.0</td>
    </tr>
    <tr>
      <td>Linux Cookbook</td>
