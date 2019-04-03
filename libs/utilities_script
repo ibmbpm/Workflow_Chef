@@ -245,7 +245,8 @@ Monitor () {
   local task2_name=$4
   local task3_name=$5
 
-  local sleep_time=10
+  # local sleep_time=10
+  BAW_CHEF_SHELL_MONITOR_SLEEP_TIME=${BAW_CHEF_SHELL_MONITOR_SLEEP_TIME:=10}
   local TOTAL_TASK_NU=${#tasks[*]}
   readonly TOTAL_TASK_NU
 
@@ -353,7 +354,7 @@ Monitor () {
         # echo BAW dependency logic is enabled
         Monitor_Do_Next_Tasks
       fi
-      sleep $sleep_time
+      sleep $BAW_CHEF_SHELL_MONITOR_SLEEP_TIME
   done
 
     # Return 1 when any one of them failed
