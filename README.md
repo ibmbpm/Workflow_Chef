@@ -334,13 +334,16 @@ Apply interim fix packs to IBM Business Automation Workflow Enterprise on two ho
 
 ### Running the scripts
 After you prepare the properties file, you can run the corresponding shell script (*.sh).<br>
+
+    Notes: The execute permission for the shell script (*.sh) must be granted in advance.
+    
 For example: 
 <pre>
 ./singlenode/baw_singlenode_fresh_install.sh
 </pre>
 
 ### Generated roles and logs
-    Notes: "kvm-018784, kvm-018785, kvm-018786, kvm-018787, kvm-018788, kvm-018789" are host short names
+    Notes: "kvm-018784, kvm-018785, kvm-018786, kvm-018787, kvm-018788, kvm-018789" are host short names.
 
 #### The directory structure of the generated roles
 <pre>/tmp/baw_chef_shell_tmp/
