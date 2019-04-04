@@ -334,6 +334,7 @@ Apply interim fix packs to IBM Business Automation Workflow Enterprise on two ho
 
 ### Running the scripts
 After you prepare the properties file, you can run the corresponding shell script (*.sh).<br>
+    Notes: The execute permission for the shell script (*.sh) must be granted in advance.
 For example: 
 <pre>
 ./singlenode/baw_singlenode_fresh_install.sh
