@@ -24,8 +24,9 @@ getValueFromPropFile () {
   # local value=$( cat $src_file | grep -w ^${key} | cut -d= -f2 )
   # local key=$2"=" to solve the key without any value situations, like "key= " defined in the properties file only
   # cut -d= -f2-  cut with delimiter '=', and only the first '=' counts. for example if input is 'abcd==efg=h==', the output is '=efg=h=='
+  # ^[ $(printf '\t')]* means ignore the leading space and tab
   local key=$2"="
-  local value=$( cat $src_file | grep ^${key} | cut -d= -f2- )
+  local value=$( cat $src_file | grep "^[ $(printf '\t')]*${key}" | cut -d= -f2- )
   echo $value
 }
 
