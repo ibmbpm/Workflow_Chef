@@ -89,9 +89,9 @@ Apply interim fix packs to IBM Business Automation Workflow Enterprise on two ho
 ## Preparation
 
  1. Prepare hosts, set up the Chef environment: Chef Server and Chef Workstation. <br>
-    1.1 Prepare hosts with supported Platforms listed above for Chef Server, Chef Workstation. <br>
+    1.1 Prepare hosts for Chef Server, Chef Workstation. <br>
         You can install Chef Server, Chef Workstation on a single host or two separated hosts. <br>
-    1.2 Prepare hosts (as Chef Client nodes) with supported Operating Systems listed above for Business Automation Workflow installation.<br>
+    1.2 Prepare hosts (as Chef Client nodes) with __supported Platforms listed above__ for Business Automation Workflow installation.<br>
         The number of the hosts depend on your needs and the topology you choose, one host for Single Node Topology, two hosts for Multinode Topology. <br>
         Installing Chef Clients on those hosts manually are not required if they can access the internet, vice versa. <br>
     1.3 Configure the /etc/hosts file on all involved hosts with the Chef Server, Chef Workstation, and Chef Clients information. <br>
