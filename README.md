@@ -129,7 +129,7 @@ Apply interim fix packs to IBM Business Automation Workflow Enterprise on two ho
  2. On the Chef Workstation host. <br>
     2.1 Download cookbook projects with desired branch name listed on the table below and unzip them if necessary.<br>
     2.2 Find __workflow, linux, ibm_cloud_utils__ cookbooks under the folder __&lt;Project_ROOT&gt;/chef/cookbooks/__ on each project and copy them to your cookbook folder configured in your Chef configuration file with "__cookbook_path__" attribute (see https://docs.chef.io/config_rb.html). <br>
-    2.3 Download __Workflow_Chef__ project v1.0 from https://github.ibm.com/bpm/Workflow_Chef to the "__chef-repo__" (see https://docs.chef.io/chef_repo.html) directory, from where you can run the knife commands.<br>
+    2.3 Download this IBM Business Automation Workflow Chef Deployment (__Workflow_Chef__) project v1.0 to the "__chef-repo__" (see https://docs.chef.io/chef_repo.html) directory, from where you can run the knife commands.<br>
  
   <table>
    <tr>
