@@ -52,7 +52,7 @@ BAW_Single_Node_Installation_Start () {
 BAW_Single_Nodes_Chef_Start () {
 
   Upload_Roles || return 1
-  Create_Chef_Vaults_Singlenode || return 1
+  BAW_Chef_Vaults "s" || return 1
   BAW_Single_Node_Installation_Start
 }
 

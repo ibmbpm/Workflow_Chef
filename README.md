@@ -129,7 +129,7 @@ Apply interim fix packs to IBM Business Automation Workflow Enterprise on two ho
  2. On the Chef Workstation host. <br>
     2.1 Download cookbook projects with desired branch name listed on the table below and unzip them if necessary.<br>
     2.2 Find __workflow, linux, ibm_cloud_utils__ cookbooks under the folder __&lt;Project_ROOT&gt;/chef/cookbooks/__ on each project and copy them to your cookbook folder configured in your Chef configuration file with "__cookbook_path__" attribute (see https://docs.chef.io/config_rb.html). <br>
-    2.3 Download this IBM Business Automation Workflow Chef Deployment (__Workflow_Chef__) project v1.0 to the "__chef-repo__" (see https://docs.chef.io/chef_repo.html) directory, from where you can run the knife commands.<br>
+    2.3 Download this IBM Business Automation Workflow Chef Deployment (__Workflow_Chef__) project to the "__chef-repo__" (see https://docs.chef.io/chef_repo.html) directory, from where you can run the knife commands.<br>
  
   <table>
    <tr>
@@ -374,9 +374,28 @@ Script root directory:
 </pre>
 
 ### Prepare properties
-Before you run a script(*.sh), ensure that you configure the appropriate properties in the corresponding properties files (\*.properties). The locations of the properties files and scripts are listed in the following sections.
+Before you run a script(*.sh), ensure that you configure the appropriate properties in the corresponding properties files (\*.properties). 
 
-    Notes: All passwords in properties file must be Base 64 encoded.
+Specially, there are two levels of security for the passwords encryption.
+* Level 1. Base 64 Encryption supported in properties file, all passwords must be Base 64 encoded in the properties file.
+* Level 2. Higher security by using existing Chef Vault in the Chef server. You do not need fill in passwords in the properties file but must creating a chef vault and fill in its information under the section of __Optional: Existing Chef Vault__ in the properties file manually ahead of time. 
+
+    You should create the chef vault by the json templates we provided as follows,<br> 
+    For Fresh Install: 
+
+      <Workflow_Chef_ROOT>/templates/chef_vault_json/workflow_secrets_fresh_install.json
+
+    For Applyifix or Upgrade: 
+
+      <Workflow_Chef_ROOT>/templates/chef_vault_json/workflow_secrets_applyifix_upgrade.json
+
+    Replace the json vaule with your own passwords (do not delete any json keys), then use the knife command below to create the chef vault on Chef Server:<br>  
+<pre>
+    knife vault create &lt;workflow_chef_vault_name&gt; &lt;workflow_chef_vault_item&gt; --json &lt;the json file like workflow_secrets_fresh_install.json&gt; --mode client
+    knife vault delete &lt;workflow_chef_vault_name&gt; &lt;workflow_chef_vault_item&gt; --mode client
+</pre>
+   More information about chef vault: https://docs.chef.io/chef_vault.html 
+
 
 ### Running the scripts
 After you prepare the properties file, you can run the corresponding shell script (*.sh).<br>

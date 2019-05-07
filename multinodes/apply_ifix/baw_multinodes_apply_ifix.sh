@@ -108,7 +108,7 @@ BAW_Multiple_Nodes_Chef_Start () {
 # sequential
 
   Upload_Roles  || return 1
-  Create_Chef_Vaults_Multinodes || return 1
+  BAW_Chef_Vaults "m" || return 1
   BAW_Multiple_Nodes_Installation_Start
 }
 
