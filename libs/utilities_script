@@ -152,14 +152,48 @@ Common_Create_Chef_Vaults () {
 
 Create_Chef_Vaults_Singlenode () {
 
-  Common_Create_Chef_Vaults || return 1
-  knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -M client || { echo "Error when creating chef vault"; return 1; } 
+    knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -M client || { echo "Error when creating chef vault"; return 1; } 
 }
 
 Create_Chef_Vaults_Multinodes () {
 
-  Common_Create_Chef_Vaults || return 1
-  knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -C "$WF01_ON_CHEF_SERVER,$WF02_ON_CHEF_SERVER" -M client || { echo "Error when creating chef vault"; return 1; }
+    knife vault create $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM "$RUNTIME_WORKFLOW_SECRETS_JSON" -C "$WF01_ON_CHEF_SERVER,$WF02_ON_CHEF_SERVER" -M client || { echo "Error when creating chef vault"; return 1; }
+}
+
+BAW_Chef_Vaults () {
+
+  # $1 s for single; m for multiple 
+  baw_chef_vault_type=$1
+  local readonly BAW_CHEF_VAULT_SINGLE="s"
+  local readonly BAW_CHEF_VAULT_MULTIPLE="m"
+
+  if [ -z $baw_chef_vault_type ]; then
+      baw_chef_vault_type=$BAW_CHEF_VAULT_SINGLE
+  fi
+
+  # Check if users want to use existing chef vault on Chef Server
+  if (( $EXISTING_BAW_CHEF_VAULT_ENABLED!=0 )); then
+    # Return to use existing chef vault provided by users
+    echo "Info: Existing Chef Vault Mode is enabled, you should have already prepared the chef vault($BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM) on your chef server"
+    knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -C "$WF01_ON_CHEF_SERVER,$WF02_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
+    return 
+  else
+    Common_Create_Chef_Vaults || return 1
+    case $baw_chef_vault_type in
+      "$BAW_CHEF_VAULT_SINGLE")
+        # echo "BAW_CHEF_VAULT Type is $BAW_CHEF_VAULT_SINGLE"
+        Create_Chef_Vaults_Singlenode || return 1
+        ;;
+      "$BAW_CHEF_VAULT_MULTIPLE")
+        # echo "BAW_CHEF_VAULT Type is $BAW_CHEF_VAULT_MULTIPLE"
+        Create_Chef_Vaults_Multinodes || return 1
+        ;;
+      *)
+        echo "Error: BAW_CHEF_VAULT Type: $baw_chef_vault_type is unknown" 
+        return 1
+        ;;
+      esac
+  fi 
 }
 
 Common_Print_TopologyLogs () {
@@ -203,8 +237,49 @@ Print_Start_Flag () {
   echo "BAW Chef Shell Starting at: $(date -Iseconds)"
 }
 
-Print_End_Flag () {
+Print_End_Flag_Singlenode () {
 
+  echo "Access links"
+  echo
+  echo "  IBM Business Automation Workflow Admin Console DNS URL: https://$var_Workflow01_FQDN:9043/ibm/console"
+  echo "  IBM Business Automation Workflow Admin Console IP URL: https://$SNODE_IP_ADDR:9043/ibm/console"
+  echo
+  echo "  Process Admin DNS URL: https://$var_Workflow01_FQDN:9443/ProcessAdmin"
+  echo "  Process Admin IP URL: https://$SNODE_IP_ADDR:9443/ProcessAdmin"
+  echo
+  echo "  Workflow Center DNS URL: https://$var_Workflow01_FQDN:9443/ProcessCenter"
+  echo "  Workflow Center IP URL: https://$SNODE_IP_ADDR:9443/ProcessCenter"
+  echo
+  echo "  Business Process Choreographer Explorer DNS URL: https://$var_Workflow01_FQDN:9443/bpc"
+  echo "  Business Process Choreographer Explorer IP URL: https://$SNODE_IP_ADDR:9443/bpc"
+  echo
+  echo "  Process Portal DNS URL: https://$var_Workflow01_FQDN:9443/ProcessPortal"
+  echo "  Process Portal IP URL: https://$SNODE_IP_ADDR:9443/ProcessPortal"
+  
+  echo
+  echo "BAW Chef Shell Done at: $(date -Iseconds)"
+}
+
+Print_End_Flag_Multinodes () {
+
+  echo "Access links"
+  echo
+  echo "  IBM Business Automation Workflow Admin Console DNS URL: https://$var_Workflow01_FQDN:9043/ibm/console"
+  echo "  IBM Business Automation Workflow Admin Console IP URL: https://$WF01_IP_ADDR:9043/ibm/console"
+  echo
+  echo "  Process Admin DNS URL: https://$var_Workflow01_FQDN:9443/ProcessAdmin"
+  echo "  Process Admin IP URL: https://$WF01_IP_ADDR:9443/ProcessAdmin"
+  echo
+  echo "  Workflow Center DNS URL: https://$var_Workflow01_FQDN:9443/ProcessCenter"
+  echo "  Workflow Center IP URL: https://$WF01_IP_ADDR:9443/ProcessCenter"
+  echo
+  echo "  Business Process Choreographer Explorer DNS URL: https://$var_Workflow01_FQDN:9443/bpc"
+  echo "  Business Process Choreographer Explorer IP URL: https://$WF01_IP_ADDR:9443/bpc"
+  echo
+  echo "  Process Portal DNS URL: https://$var_Workflow01_FQDN:9443/ProcessPortal"
+  echo "  Process Portal IP URL: https://$WF01_IP_ADDR:9443/ProcessPortal"
+
+  echo
   echo "BAW Chef Shell Done at: $(date -Iseconds)"
 }
 

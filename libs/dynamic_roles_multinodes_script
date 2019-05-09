@@ -63,9 +63,9 @@ Generate_WF01_WF02_Roles () {
   readonly BAW_CHEF_TEMP_DIR="$( Create_Dir $REQUESTED_TEMP_DIR )"
   echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
-   # Chef vault, these two lines should be executed before "Generate_Roles"
-  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_fresh_install_${var_Workflow01_name}_${var_Workflow02_name}"
-  readonly BAW_CHEF_VAULT_ITEM="secrets"
+  # Chef vault, these two lines should be executed before generate roles"
+  BAW_CHEF_VAULT_NAME=${BAW_CHEF_VAULT_NAME:-"baw_chef_vault_fresh_install_${var_Workflow01_name}_${var_Workflow02_name}"}
+  BAW_CHEF_VAULT_ITEM=${BAW_CHEF_VAULT_ITEM:-"secrets"}
 
   # for chef vault
   readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
@@ -112,8 +112,8 @@ Generate_WF01_WF02_Roles_Apply_Ifix () {
   echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
   # Chef vault, these two lines should be executed before generate roles"
-  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_apply_ifix_${var_Workflow01_name}_${var_Workflow02_name}"
-  readonly BAW_CHEF_VAULT_ITEM="secrets"
+  BAW_CHEF_VAULT_NAME=${BAW_CHEF_VAULT_NAME:-"baw_chef_vault_apply_ifix_${var_Workflow01_name}_${var_Workflow02_name}"}
+  BAW_CHEF_VAULT_ITEM=${BAW_CHEF_VAULT_ITEM:-"secrets"}
 
   # for chef vault
   readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets_upgrade.json.tmpl
@@ -168,8 +168,8 @@ Generate_WF01_WF02_Roles_Upgrade () {
   echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
   # Chef vault, these two lines should be executed before generate roles"
-  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_upgrade_${var_Workflow01_name}_${var_Workflow02_name}"
-  readonly BAW_CHEF_VAULT_ITEM="secrets"
+  BAW_CHEF_VAULT_NAME=${BAW_CHEF_VAULT_NAME:-"baw_chef_vault_upgrade_${var_Workflow01_name}_${var_Workflow02_name}"}
+  BAW_CHEF_VAULT_ITEM=${BAW_CHEF_VAULT_ITEM:-"secrets"}
 
   # for chef vault
   readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets_upgrade.json.tmpl
@@ -244,7 +244,7 @@ Generate_Roles () {
   ########  generate roles based on properties file set by users########
   #Dynamic Role names are need to be defined ahead of time
   # The roles from json files which assigned to Node 1, WF01
-  WF01_ROLE_INSTALL_NAME="workflow_v18_0_20180_install_$var_Workflow01_name"
+  WF01_ROLE_INSTALL_NAME="workflow_v18_0_201806_install_$var_Workflow01_name"
   WF01_ROLE_UPGRADE_NAME="workflow_upgrade_$var_Workflow01_name"
   WF01_ROLE_APPLYIFIX_NAME="workflow_applyifix_$var_Workflow01_name"
   WF01_ROLE_CONFIG_NAME="workflow_v18_0_201809_create_singleclusters_$var_Workflow01_name"
@@ -281,6 +281,19 @@ Generate_Roles () {
   WF02_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow02_on_chef_server)
   readonly WF02_ON_CHEF_SERVER=${WF02_ON_CHEF_SERVER:-$var_Workflow02_name}
 
+  # Check if users want to use existing chef vault created by themselves on Chef Server
+  # Set a flag, EXISTING_BAW_CHEF_VAULT_ENABLED=0 means disabled
+  EXISTING_BAW_CHEF_VAULT_ENABLED=0
+  readonly EXISTING_BAW_CHEF_VAULT_NAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_chef_vault_name)
+  readonly EXISTING_BAW_CHEF_VAULT_ITEM=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_chef_vault_item)
+  if [ ! -z "$EXISTING_BAW_CHEF_VAULT_NAME" -a ! -z "$EXISTING_BAW_CHEF_VAULT_ITEM" ]; then
+    # Use existing chef vault provided by users instead of ours
+    BAW_CHEF_VAULT_NAME=$EXISTING_BAW_CHEF_VAULT_NAME
+    BAW_CHEF_VAULT_ITEM=$EXISTING_BAW_CHEF_VAULT_ITEM
+    # Set flag to 1, means enabled
+    EXISTING_BAW_CHEF_VAULT_ENABLED=1
+  fi 
+  
   case $role_generator_type in
   "$GEN_TYPE_FRESH_INSTALL")
     echo "Role Generator Type is $GEN_TYPE_FRESH_INSTALL"

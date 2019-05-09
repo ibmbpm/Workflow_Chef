@@ -1,0 +1,5 @@
+{
+    "name": "IBM Business Automation Workflow Chef Deployment",
+    "description": "Use this script to work with Chef and the IBM Business Automation Workflow Cookbook project to deploy IBM Business Automation Workflow Enterprise automatically.",
+    "version": "1.0.1"
+}

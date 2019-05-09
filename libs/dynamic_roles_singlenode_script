@@ -9,8 +9,8 @@ Generate_SNODE_Roles () {
   echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
   # Chef vault, these two lines should be executed before generate roles"
-  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_fresh_install_$var_Workflow01_name"
-  readonly BAW_CHEF_VAULT_ITEM="secrets"
+  BAW_CHEF_VAULT_NAME=${BAW_CHEF_VAULT_NAME:-"baw_chef_vault_fresh_install_$var_Workflow01_name"}
+  BAW_CHEF_VAULT_ITEM=${BAW_CHEF_VAULT_ITEM:-"secrets"}
 
   # for chef vault
   readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets.json.tmpl
@@ -44,8 +44,8 @@ Generate_SNODE_Roles_Apply_Ifix () {
   echo "BAW Temp Dir created $BAW_CHEF_TEMP_DIR"
 
   # Chef vault, these two lines should be executed before generate roles"
-  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_apply_ifix_$var_Workflow01_name"
-  readonly BAW_CHEF_VAULT_ITEM="secrets"
+  BAW_CHEF_VAULT_NAME=${BAW_CHEF_VAULT_NAME:-"baw_chef_vault_apply_ifix_$var_Workflow01_name"}
+  BAW_CHEF_VAULT_ITEM=${BAW_CHEF_VAULT_ITEM:-"secrets"}
 
   # for chef vault
   readonly workflow_secrets_TMPL_FILE=$BAW_CHEF_TMPL_DIR/workflow_secrets_upgrade.json.tmpl
@@ -62,8 +62,8 @@ Generate_SNODE_Roles_Apply_Ifix () {
 Generate_SNODE_Roles_Upgrade () {
 
   # Chef vault, these two lines should be executed before generate roles"
-  readonly BAW_CHEF_VAULT_NAME="baw_chef_vault_upgrade_$var_Workflow01_name"
-  readonly BAW_CHEF_VAULT_ITEM="secrets"
+  BAW_CHEF_VAULT_NAME=${BAW_CHEF_VAULT_NAME:-"baw_chef_vault_upgrade_$var_Workflow01_name"}
+  BAW_CHEF_VAULT_ITEM=${BAW_CHEF_VAULT_ITEM:-"secrets"}
 
   # temp dir
   readonly REQUESTED_TEMP_DIR="/tmp/baw_chef_shell_tmp/singlenode/host_${var_Workflow01_name}_roles/upgrade"
@@ -153,6 +153,19 @@ Generate_Roles () {
   # if it is null, the default value is goning to be used, the default value is the same as the vaule set in the property named "Workflow01_node_name"
   SNODE_ON_CHEF_SERVER=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE node_name_for_workflow01_on_chef_server)
   readonly SNODE_ON_CHEF_SERVER=${SNODE_ON_CHEF_SERVER:-$var_Workflow01_name}
+
+  # Check if users want to use existing chef vault created by themselves on Chef Server
+  # Set a flag, EXISTING_BAW_CHEF_VAULT_ENABLED=0 means disabled
+  EXISTING_BAW_CHEF_VAULT_ENABLED=0
+  readonly EXISTING_BAW_CHEF_VAULT_NAME=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_chef_vault_name)
+  readonly EXISTING_BAW_CHEF_VAULT_ITEM=$(getValueFromPropFile $BAW_CHEF_PROPERTIES_FILE workflow_chef_vault_item)
+  if [ ! -z "$EXISTING_BAW_CHEF_VAULT_NAME" -a ! -z "$EXISTING_BAW_CHEF_VAULT_ITEM" ]; then
+    # Use existing chef vault provided by users instead of ours
+    BAW_CHEF_VAULT_NAME=$EXISTING_BAW_CHEF_VAULT_NAME
+    BAW_CHEF_VAULT_ITEM=$EXISTING_BAW_CHEF_VAULT_ITEM
+    # Set flag to 1, means enabled
+    EXISTING_BAW_CHEF_VAULT_ENABLED=1
+  fi 
 
   case $role_generator_type in
     "$GEN_TYPE_FRESH_INSTALL")

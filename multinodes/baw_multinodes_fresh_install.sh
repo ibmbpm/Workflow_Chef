@@ -174,7 +174,7 @@ BAW_Multiple_Nodes_Chef_Start () {
 
   Upload_Roles  || return 1
   Bootstrap  || return 1
-  Create_Chef_Vaults_Multinodes || return 1
+  BAW_Chef_Vaults "m" || return 1
   BAW_Multiple_Nodes_Installation_Start
 }
 
@@ -208,12 +208,12 @@ Main_Start () {
   BAW_Multiple_Nodes_Chef_Start
   Print_Main_Exist_Status "$?" || return 1
 
-  Print_End_Flag >> $WF01_LOG
-  Print_End_Flag >> $WF02_LOG
+  Print_End_Flag_Multinodes >> $WF01_LOG
+  Print_End_Flag_Multinodes >> $WF02_LOG
   
   Print_TopologyLogs_Multinodes
 
-  Print_End_Flag
+  Print_End_Flag_Multinodes
 }
 
 ######## Programs below ########
