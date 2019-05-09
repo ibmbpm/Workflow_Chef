@@ -70,11 +70,11 @@ Main_Start () {
   BAW_Single_Nodes_Chef_Start 
   Print_Main_Exist_Status "$?" || return 1
 
-  Print_End_Flag >> $SNODE_LOG
+  Print_End_Flag_Singlenode >> $SNODE_LOG
 
   Print_TopologyLogs_Singlenode
 
-  Print_End_Flag
+  Print_End_Flag_Singlenode
 }
 
 ######## Programs below ########

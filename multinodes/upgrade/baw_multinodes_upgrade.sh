@@ -152,12 +152,12 @@ Main_Start () {
   BAW_Multiple_Nodes_Chef_Start
   Print_Main_Exist_Status "$?" || return 1
 
-  Print_End_Flag >> $WF01_LOG
-  Print_End_Flag >> $WF02_LOG
+  Print_End_Flag_Multinodes >> $WF01_LOG
+  Print_End_Flag_Multinodes >> $WF02_LOG
   
   Print_TopologyLogs_Multinodes
   
-  Print_End_Flag
+  Print_End_Flag_Multinodes
 }
 
 ######## Programs below ########

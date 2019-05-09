@@ -174,7 +174,7 @@ BAW_Chef_Vaults () {
   # Check if users want to use existing chef vault on Chef Server
   if (( $EXISTING_BAW_CHEF_VAULT_ENABLED!=0 )); then
     # Return to use existing chef vault provided by users
-    echo "Info: Use Existing Chef Vault Mode is Enabled, you should have already prepared the chef vault on your chef server"
+    echo "Info: Existing Chef Vault Mode is enabled, you should have already prepared the chef vault($BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM) on your chef server"
     knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -C "$WF01_ON_CHEF_SERVER,$WF02_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
     return 
   else
@@ -237,8 +237,49 @@ Print_Start_Flag () {
   echo "BAW Chef Shell Starting at: $(date -Iseconds)"
 }
 
-Print_End_Flag () {
+Print_End_Flag_Singlenode () {
 
+  echo "Access links"
+  echo
+  echo "  IBM Business Automation Workflow Admin Console DNS URL: https://$var_Workflow01_FQDN:9043/ibm/console"
+  echo "  IBM Business Automation Workflow Admin Console IP URL: https://$SNODE_IP_ADDR:9043/ibm/console"
+  echo
+  echo "  Process Admin DNS URL: https://$var_Workflow01_FQDN:9443/ProcessAdmin"
+  echo "  Process Admin IP URL: https://$SNODE_IP_ADDR:9443/ProcessAdmin"
+  echo
+  echo "  Workflow Center DNS URL: https://$var_Workflow01_FQDN:9443/ProcessCenter"
+  echo "  Workflow Center IP URL: https://$SNODE_IP_ADDR:9443/ProcessCenter"
+  echo
+  echo "  Business Process Choreographer Explorer DNS URL: https://$var_Workflow01_FQDN:9443/bpc"
+  echo "  Business Process Choreographer Explorer IP URL: https://$SNODE_IP_ADDR:9443/bpc"
+  echo
+  echo "  Process Portal DNS URL: https://$var_Workflow01_FQDN:9443/ProcessPortal"
+  echo "  Process Portal IP URL: https://$SNODE_IP_ADDR:9443/ProcessPortal"
+  
+  echo
+  echo "BAW Chef Shell Done at: $(date -Iseconds)"
+}
+
+Print_End_Flag_Multinodes () {
+
+  echo "Access links"
+  echo
+  echo "  IBM Business Automation Workflow Admin Console DNS URL: https://$var_Workflow01_FQDN:9043/ibm/console"
+  echo "  IBM Business Automation Workflow Admin Console IP URL: https://$WF01_IP_ADDR:9043/ibm/console"
+  echo
+  echo "  Process Admin DNS URL: https://$var_Workflow01_FQDN:9443/ProcessAdmin"
+  echo "  Process Admin IP URL: https://$WF01_IP_ADDR:9443/ProcessAdmin"
+  echo
+  echo "  Workflow Center DNS URL: https://$var_Workflow01_FQDN:9443/ProcessCenter"
+  echo "  Workflow Center IP URL: https://$WF01_IP_ADDR:9443/ProcessCenter"
+  echo
+  echo "  Business Process Choreographer Explorer DNS URL: https://$var_Workflow01_FQDN:9443/bpc"
+  echo "  Business Process Choreographer Explorer IP URL: https://$WF01_IP_ADDR:9443/bpc"
+  echo
+  echo "  Process Portal DNS URL: https://$var_Workflow01_FQDN:9443/ProcessPortal"
+  echo "  Process Portal IP URL: https://$WF01_IP_ADDR:9443/ProcessPortal"
+
+  echo
   echo "BAW Chef Shell Done at: $(date -Iseconds)"
 }
 

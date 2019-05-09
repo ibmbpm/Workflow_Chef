@@ -374,22 +374,23 @@ Script root directory:
 </pre>
 
 ### Prepare properties
-Before you run a script(*.sh), ensure that you configure the appropriate properties in the corresponding properties files (\*.properties). 
+Before you run a script(*.sh), you need configure the corresponding properties files (\*.properties). 
 
-Specially, there are two levels of security for the passwords encryption.
-* Level 1. Base 64 Encryption supported in properties file, all passwords must be Base 64 encoded in the properties file.
-* Level 2. Higher security by using existing Chef Vault in the Chef server. You do not need fill in passwords in the properties file but must creating a chef vault and fill in its information under the section of __Optional: Existing Chef Vault__ in the properties file manually ahead of time. 
+Specially, there are two ways for the passwords encryption.
+ 1. Fill in Base 64 encrypted passwords in the properties file. The program is going to generate and use the chef vault with those passwords automatically during runtime;
+ 2. Using existing Chef Vault in the Chef server. You do not need fill in passwords in the properties file but must creating a chef vault and fill in its information under the section of __Optional: Existing Chef Vault__ in the properties file manually ahead of time. 
 
-    You should create the chef vault by the json templates we provided as follows,<br> 
-    For Fresh Install: 
+    You must create the chef vault by the json templates we provided as follows:<br> 
+    
+    Template for Fresh Install: 
 
-      <Workflow_Chef_ROOT>/templates/chef_vault_json/workflow_secrets_fresh_install.json
+        <Workflow_Chef_ROOT>/templates/chef_vault_json/workflow_secrets_fresh_install.json
 
-    For Applyifix or Upgrade: 
+    Template for Applyifix or Upgrade: 
 
-      <Workflow_Chef_ROOT>/templates/chef_vault_json/workflow_secrets_applyifix_upgrade.json
+        <Workflow_Chef_ROOT>/templates/chef_vault_json/workflow_secrets_applyifix_upgrade.json
 
-    Replace the json vaule with your own passwords (do not delete any json keys), then use the knife command below to create the chef vault on Chef Server:<br>  
+    Replace the json vaule with your own passwords (do not delete any json keys), then use the knife vault create command below to create the chef vault on Chef Server:<br>  
 <pre>
     knife vault create &lt;workflow_chef_vault_name&gt; &lt;workflow_chef_vault_item&gt; --json &lt;the json file like workflow_secrets_fresh_install.json&gt; --mode client
     knife vault delete &lt;workflow_chef_vault_name&gt; &lt;workflow_chef_vault_item&gt; --mode client
