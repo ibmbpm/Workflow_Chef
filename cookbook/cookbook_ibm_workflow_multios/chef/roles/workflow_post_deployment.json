@@ -1,0 +1,31 @@
+{
+  "name": "workflow_post_deployment",
+  "description": "Post-actions for IBM Business Automation Workflow deployment",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "workflow": {
+      "os_users": {
+        "workflow": {
+          "name": "workflowuser01",
+          "gid": "workflowgroup"
+        }
+      },
+      "config": {
+        "celladmin_alias_user": "admin",
+        "celladmin_alias_password": "",
+        "node_hostnames": ""
+      },
+      "install_mode": "nonAdmin",
+      "install_dir": "/home/workflowuser01/IBM/Workflow"
+    }
+  },
+  "override_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[workflow::post_deployment]"
+  ],
+  "env_run_lists": {
+
+  }
+}

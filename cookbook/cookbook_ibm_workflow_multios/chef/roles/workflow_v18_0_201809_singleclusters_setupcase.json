@@ -1,0 +1,39 @@
+{
+  "name": "workflow_v18_0_201809_singleclusters_setupcase",
+  "description": "Setup case for 'IBM Business Automation Workflow 18.0 2018.09 SingleCluster on Multiple Nodes'",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "workflow": {
+      "os_users": {
+        "workflow": {
+          "name": "workflowuser01",
+          "gid": "workflowgroup"
+        }
+      },
+      "install_dir": "/home/workflowuser01/IBM/Workflow",
+      "install_mode": "nonAdmin",
+      "config": {
+        "product_type": "Advanced",
+        "deployment_type": "PC",
+        "cluster_type": "SingleClusters",
+        "deadmin_alias_user": "deadmin",
+        "deadmin_alias_password": "",
+        "celladmin_alias_user": "admin",
+        "celladmin_alias_password": "",
+        "ihs_hostname": "",
+        "ihs_https_port": "",
+        "dmgr_hostname": "",
+        "node_hostnames": ""
+      }
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+  ],
+  "env_run_lists": {
+
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "name": "workflow_v18_0_201806_create_singlecluster",
+  "description": "Setup IBM Business Automation Workflow 18.0 2018.06 SingleCluster",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "ibm": {
+      "sw_repo": ""
+    },
+    "workflow": {
+      "os_users": {
+        "workflow": {
+          "name": "workflowuser01",
+          "gid": "workflowgroup"
+        }
+      },
+      "install_dir": "/home/workflowuser01/IBM/Workflow",
+      "install_mode": "nonAdmin",
+      "config": {
+        "product_type": "Advanced",
+        "deployment_type": "PC",
+        "cluster_type": "SingleCluster",
+        "deadmin_alias_user": "deadmin",
+        "deadmin_alias_password": "",
+        "celladmin_alias_user": "admin",
+        "celladmin_alias_password": "",
+        "dmgr_hostname": "",
+        "node_hostname": "",
+        "database_type": "DB2",
+        "db2_install": "true",
+        "db2_hostname": "",
+        "db2_port": "50000",
+        "db_alias_user": "db2inst1",
+        "db_alias_password": "",
+        "db2_cmndb_name": "CMNDB",
+        "db2_bpmdb_name": "BPMDB",
+        "db2_pdwdb_name": "PDWDB",
+        "db2_cpedb_name": "CPEDB",
+        "cpedb": {
+          "icndb": {
+            "schema": "ICNSA",
+            "tsicn": "WFICNTS"
+          },
+          "dosdb": {
+            "schema": "DOSSA",
+            "tsdosdata": "DOSSA_DATA_TS",
+            "tsdoslob": "DOSSA_LOB_TS",
+            "tsdosidx": "DOSSA_IDX_TS"
+          },
+          "tosdb": {
+            "schema": "TOSSA",
+            "tstosdata": "TOSSA_DATA_TS",
+            "tstoslob": "TOSSA_LOB_TS",
+            "tstosidx": "TOSSA_IDX_TS"
+          }
+        },
+        "oracle": {
+          "hostname": "",
+          "port": "1521",
+          "database_name": "orcl",
+          "jdbc_driver": "",
+          "shareddb": {
+            "username": "cmnuser",
+            "password": ""
+          },
+          "cellonlydb": {
+            "username": "celluser",
+            "password": ""
+          },
+          "psdb": {
+            "username": "psuser",
+            "password": ""
+          },
+          "icndb": {
+            "username": "icnuser",
+            "password": "",
+            "tsicn": "WFICNTS"
+          },
+          "dosdb": {
+            "username": "dosuser",
+            "password": "",
+            "tsdosdata": "DOSSA_DATA_TS"
+          },
+          "tosdb": {
+            "username": "tosuser",
+            "password": "",
+            "tstosdata": "TOSSA_DATA_TS"
+          },
+          "pdwdb": {
+            "username": "pdwuser",
+            "password": ""
+          }
+        },
+        "ps_environment_purpose": "Production",
+        "ps_offline": "false",
+        "ps_pc_transport_protocol": "https",
+        "ps_pc_hostname": "",
+        "ps_pc_port": "9443",
+        "ps_pc_contextroot_prefix": "",
+        "ps_pc_alias_user": "admin",
+        "ps_pc_alias_password": "",
+        "metering": {
+          "identifier_name": "",
+          "url": "",
+          "apikey": ""
+        }
+      }
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[workflow::create_singlecluster]"
+  ],
+  "env_run_lists": {
+
+  }
+}

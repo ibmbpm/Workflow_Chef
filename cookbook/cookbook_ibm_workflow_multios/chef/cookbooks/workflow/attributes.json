@@ -1,0 +1,1293 @@
+{
+    "ibm": {
+        "sw_repo": {
+            "default": "",
+            "description": "The location from which to download installation images.",
+            "displayname": "Business Automation Workflow images location",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "ifix_repo": {
+            "default": "",
+            "description": "The location from which to download ifixes.",
+            "displayname": "Business Automation Workflow ifixes location",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "fixpack_repo": {
+            "default": "",
+            "description": "The location from which to download fix packs.",
+            "displayname": "Business Automation Workflow fix packs location",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "log_dir": {
+            "default": "/var/log/ibm_cloud",
+            "description": "The log directory for all log files that are generated during installation and configuration.",
+            "displayname": "Business Automation Workflow installation & configuration log directory",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        }
+    },
+    "workflow": {
+        "install_mode": {
+            "choice": [
+                "admin",
+                "nonAdmin",
+                "group"
+            ],
+            "default": "admin",
+            "description": "In what mode you install Business Automation Workflow.",
+            "displayname": "Business Automation Workflow install mode",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "options": [
+                "admin",
+                "nonAdmin",
+                "group"
+            ],
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "true",
+            "type": "string"
+        },
+        "os_users": {
+            "workflow": {
+                "comment": {
+                    "default": "Business Automation Workflow OS user",
+                    "description": "A comment which you can add when you create the user identifier.",
+                    "displayname": "Business Automation Workflow user comment for user",
+                    "hidden": "true",
+                    "immutable_after_create": "true",
+                    "parm_type": "node",
+                    "precedence_level": "node",
+                    "required": "true",
+                    "secret": "false",
+                    "selectable": "false",
+                    "type": "string"
+                },
+                "gid": {
+                    "default": "wfgrp",
+                    "description": "The name of the operating system group that will be allocated to the product installation.",
+                    "displayname": "Business Automation Workflow user group name",
+                    "hidden": "false",
+                    "immutable_after_create": "true",
+                    "parm_type": "node",
+                    "precedence_level": "node",
+                    "required": "true",
+                    "secret": "false",
+                    "selectable": "false",
+                    "type": "string"
+                },
+                "home": {
+                    "default": "/home/wfuser",
+                    "description": "The home directory for the operating system user, to be used for product installation.",
+                    "displayname": "Business Automation Workflow installation userid home directory",
+                    "hidden": "true",
+                    "immutable_after_create": "true",
+                    "parm_type": "node",
+                    "precedence_level": "node",
+                    "required": "true",
+                    "secret": "false",
+                    "selectable": "false",
+                    "type": "string"
+                },
+                "name": {
+                    "default": "wfuser",
+                    "description": "The operating system user identifier that you use to install the product. This identifier is created if it does not exist.",
+                    "displayname": "Business Automation Workflow installation userid",
+                    "hidden": "false",
+                    "immutable_after_create": "true",
+                    "parm_type": "node",
+                    "precedence_level": "node",
+                    "required": "true",
+                    "secret": "false",
+                    "selectable": "false",
+                    "type": "string"
+                },
+                "shell": {
+                    "default": "/bin/bash",
+                    "description": "The default shell for the operating system user identifier.",
+                    "displayname": "Business Automation Workflow userid default shell",
+                    "hidden": "true",
+                    "immutable_after_create": "true",
+                    "parm_type": "node",
+                    "precedence_level": "node",
+                    "required": "true",
+                    "secret": "false",
+                    "selectable": "false",
+                    "type": "string"
+                }
+            }
+        },
+        "version": {
+            "choice": [
+                "18001"
+            ],
+            "default": "",
+            "description": "The release and fix pack level of the Business Automation Workflow package you are installing. For example, 18001 for version 18.0.0.1.",
+            "displayname": "Business Automation Workflow Version",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "options": [
+                "18001"
+            ],
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "true",
+            "type": "string"
+        },
+        "install_dir": {
+            "default": "/opt/IBM/Workflow",
+            "description": "The installation root directory for Business Automation Workflow.",
+            "displayname": "Business Automation Workflow product installation directory",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "im_version": {
+            "default": "",
+            "description": "The Installation Manager version number that is included in Workflow installation images.",
+            "displayname": "Installation Manager version",
+            "hidden": "true",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "ifix_names": {
+            "default": "",
+            "description": "The ifix list in string format. For example \"ifix1.zip, ifix2.zip, ifix3.zip\"",
+            "displayname": "Ifix names",
+            "hidden": "false",
+            "immutable_after_create": "false",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "fixpack_names_list": {
+            "default": "",
+            "description": "The fix pack list in string format. For example \"cf1.tar.gz, cf2.tar.gz, cf3.tar.gz\"",
+            "displayname": "Fix pack names",
+            "hidden": "false",
+            "immutable_after_create": "false",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "features": {
+            "choice": [
+                "WorkflowEnterprise.Production",
+                "WorkflowEnterprise.NonProduction"
+            ],
+            "default": "WorkflowEnterprise.Production",
+            "description": "The Business Automation Workflow feature, for example 'WorkflowEnterprise.Production' or 'WorkflowEnterprise.NonProduction'.",
+            "displayname": "Business Automation Workflow feature",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "options": [
+                "WorkflowEnterprise.Production",
+                "WorkflowEnterprise.NonProduction"
+            ],
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "true",
+            "type": "string"
+        },
+        "offering_id": {
+            "default": "",
+            "description": "The product identifier of the Business Automation Workflow offering.",
+            "displayname": "Business Automation Workflow offering id",
+            "hidden": "true",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "offering_version": {
+            "default": "",
+            "description": "The Business Automation Workflow offering version value.",
+            "displayname": "Business Automation Workflow offering version",
+            "hidden": "true",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "profile_id": {
+            "default": "",
+            "description": "The profile information that will be injected into the response file and used to install Business Automation Workflow.",
+            "displayname": "Business Automation Workflow profile id",
+            "hidden": "true",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "config": {
+            "product_type": {
+                "choice": [
+                    "Advanced"
+                ],
+                "default": "Advanced",
+                "description": "The product types: Express, Standard, Advanced, or AdvancedOnly.",
+                "displayname": "Business Automation Workflow product type",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "options": [
+                    "PC",
+                    "PS"
+                ],
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "true",
+                "type": "string"
+            },
+            "deployment_type": {
+                "choice": [
+                    "Advanced"
+                ],
+                "default": "PC",
+                "description": "The type of the deployment environment: PC or PS. Use 'PC' to create a Workflow Center deployment environment and 'PS' to create a Workflow Server deployment environment.",
+                "displayname": "Business Automation Workflow deployment environment type",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "options": [
+                    "PC",
+                    "PS"
+                ],
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "true",
+                "type": "string"
+            },
+            "cluster_type": {
+                "choice": [
+                    "SingleCluster"
+                ],
+                "default": "SingleCluster",
+                "description": "The type of cluster: SingleCluster or ThreeClusters(which will be supported later).",
+                "displayname": "Business Automation Workflow cluster type",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "options": [
+                    "SingleCluster"
+                ],
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "true",
+                "type": "string"
+            },
+            "deadmin_alias_user": {
+                "default": "deadmin",
+                "description": "The user name of the deployment environment administrator.",
+                "displayname": "DE administrator user name",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "deadmin_alias_password": {
+                "default": "",
+                "description": "The password of the deployment environment administrator.",
+                "displayname": "DE administrator password",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "celladmin_alias_user": {
+                "default": "admin",
+                "description": "The user name of the cell administrator.",
+                "displayname": "Cell administrator user name",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "celladmin_alias_password": {
+                "default": "",
+                "description": "The password of the cell administrator.",
+                "displayname": "Cell administrator password",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "dmgr_hostname": {
+              "default": "",
+              "description": "The fully qualified domain name of the deployment manager to federate this node to.",
+              "displayname": "Business Automation Workflow Deployment Manager hostname",
+              "hidden": "false",
+              "immutable_after_create": "true",
+              "parm_type": "node",
+              "precedence_level": "node",
+              "required": "true",
+              "secret": "false",
+              "selectable": "false",
+              "type": "string"
+            },
+            "node_hostname": {
+              "default": "",
+              "description": "The fully qualified domain name of this node.",
+              "displayname": "Business Automation Workflow node hostname",
+              "hidden": "false",
+              "immutable_after_create": "true",
+              "parm_type": "node",
+              "precedence_level": "node",
+              "required": "true",
+              "secret": "false",
+              "selectable": "false",
+              "type": "string"
+            },
+            "database_type": {
+                "default": "DB2",
+                "description": "The database type for configuration, DB2 or Oracle.",
+                "displayname": "Database Type for Configuration",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "db2_hostname": {
+              "default": "",
+              "description": "The fully qualified domain name of the DB2 database.",
+              "displayname": "Business Automation Workflow DB2 database hostname",
+              "hidden": "false",
+              "immutable_after_create": "true",
+              "parm_type": "node",
+              "precedence_level": "node",
+              "required": "true",
+              "secret": "false",
+              "selectable": "false",
+              "type": "string"
+            },
+            "db2_port": {
+                "default": "50000",
+                "description": "The port number of the DB2 database.",
+                "displayname": "DB2 database port",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "db_alias_user": {
+                "default": "db2inst1",
+                "description": "The username of the DB2 database, which will be used to create the database user authentication alias.",
+                "displayname": "DB2 database authentication alias user",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },   
+            "db_alias_password": {
+                "default": "",
+                "description": "The password of the DB2 database, which will be used to create the database user authentication alias.",
+                "displayname": "DB2 database authentication alias password",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "db2_bpmdb_name": {
+                "default": "BPMDB",
+                "description": "The name of the Business Automation Workflow ProcessServerDb database.",
+                "displayname": "Business Automation Workflow ProcessServerDb database name",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "false",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "db2_pdwdb_name": {
+                "default": "PDWDB",
+                "description": "The name of the Business Automation Workflow PerformanceDb database.",
+                "displayname": "Business Automation Workflow PerformanceDb database name",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "false",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "db2_cmndb_name": {
+                "default": "CMNDB",
+                "description": "The name of the Business Automation Workflow CommonDB database.",
+                "displayname": "Business Automation Workflow CommonDB database name",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "db2_cpedb_name": {
+                "default": "CPEDB",
+                "description": "The name of Business Automation Workflow CPEDB database.",
+                "displayname": "Business Automation Workflow CPEDB database name",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "true",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "cpedb": {
+                "icndb": {
+                    "schema": {
+                      "default": "ICNSA",
+                      "description": "Specifies the schema for IBM Content Navigator (ICN)",
+                      "displayname": "Content Database - IBM Content Navigator Schema",
+                      "hidden": "false",
+                      "immutable_after_create": "true",
+                      "parm_type": "node",
+                      "precedence_level": "node",
+                      "required": "true",
+                      "secret": "false",
+                      "selectable": "false",
+                      "type": "string"
+                    },
+                    "tsicn": {
+                      "default": "WFICNTS",
+                      "description": "Specifies the table space for IBM Content Navigator (ICN)",
+                      "displayname": "Content Database - IBM Content Navigator Table Space",
+                      "hidden": "false",
+                      "immutable_after_create": "true",
+                      "parm_type": "node",
+                      "precedence_level": "node",
+                      "required": "true",
+                      "secret": "false",
+                      "selectable": "false",
+                      "type": "string"
+                    }
+                },
+                "dosdb": {
+                    "schema": {
+                      "default": "DOSSA",
+                      "description": "Specifies the schema for the design object store (DOS)",
+                      "displayname": "Content Database - Design Object Store Schema",
+                      "hidden": "false",
+                      "immutable_after_create": "true",
+                      "parm_type": "node",
+                      "precedence_level": "node",
+                      "required": "true",
+                      "secret": "false",
+                      "selectable": "false",
+                      "type": "string"
+                    },
+                    "tsdosdata": {
+                      "default": "DOSSA_DATA_TS",
+                      "description": "Specifies the data table space for the design object store (DOS)",
+                      "displayname": "Content Database - Design Object Store Data Table Space",
+                      "hidden": "false",
+                      "immutable_after_create": "true",
+                      "parm_type": "node",
+                      "precedence_level": "node",
+                      "required": "true",
+                      "secret": "false",
+                      "selectable": "false",
+                      "type": "string"
+                    },
+                    "tsdoslob": {
+                      "default": "DOSSA_LOB_TS",
+                      "description": "Specifies large object table space for the design object store (DOS)",
+                      "displayname": "Content Database - Design Object Store Large Object Table Space",
+                      "hidden": "false",
+                      "immutable_after_create": "true",
+                      "parm_type": "node",
+                      "precedence_level": "node",
+                      "required": "true",
+                      "secret": "false",
+                      "selectable": "false",
+                      "type": "string"
+                    },
+                    "tsdosidx": {
+                      "default": "DOSSA_IDX_TS",
+                      "description": "Specifies index table space for the design object store (DOS)",
+                      "displayname": "Content Database - Design Object Store Index Table Space",
+                      "hidden": "false",
+                      "immutable_after_create": "true",
+                      "parm_type": "node",
+                      "precedence_level": "node",
+                      "required": "true",
+                      "secret": "false",
+                      "selectable": "false",
+                      "type": "string"
+                    }
+                },
+                "tosdb": {
+                    "schema": {
+                      "default": "TOSSA",
+                      "description": "Specifies the schema for the target object store (TOS)",
+                      "displayname": "Content Database - Target Object Store Schema",
+                      "hidden": "false",
+                      "immutable_after_create": "true",
+                      "parm_type": "node",
+                      "precedence_level": "node",
+                      "required": "true",
+                      "secret": "false",
+                      "selectable": "false",
+                      "type": "string"
+                    },
+                    "tstosdata": {
+                      "default": "TOSSA_DATA_TS",
+                      "description": "Specifies data table space for the target object store (TOS)",
+                      "displayname": "Content Database - Target Object Store Data Table Space",
+                      "hidden": "false",
+                      "immutable_after_create": "true",
+                      "parm_type": "node",
+                      "precedence_level": "node",
+                      "required": "true",
+                      "secret": "false",
+                      "selectable": "false",
+                      "type": "string"
+                    },
+                    "tstoslob": {
+                      "default": "TOSSA_LOB_TS",
+                      "description": "Specifies large object table space for the target object store (TOS)",
+                      "displayname": "Content Database - Target Object Store Large Object Table Space",
+                      "hidden": "false",
+                      "immutable_after_create": "true",
+                      "parm_type": "node",
+                      "precedence_level": "node",
+                      "required": "true",
+                      "secret": "false",
+                      "selectable": "false",
+                      "type": "string"
+                    },
+                    "tstosidx": {
+                      "default": "TOSSA_IDX_TS",
+                      "description": "Specifies index table space for the target object store (TOS)",
+                      "displayname": "Content Database - Target Object Store Index Table Space",
+                      "hidden": "false",
+                      "immutable_after_create": "true",
+                      "parm_type": "node",
+                      "precedence_level": "node",
+                      "required": "true",
+                      "secret": "false",
+                      "selectable": "false",
+                      "type": "string"
+                    }
+                }
+            },
+           "oracle": {
+             "hostname": {
+               "default": "",
+               "description": "The hostname of the Oracle database.",
+               "displayname": "Oracle Database Hostname",
+               "hidden": false,
+               "immutable_after_create": false,
+               "parm_type": "node",
+               "precedence_level": "node",
+               "required": false,
+               "secret": false,
+               "selectable": false,
+               "type": "string"
+             },
+             "port": {
+               "default": 1521,
+               "description": "The port number of the Oracle database.",
+               "displayname": "Oracle Database Port",
+               "hidden": false,
+               "immutable_after_create": true,
+               "parm_type": "node",
+               "precedence_level": "node",
+               "required": false,
+               "secret": false,
+               "selectable": false,
+               "type": "string"
+             },
+             "database_name": {
+               "default": "orcl",
+               "description": "The name of the Oracle database.",
+               "displayname": "Oracle Database Name",
+               "hidden": false,
+               "immutable_after_create": true,
+               "parm_type": "node",
+               "precedence_level": "node",
+               "required": false,
+               "secret": false,
+               "selectable": false,
+               "type": "string"
+             },
+             "jdbc_driver": {
+               "default": "",
+               "description": "The name of the Oracle JDBC Driver",
+               "displayname": "Oracle JDBC Driver",
+               "hidden": false,
+               "immutable_after_create": true,
+               "parm_type": "node",
+               "precedence_level": "node",
+               "required": false,
+               "secret": false,
+               "selectable": false,
+               "type": "string"
+             },
+             "shareddb": {
+               "username": {
+                 "default": "cmnuser",
+                 "description": "The user name of the Shared database.",
+                 "displayname": "Shared Database Username",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": false,
+                 "selectable": false,
+                 "type": "string"
+               },
+               "password": {
+                 "default": "",
+                 "description": "The user password of the Shared database.",
+                 "displayname": "Shared Database User Password",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": true,
+                 "selectable": false,
+                 "type": "password"
+               }
+             },
+             "cellonlydb": {
+               "username": {
+                 "default": "celluser",
+                 "description": "The user name of the Cell database.",
+                 "displayname": "Cell Database Username",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": false,
+                 "selectable": false,
+                 "type": "string"
+               },
+               "password": {
+                 "default": "",
+                 "description": "The user password of the Cell database.",
+                 "displayname": "Cell Database User Password",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": true,
+                 "selectable": false,
+                 "type": "password"
+               }
+             },
+             "psdb": {
+               "username": {
+                 "default": "psuser",
+                 "description": "The user name of the Process Server database.",
+                 "displayname": "Process Server Database Username",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": false,
+                 "selectable": false,
+                 "type": "string"
+               },
+               "password": {
+                 "default": "",
+                 "description": "The user password of the Process Server database.",
+                 "displayname": "Process Server Database User Password",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": true,
+                 "selectable": false,
+                 "type": "password"
+               }
+             },
+             "icndb": {
+               "username": {
+                 "default": "icnuser",
+                 "description": "The user name of the IBM Content Navigator (ICN) database.",
+                 "displayname": "IBM Content Navigator Database Username",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": false,
+                 "selectable": false,
+                 "type": "string"
+               },
+               "password": {
+                 "default": "",
+                 "description": "The user password of the IBM Content Navigator (ICN) database.",
+                 "displayname": "IBM Content Navigator Database User Password",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": true,
+                 "selectable": false,
+                 "type": "password"
+               },
+               "tsicn": {
+                 "default": "WFICNTS",
+                 "description": "The table space for IBM Content Navigator (ICN) database.",
+                 "displayname": "IBM Content Navigator Table Space",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": false,
+                 "selectable": false,
+                 "type": "string"
+               }
+             },
+             "dosdb": {
+               "username": {
+                 "default": "dosuser",
+                 "description": "The user name of the Design Object Store (DOS) database.",
+                 "displayname": "Design Object Store Database Username",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": false,
+                 "selectable": false,
+                 "type": "string"
+               },
+               "password": {
+                 "default": "",
+                 "description": "The user password of the Design Object Store database.",
+                 "displayname": "Design Object Store Database User Password",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": true,
+                 "selectable": false,
+                 "type": "password"
+               },
+               "tsdosdata": {
+                 "default": "DOSSA_DATA_TS",
+                 "description": "The data table space for the Design Object Store (DOS) database.",
+                 "displayname": "Design Object Store Data Table Space",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": false,
+                 "selectable": false,
+                 "type": "string"
+               }
+             },
+             "tosdb": {
+               "username": {
+                 "default": "tosuser",
+                 "description": "The user name of the Target Object Stare (TOS) database.",
+                 "displayname": "Target Object Stare Database Username",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": false,
+                 "selectable": false,
+                 "type": "string"
+               },
+               "password": {
+                 "default": "",
+                 "description": "The user password of the Target Object Stare (TOS) database.",
+                 "displayname": "Target Object Store Database User Password",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": true,
+                 "selectable": false,
+                 "type": "password"
+               },
+               "tstosdata": {
+                 "default": "TOSSA_DATA_TS",
+                 "description": "The data table space for the Target Object Stare (TOS) database.",
+                 "displayname": "Target Object Store Data Table Space",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": false,
+                 "selectable": false,
+                 "type": "string"
+               }
+             },
+             "pdwdb": {
+               "username": {
+                 "default": "pdwuser",
+                 "description": "The user name of the Performance Data Warehouse database.",
+                 "displayname": "Performance Data Warehouse Database Username",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": false,
+                 "selectable": false,
+                 "type": "string"
+               },
+               "password": {
+                 "default": "",
+                 "description": "The user password of the Performance Data Warehouse database.",
+                 "displayname": "Performance Data Warehouse Database User Password",
+                 "hidden": false,
+                 "immutable_after_create": true,
+                 "parm_type": "node",
+                 "precedence_level": "node",
+                 "required": false,
+                 "secret": true,
+                 "selectable": false,
+                 "type": "password"
+               }
+             }
+           },
+            "ps_environment_purpose": {
+                "choice": [
+                    "Development",
+                    "Production",
+                    "Staging",
+                    "Test"
+                ],
+                "default": "Development",
+                "description": "The purpose of this Workflow Server environment: Development, Test, Staging, or Production, which is necessary for the Workflow Server deployment environment.",
+                "displayname": "Process Server purpose",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "options": [
+                    "Development",
+                    "Production",
+                    "Staging",
+                    "Test"
+                ],
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "false",
+                "secret": "false",
+                "selectable": "true",
+                "type": "string"
+            },
+            "ps_offline": {
+                "choice": [
+                    "true",
+                    "false"
+                ],
+                "default": "false",
+                "description": "The valid values are true or false. Set it to false if the Workflow Server is online and can be connected to the Workflow Center.",
+                "displayname": "Process Server online/offline",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "options": [
+                    "true",
+                    "false"
+                ],
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "false",
+                "secret": "false",
+                "selectable": "true",
+                "type": "string"
+            },
+            "ps_pc_transport_protocol": {
+                "choice": [
+                    "http",
+                    "https"
+                ],
+                "default": "https",
+                "description": "The valid values are http or https. The transport protocol for communicating with the Workflow Center environment.",
+                "displayname": "Process Center environment transport protocol",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "options": [
+                    "http",
+                    "https"
+                ],
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "false",
+                "secret": "false",
+                "selectable": "true",
+                "type": "string"
+            },
+            "ps_pc_hostname": {
+                "default": "",
+                "description": "The host name of the Workflow Center environment.",
+                "displayname": "Process Center environment hostname",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "false",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "ps_pc_port": {
+                "default": "9443",
+                "description": "The port number of the Process Center environment.",
+                "displayname": "Process Center environment port",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "false",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "ps_pc_contextroot_prefix": {
+                "default": "",
+                "description": "The context root prefix of the Workflow Center environment. If set, the context root prefix must start with a forward slash character (/).",
+                "displayname": "Process Center environment context root prefix",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "false",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "ps_pc_alias_user": {
+                "default": "admin",
+                "description": "The user name of the Workflow Center authentication alias (which is used by online Workflow Server environments to connect to Workflow Center).",
+                "displayname": "Process Center authentication alias user name",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "false",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            },
+            "ps_pc_alias_password": {
+                "default": "",
+                "description": "The password of the Workflow Center authentication alias (which is used by online Workflow Server environments to connect to Workflow Center).",
+                "displayname": "Process Center authentication alias password",
+                "hidden": "false",
+                "immutable_after_create": "true",
+                "parm_type": "node",
+                "precedence_level": "node",
+                "required": "false",
+                "secret": "false",
+                "selectable": "false",
+                "type": "string"
+            }
+        }
+    },
+    "was": {
+        "offering_id": {
+            "default": "",
+            "description": "The product ID of the WebSphere Application Server offering.",
+            "displayname": "WebSphere Application Server offering id",
+            "hidden": "true",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        }
+    },
+    "db2": {
+        "install": {
+            "choice": [
+                "true",
+                "false"
+            ],
+            "default": "true",
+            "description": "A flag to determine whether to install DB2 as the embedded database system.",
+            "displayname": "Embeded DB2",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "options": [
+                "true",
+                "false"
+            ],
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "true",
+            "type": "string"
+        },
+        "offering_id": {
+            "default": "",
+            "description": "The product ID of the Business Automation Workflow Embedded DB2 offering.",
+            "displayname": "Business Automation Workflow Embeded DB2 offering id",
+            "hidden": "true",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "offering_version": {
+            "default": "",
+            "description": "The Business Automation Workflow embeded DB2 offering version value.",
+            "displayname": "Business Automation Workflow Embeded DB2 offering version",
+            "hidden": "true",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "port": {
+            "default": "50000",
+            "description": "The port number of the DB2 database.",
+            "displayname": "DB2 database port",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "username": {
+            "default": "db2inst1",
+            "description": "The username of the DB2 database.",
+            "displayname": "DB2 database username",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },   
+        "password": {
+            "default": "",
+            "description": "The password of the DB2 database.",
+            "displayname": "DB2 database password",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "das_newuser": {
+            "choice": [
+                "true",
+                "false"
+            ],
+            "default": "true",
+            "description": "A flag to determine whether to create a new das user.",
+            "displayname": "DB2 das user creation",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "options": [
+                "true",
+                "false"
+            ],
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "true",
+            "type": "string"
+        },
+        "fenced_newuser": {
+            "choice": [
+                "true",
+                "false"
+            ],
+            "default": "true",
+            "description": "A flag to determine whether to create a new fenced user.",
+            "displayname": "DB2 fenced user creation",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "options": [
+                "true",
+                "false"
+            ],
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "true",
+            "secret": "false",
+            "selectable": "true",
+            "type": "string"
+        },
+        "fenced_username": {
+            "default": "db2fenc1",
+            "description": "The fenced username of the DB2 database.",
+            "displayname": "DB2 database fenced username",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        }, 
+        "fenced_password": {
+            "default": "",
+            "description": "The fenced password of the DB2 database.",
+            "displayname": "DB2 database fenced password",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "das_username": {
+            "default": "dasusr1",
+            "description": "The das username of the DB2 database.",
+            "displayname": "DB2 database das username",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        },
+        "das_password": {
+            "default": "",
+            "description": "The das password of the DB2 database.",
+            "displayname": "DB2 database fenced password",
+            "hidden": "false",
+            "immutable_after_create": "true",
+            "parm_type": "node",
+            "precedence_level": "node",
+            "required": "false",
+            "secret": "false",
+            "selectable": "false",
+            "type": "string"
+        }
+    }
+}

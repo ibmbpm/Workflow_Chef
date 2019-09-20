@@ -1,0 +1,37 @@
+{
+  "name": "workflow_upgrade",
+  "description": "Upgrade IBM Business Automation Workflow to specified fixpack",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "ibm": {
+      "fixpack_repo": ""
+    },
+    "workflow": {
+      "config": {
+        "product_type": "",
+        "node_hostnames": "",
+        "celladmin_alias_user": "admin",
+        "celladmin_alias_password": ""
+      },
+      "install_mode": "nonAdmin",
+      "os_users": {
+        "workflow": {
+          "name": "workflowuser01",
+          "gid": "workflowgroup"
+        }
+      },
+      "install_dir": "/home/workflowuser01/IBM/Workflow",
+      "fixpack_names_list": ""
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[workflow::upgrade]"
+  ],
+  "env_run_lists": {
+
+  }
+}

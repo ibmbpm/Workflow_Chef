@@ -1,0 +1,47 @@
+-- =================================================================
+-- Copyright 2018 IBM Corporation
+--
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+--
+-- http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing, software
+-- distributed under the License is distributed on an "AS IS" BASIS,
+-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- See the License for the specific language governing permissions and
+-- limitations under the License.
+-- =================================================================
+
+-- Create the database:
+CREATE DATABASE <%=@CPEDB_NAME %>
+USING CODESET UTF-8 TERRITORY US COLLATE
+USING
+ SYSTEM PAGESIZE 32768 CATALOG TABLESPACE MANAGED BY SYSTEM USING ('<%=@DB2_DATA_DIR %>/<%=@CPEDB_NAME %>/sys')
+ TEMPORARY TABLESPACE MANAGED BY SYSTEM USING ('<%=@DB2_DATA_DIR %>/<%=@CPEDB_NAME %>/systmp')
+ USER TABLESPACE MANAGED BY SYSTEM USING ('<%=@DB2_DATA_DIR %>/<%=@CPEDB_NAME %>/usr')
+;
+
+
+-- Increase the application heap size
+UPDATE DB CFG FOR <%=@CPEDB_NAME %> USING APPLHEAPSZ 2560;
+
+-- Connect to db
+CONNECT TO <%=@CPEDB_NAME %>;
+
+-- Drop unnecessary default tablespaces
+DROP TABLESPACE USERSPACE1;
+
+UPDATE DB CFG FOR <%=@CPEDB_NAME %> USING LOGFILSIZ 16384 DEFERRED;
+UPDATE DB CFG FOR <%=@CPEDB_NAME %> USING LOGSECOND 64 IMMEDIATE;
+
+-- GRANT CREATETAB,CONNECT,DBADM ON DATABASE TO user <%=@DB2_USER %>;
+-- GRANT SELECT ON SYSIBM.SYSVERSIONS TO user <%=@DB2_USER %>;
+-- GRANT SELECT ON SYSCAT.DATATYPES TO user <%=@DB2_USER %>;
+-- GRANT USAGE on WORKLOAD SYSDEFAULTUSERWORKLOAD TO user <%=@DB2_USER %>;
+UPDATE DB CFG FOR <%=@CPEDB_NAME %> USING NEWLOGPATH '<%=@DB2_DATA_DIR %>/<%=@CPEDB_NAME %>/log' DEFERRED;
+ALTER BUFFERPOOL IBMDEFAULTBP IMMEDIATE SIZE 250 AUTOMATIC;
+
+-- Close connection
+CONNECT RESET;
