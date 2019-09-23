@@ -1,0 +1,48 @@
+# =================================================================
+# Copyright 2018 IBM Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# =================================================================
+def uploadSigners():
+    import jarray
+    from java.lang import Object
+    from com.ibm.ws.ssl.config import ThreadManager
+    from com.ibm.ws.ssl.config import KeyStoreManager
+    false = 0
+    true = 1
+
+    sslAdminMBeans = AdminUtilities.convertToList(AdminControl.queryNames("WebSphere:type=SSLAdmin,*"))
+    print "%s SSLAdmin MBean(s) found: %s" % (len(sslAdminMBeans), sslAdminMBeans)
+
+    ThreadManager.getInstance().setAutoAcceptBootstrapSigner(true)
+    wsks = KeyStoreManager.getInstance().getKeyStore(localKeyStoreName)
+    if wsks:
+        ks = wsks.getKeyStore(false, false)
+        for alias in ks.aliases():
+            signer = ks.getCertificate(alias)
+            if signer:
+                for sslAdminMBean in sslAdminMBeans:
+                    sslAdminMBean = AdminControl.makeObjectName(sslAdminMBean)
+                    print "Setting certificate entry for alias %s on server %s of node %s" % (alias, sslAdminMBean.getKeyProperty("process"), sslAdminMBean.getKeyProperty("node"))
+                    # calling this for all MBeans avoids the need for a full node sync
+                    parms = [remoteKeyStoreName, "setCertificateEntry", jarray.array([alias, signer], Object)]
+                    AdminControl.invoke_jmx(sslAdminMBean, "invokeRemoteKeyStoreCommand", parms, ["java.lang.String", "java.lang.String", "[Ljava.lang.Object;"])
+                    AdminControl.invoke_jmx(sslAdminMBean, "clearSSLContextCache", [], [])
+#enddef
+
+from com.ibm.wsspi.scripting import ScriptingExtensionHelper
+
+if ScriptingExtensionHelper.getCurrentScriptingAdminClient():
+    remoteKeyStoreName = "CellDefaultTrustStore"
+    localKeyStoreName = "ClientDefaultTrustStore"
+    uploadSigners()

@@ -1,0 +1,62 @@
+{
+  "name": "workflow_v18_0_201806_install",
+  "description": "Install IBM Business Automation Workflow 18.0 2018.06",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "ibm": {
+      "log_dir": "/home/workflowuser01/var/log/ibm_cloud",
+      "sw_repo": ""
+    },
+    "os_admin": {
+      "user": ""
+    },
+    "workflow": {
+      "install_mode": "nonAdmin",
+      "os_users": {
+        "workflow": {
+          "name": "workflowuser01",
+          "gid": "workflowgroup",
+          "comment": "OS administrative user for Workflow installation",
+          "home": "/home/workflowuser01",
+          "shell": "/bin/bash"
+        }
+      },
+      "version": "18001",
+      "im_version": "1.8.9",
+      "features": "WorkflowEnterprise.Production",
+      "install_dir": "/home/workflowuser01/IBM/Workflow",
+      "offering_id": "com.ibm.bpm.ADV.v85",
+      "offering_version": "8.6.10018001",
+      "profile_id": "IBM WebSphere Application Server Network Deployment V8.5"
+    },
+    "was": {
+      "offering_id": "com.ibm.websphere.ND.v85"
+    },
+    "db2": {
+      "install": "true",
+      "offering_id": "com.ibm.ws.DB2EXP.linuxia64",
+      "offering_version": "11.1.0",
+      "port": "50000",
+      "username": "db2inst1",
+      "password": "",
+      "das_newuser": "true",
+      "fenced_newuser": "true",
+      "fenced_username": "db2fenc1",
+      "fenced_password": "",
+      "das_username": "dasusr1",
+      "das_password": ""
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[workflow::prereq]",
+    "recipe[workflow::prereq_check]",
+    "recipe[workflow::install]"
+  ],
+  "env_run_lists": {
+
+  }
+}

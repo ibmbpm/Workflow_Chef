@@ -1,0 +1,45 @@
+# =================================================================
+# Copyright 2018 IBM Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# =================================================================
+
+# ulimits for IBM Business Automation Workflow
+
+# - stack - maximum stack size (KB)
+<%= @OSUSER %> soft stack 32768
+<%= @OSUSER %> hard stack 32768
+# - nofile - maximum number of open files
+<%= @OSUSER %> soft nofile 65536
+<%= @OSUSER %> hard nofile 65536
+# TODO: no need to enable below settings, for that
+# default value is bigger than following settings on Ubuntu OS
+# - nproc - maximum number of processes
+#<%= @OSUSER %> soft nproc 16384
+#<%= @OSUSER %> hard nproc 16384
+# - fsize - maximum file size
+#<%= @OSUSER %> soft fsize 6291453
+#<%= @OSUSER %> hard fsize 6291453
+
+# - stack - maximum stack size (KB)
+<%= @OSADMINUSER %> soft stack 32768
+<%= @OSADMINUSER %> hard stack 32768
+# - nofile - maximum number of open files
+<%= @OSADMINUSER %> soft nofile 65536
+<%= @OSADMINUSER %> hard nofile 65536
+# - nproc - maximum number of processes
+#<%= @OSADMINUSER %> soft nproc 16384
+#<%= @OSADMINUSER %> hard nproc 16384
+# - fsize - maximum file size
+#<%= @OSADMINUSER %> soft fsize 6291453
+#<%= @OSADMINUSER %> hard fsize 6291453

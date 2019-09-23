@@ -36,14 +36,14 @@ Bootstrap () {
 
   local task_bootstraps=( )
 
-  knife bootstrap $WF01_IP_ADDR -N $WF01_ON_CHEF_SERVER -P "$WF01_ROOT_PW" -y | Purification_Logs >>$WF01_LOG &
+  knife bootstrap $WF01_IP_ADDR -N $WF01_ON_CHEF_SERVER -x $WF01_ROOT_USERNAME -P "$WF01_ROOT_PW" -y | Purification_Logs >>$WF01_LOG &
   local TASK_WF01_BOOTSTRAP=$!
   readonly TASK_WF01_BOOTSTRAP
   task_bootstraps+=("$TASK_WF01_BOOTSTRAP")
   echo
   echo "$(date -Iseconds), MTASK: $LOG_WF01_NAME Bootstrap starts"
 
-  knife bootstrap $WF02_IP_ADDR -N $WF02_ON_CHEF_SERVER -P "$WF02_ROOT_PW" -y | Purification_Logs >> $WF02_LOG  &
+  knife bootstrap $WF02_IP_ADDR -N $WF02_ON_CHEF_SERVER -x $WF02_ROOT_USERNAME -P "$WF02_ROOT_PW" -y | Purification_Logs >> $WF02_LOG  &
   local TASK_WF02_BOOTSTRAP=$!
   readonly TASK_WF02_BOOTSTRAP
   task_bootstraps+=("$TASK_WF02_BOOTSTRAP")
@@ -60,28 +60,28 @@ WF01_step1 () {
 
   knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_INSTALL_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF01_ROLE_INSTALL_NAME" -C "$WF01_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
+  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $WF01_ROOT_USERNAME -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
   local TASK_WF01_INSTALL=$!
   readonly TASK_WF01_INSTALL
   Monitor 0 "$TASK_WF01_INSTALL" "$LOG_WF01_NAME Installation(4 tasks left)" || return 1
 
   knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_UPGRADE_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF01_ROLE_UPGRADE_NAME" -C "$WF01_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
+  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $WF01_ROOT_USERNAME -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
   local TASK_WF01_UPGRADE=$!
   readonly TASK_WF01_UPGRADE
   Monitor 0 "$TASK_WF01_UPGRADE" "$LOG_WF01_NAME Upgrade(3 tasks left)" || return 1
 
   knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_APPLYIFIX_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF01_ROLE_APPLYIFIX_NAME" -C "$WF01_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
+  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $WF01_ROOT_USERNAME -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
   local TASK_WF01_APPLYIFIX=$!
   readonly TASK_WF01_APPLYIFIX
   Monitor 0 "$TASK_WF01_APPLYIFIX" "$LOG_WF01_NAME Applyifix(2 tasks left)" || return 1
 
   knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_CONFIG_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF01_ROLE_CONFIG_NAME" -C "$WF01_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
+  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $WF01_ROOT_USERNAME -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
   local TASK_WF01_CONFIG=$!
   readonly  TASK_WF01_CONFIG
   Monitor 0 "$TASK_WF01_CONFIG" "$LOG_WF01_NAME Configuration(1 task left)"
@@ -97,7 +97,7 @@ WF01_step2 () {
   # Monitor 0 "$TASK_WF01_WEBSERVER" "$LOG_WF01_NAME Configure Web Server" || return 1
 
   knife node run_list add $WF01_ON_CHEF_SERVER "role[$WF01_ROLE_POSTDEV_NAME]" &&
-  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
+  knife ssh "name:$WF01_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $WF01_ROOT_USERNAME -P "$WF01_ROOT_PW" | Purification_Logs >> $WF01_LOG &
   local TASK_WF01_POSTDEV=$!
   readonly TASK_WF01_POSTDEV
   Monitor 0 "$TASK_WF01_POSTDEV" "$LOG_WF01_NAME Post Action(0 tasks left)"
@@ -109,21 +109,21 @@ WF02_step1 () {
 
   knife node run_list add $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_INSTALL_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF02_ROLE_INSTALL_NAME" -C "$WF02_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
+  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $WF02_ROOT_USERNAME -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
   local TASK_WF02_INSTALL=$!
   readonly TASK_WF02_INSTALL
   Monitor 0 "$TASK_WF02_INSTALL" "$LOG_WF02_NAME Installation(4 tasks left)" || return 1
 
   knife node run_list add $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_UPGRADE_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF02_ROLE_UPGRADE_NAME" -C "$WF02_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
+  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $WF02_ROOT_USERNAME -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
   local TASK_WF02_UPGRADE=$!
   readonly TASK_WF02_UPGRADE
   Monitor 0 "$TASK_WF02_UPGRADE" "$LOG_WF02_NAME Upgrade(3 tasks left)" || return 1
 
   knife node run_list add $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_APPLYIFIX_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF02_ROLE_APPLYIFIX_NAME" -C "$WF02_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
+  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $WF02_ROOT_USERNAME -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
   local TASK_WF02_APPLYIFIX=$!
   readonly TASK_WF02_APPLYIFIX
   Monitor 0 "$TASK_WF02_APPLYIFIX" "$LOG_WF02_NAME Applyifix(2 tasks left)"
@@ -134,13 +134,13 @@ WF02_step2 () {
 
   knife node run_list add $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_CONFIG_NAME]" &&
   knife vault update $BAW_CHEF_VAULT_NAME $BAW_CHEF_VAULT_ITEM -S "role:$WF02_ROLE_CONFIG_NAME" -C "$WF02_ON_CHEF_SERVER" -M client || { echo "Error when updating chef vault"; return 1; }
-  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
+  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $WF02_ROOT_USERNAME -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
   local TASK_WF02_CONFIG=$!
   readonly  TASK_WF02_CONFIG
   Monitor 0 "$TASK_WF02_CONFIG" "$LOG_WF02_NAME Configuration(1 task left)" || return 1
 
   knife node run_list add $WF02_ON_CHEF_SERVER "role[$WF02_ROLE_POSTDEV_NAME]" &&
-  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
+  knife ssh "name:$WF02_ON_CHEF_SERVER" -a ipaddress "sudo chef-client -l info -L $LOCAL_CHEF_CLIENT_LOG" -x $WF02_ROOT_USERNAME -P "$WF02_ROOT_PW" | Purification_Logs >> $WF02_LOG &
   local TASK_WF02_POSTDEV=$!
   readonly TASK_WF02_POSTDEV
   Monitor 0 "$TASK_WF02_POSTDEV" "$LOG_WF02_NAME Post Action(0 tasks left)"

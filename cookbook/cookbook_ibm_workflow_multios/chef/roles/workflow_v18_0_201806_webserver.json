@@ -1,0 +1,36 @@
+{
+  "name": "workflow_v18_0_201806_webserver",
+  "description": "Adds a WebServer to the Workflow cell",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "workflow": {
+      "runas_user": "workflouser01",
+      "runas_group": "workflowgroup",
+      "config": {
+        "deadmin_alias_user": "deadmin",
+        "dmgr_hostname": "workflow34"
+      },
+      "install_dir": "/home/workflowuser01/IBM/Workflow"
+    },
+    "ihs": {
+      "host_name": "ihs34",
+      "node_name": "unmanaged_node",
+      "cell_name": "PCCell1",
+      "port": "443",
+      "install_root": "/opt/IBM/HTTPServer",
+      "plugin_root": "/opt/IBM/WebSphere/Plugins",
+      "admin_port": "8008",
+      "admin_user": "ihsadmin"
+    }
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[workflow::webserver]"
+  ],
+  "env_run_lists": {
+
+  }
+}

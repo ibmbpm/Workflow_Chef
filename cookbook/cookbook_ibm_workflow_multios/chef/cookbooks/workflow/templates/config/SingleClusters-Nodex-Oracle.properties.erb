@@ -1,0 +1,44 @@
+# =================================================================
+# Copyright 2018 IBM Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# =================================================================
+
+##########################
+# Node properties: Node<%=@NODE_INDEX %> #
+##########################
+bpm.de.node.<%=@NODE_INDEX %>.name=Node<%=@NODE_INDEX %>
+# If the host name is the same as the deployment manager, this node will be created on the same computer. Do not use localhost for environments that span multiple hosts.
+bpm.de.node.<%=@NODE_INDEX %>.hostname=<%=@NODE_HOST_NAME %>
+# The installation location of the IBM Business Automation Workflow product. If you want to use a backslash character (\) in your properties file, you must use an escape backslash before it; for example, bpm.de.node.1.installPath=C:\\IBM\\BPM\\v8.6.
+bpm.de.node.<%=@NODE_INDEX %>.installPath=<%=@BAW_INSTALL_PATH %>
+# The name of the node profile.
+bpm.de.node.<%=@NODE_INDEX %>.profileName=Node<%=@NODE_INDEX %>Profile
+# The file path of the managed node profile. It must be a valid path for the target system and must not be currently in use. You must have permissions to write to the directory. To use the default path, do not specify any value for the property. If you want to use a backslash character (\) in your properties file, you must use an escape backslash before it; for example, bpm.dmgr.profilePath=C:\\IBM\\BPM\\v8.6\\profiles\\Node1Profile.
+bpm.de.node.<%=@NODE_INDEX %>.profilePath=
+# Custom options that are passed to the 'manageprofiles' command and used primarily to customize port assignments.
+bpm.de.node.<%=@NODE_INDEX %>.profileOptions=
+# To override the default port assignments for this profile, specify a starting port number for generating and assigning ports.
+bpm.de.node.<%=@NODE_INDEX %>.initialPortAssignment=
+# The value for the JDBC driver path WebSphere environment variable.
+bpm.de.node.<%=@NODE_INDEX %>.jdbcDriverPath=${WAS_INSTALL_ROOT}/jdbcdrivers/Oracle
+
+###################################################
+# Cluster member properties: SingleClusterMember<%=@NODE_INDEX %> #
+###################################################
+bpm.de.node.<%=@NODE_INDEX %>.clusterMember.1.name=SingleClusterMember<%=@NODE_INDEX %>
+# The cluster that this cluster member belongs to. This value should correspond to the name of a cluster defined in this file.
+bpm.de.node.<%=@NODE_INDEX %>.clusterMember.1.cluster=SingleCluster
+# The proportion of requests that are sent to this cluster member.
+bpm.de.node.<%=@NODE_INDEX %>.clusterMember.1.weight=2
+bpm.de.node.<%=@NODE_INDEX %>.clusterMember.1.initialPortAssignment=

@@ -1,0 +1,88 @@
+# =================================================================
+# Copyright 2018 IBM Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# =================================================================
+
+# CONSTANTS
+ACTION_STOP = "STOP"
+ACTION_START = "START"
+
+def wsadminToList(inStr):
+    outList = []
+    if (len(inStr) > 0 and inStr[0] == '[' and inStr[-1] == ']'):
+        tmpList = inStr[1:-1].split() #splits space-separated lists,
+    else:
+        tmpList = inStr.split("\n")   #splits for Windows or Linux
+    for item in tmpList:
+        item = item.rstrip();         #removes any Windows "\r"
+        if (len(item) > 0):
+            outList.append(item)
+    return outList;
+
+def getClusterNames():
+    clusterNames = []
+    clusterList = wsadminToList(AdminConfig.list('ServerCluster'))
+    for cluster in clusterList:
+        clusterNames.append(AdminConfig.showAttribute(cluster,'name'))
+    return clusterNames
+
+def getAllNodeNames():
+    nodeNames = []
+    nodeList = wsadminToList(AdminConfig.list("Node"))
+    for node in nodeList:
+        nodeNames.append(AdminConfig.showAttribute(node, "name"))
+    return nodeNames
+
+# Full node resync
+def fullNodeResync():
+    cellName = AdminConfig.showAttribute(AdminConfig.list('Cell'), 'name')
+    cellSyncMbean = AdminControl.completeObjectName('type=CellSync,process=dmgr,*')
+    # print cellSyncMbean
+    for nodeName in getAllNodeNames():
+        configRepoMbean = AdminControl.completeObjectName('name=repository,type=ConfigRepository,node=' + nodeName + ',process=nodeagent,*')
+        if(configRepoMbean):
+            # print configRepoMbean
+            AdminControl.invoke(configRepoMbean, 'refreshRepositoryEpoch')
+
+            syncNodeStatus = AdminControl.invoke(cellSyncMbean, 'syncNode', '[' + nodeName + ']', '[java.lang.String]')
+            while(syncNodeStatus != "true"):
+                print "Sync in Progress"
+                sleep (5)
+                syncNodeStatus = AdminControl.invoke(cellSyncMbean, 'syncNode', '[' + nodeName + ']', '[java.lang.String]')
+            print "CellSync syncNode [" + nodeName + "] Complete"
+
+# full sync all nodes
+fullNodeResync()
+
+# TODO: for ThreeCluster environment, 
+# Shutdown Order:
+# 1: Support
+# 2: Application
+# 3: Messaging
+# Startup Order:
+# 1: Messaging
+# 2: Application
+# 3: Support
+# stop cluster and start cluster
+cellName = AdminConfig.showAttribute(AdminConfig.list('Cell'), 'name')
+for clusterName in getClusterNames():
+    _cluster = AdminControl.completeObjectName('name=' + clusterName + ',cell=' + cellName + ',type=Cluster,*')
+    if (_cluster):
+        AdminControl.invoke(_cluster, 'rippleStart')
+        state = AdminControl.getAttribute(_cluster, "state")
+        while (state != "websphere.cluster.running"):
+            print "cluster['" + clusterName + "'] rippleStart in Progress"
+            sleep (10)
+            state = AdminControl.getAttribute(_cluster, "state")
+        print "cluster['" + clusterName + "'] rippleStart Complete"

@@ -1,0 +1,26 @@
+{
+  "name": "workflow_ihs_ssl",
+  "description": "Configures a IHS node to use SSL",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+    "ihs": {
+      "host_name": "",
+      "port": "443",
+      "install_root": "/opt/IBM/HTTPServer",
+      "keystore": "/opt/IBM/HTTPServer/conf/",
+      "keystore_password": "WebAS"
+    },
+    "runas_user": "",
+    "runas_group": ""
+  },
+  "override_attributes": {
+
+  },
+  "chef_type": "role",
+  "run_list": [
+    "recipe[workflow::ihs]"
+  ],
+  "env_run_lists": {
+
+  }
+}

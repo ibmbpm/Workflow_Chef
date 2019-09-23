@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+# =================================================================
+# Copyright 2018 IBM Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# =================================================================
+-->
+<!--
+    Read and accept the license terms and run the following command to install: 
+      <extract_directory>/IM64/installc -acceptLicense input <fullpath_response_file_dir>/workflowEnterprise_linux_response_root_64bit.xml -log <preferred_log_location>/silent_install.log
+    or, if IBM Installation Manager (IM) 32 bit edition is already installed, use the following command 
+     <extract_directory>/IM/installc -acceptLicense input <fullpath_response_file_dir>/workflowEnterprise_linux_response_root_64bit.xml -log <preferred_log_location>/silent_install.log
+-->
+
+<agent-input>
+    <!-- ======================================================================
+    All repositories are listed here.
+    A repository can be either a local location or a live repository.
+    
+    If you have a local repository, replace the appropriate value below.
+    You do not need to remove the repository from this section if you decide not to install 
+    that product.
+
+    If IBM Installation Manager (IM) 32 bit edition is already installed, update the IM Repository Location with following line,  
+        <repository location='../../IM/' temporary='true'/>
+    =============================================================================--> 
+    <server>
+        <!-- ==================== IBM Installation Repository Location =====================--> 
+        <repository location='<%= @IM_REPO_LOCATION %>' temporary='true'/>
+        <!-- ================= IBM Business Automation Workflow Enterprise, WebSphere Application Server ND, DB2 Advanced Workgroup Server Edition ===================-->
+        <repository location="<%= @REPO_LOCATION %>" />
+    </server>
+    
+    
+    <!-- ======================================================================
+    This profile node defines where IBM Installation Manager (IM) is/or will be installed.
+    
+    Modify where IBM Installation Manager is/or will be installed by modifying the
+    installLocation values to specify the correct directory. 
+
+    Note :
+        * If the Installation Manager is already installed, use the same Installation_root directory for the installLocation value.  
+          Existing Installation Manager will be upgraded if needed. 
+    ============================================================================--> 
+     <profile kind='self' installLocation='<%= @IM_INSTALL_LOCATION %>/eclipse' id='IBM Installation Manager'>
+
+
+    </profile>
+
+    <!-- ======================================================================
+    Remove the comments, and modify the value to change the default location of the eclipseCache, shared resources directory
+    (only if no cache has been created yet).
+    This tag will be ignored if the value is already defined during installation of other packages that are in the same group.
+    ============================================================================--> 
+    <!--
+    <preference value="<%= @IMSHARED %>" name="com.ibm.cic.common.core.preferences.eclipseCache" /> 
+    -->
+
+    <!-- ======================================================================
+    This installation node directs the IBM Installation Manager installer to install IBM Installation Manager.
+    You do not need to edit this line. If IBM Installation Manager is already installed, this instruction is skipped.
+    If IBM Installation Manager is not installed, this instruction installs it.
+    <install>
+        <offering features='agent_core,agent_jre' id='com.ibm.cic.agent'/>
+    </install>
+    ============================================================================--> 
+    
+    
+    <!-- ======================================================================
+    This profile node defines where IBM Business Automation Workflow Enterprise is installed
+    
+    Modify the installLocation values to specify the correct directory where IBM Business Automation Workflow Enterprise is installed.
+
+
+    If the specified profile node ID exists, you must also change the profile node ID.
+    
+    All passwords should be encrypted. Please do not use clear text passwords. In order to create an encrypted password, follow the steps below:
+            1. Open a command prompt window.
+            2. Run <IM_IMAGE_LOC>\tools\imutilsc -silent -nosplash encryptString <PASSWORD>
+    Running the above command should give you the encrypted version of your clear text password <PASSWORD>. 
+    Copy the encrypted password & use it in this file, to replace ${ENCRYPTED_PWD}
+
+    If you are installing IBM DB2 Advanced Workgroup Server Edition or want to use an existing IBM DB2 Advanced Workgroup Server Edition, you will need to include the appropriate keys in the profile section below.
+    
+    Key                             Default Value   Explanation                         Required
+    user.db2.instance.username                      DB2 instance user name              Always
+    user.db2.instance.password                      DB2 instance password               Always
+    user.db2.das.newuser            true/false      Is DB2 DAS user a new user?         If user.db2.use.existing = false
+    user.db2.fenced.newuser         true/false      Is DB2 fenced user a new user?      If user.db2.use.existing = false
+    user.db2.fenced.username                        DB2 fenced user name                If user.db2.use.existing = false
+    user.db2.fenced.password                        DB2 fenced password                 If user.db2.use.existing = false and user.db2.fenced.newuser = true
+    user.db2.das.username                           DB2 DAS user name                   If user.db2.use.existing = false
+    user.db2.das.password                           DB2 DAS password                    If user.db2.use.existing = false and user.db2.das.newuser = true
+    user.db2.port                   50000           DB2 port                            Always
+
+    ============================================================================--> 
+    <profile installLocation='<%= @INSTALL_LOCATION %>' id='<%= @PROFILE_ID %>'>
+
+
+
+        <data key='user.wasjava' value='java8'/>
+        <data key="cic.selector.nl" value="en" />
+        <data key='user.import.profile' value='false'/>
+        <data key='user.select.64bit.image,<%= @WAS_OFFERING_ID %>' value='true'/>
+        
+
+        <!-- To install DB2 Advanced Workgroup Server Edition, remove the comments from the lines below, and update the DB2 user name and encrypted password -->
+
+        <data key='user.db2.port' value='<%= @DB2_PORT %>'/>
+        <data key='user.db2.instance.username' value='<%= @DB2INSTANCE_USERID %>'/>
+        <data key='user.db2.instance.password' value='<%= @ENCRYPTED_PWD %>'/>
+        <data key='user.db2.das.newuser' value='<%= @DB2_DAS_NEWUSER %>'/>
+        <data key='user.db2.fenced.newuser' value='<%= @DB2_FENCED_NEWUSER %>'/>
+        <data key='user.db2.fenced.username' value='<%= @DB2FENCED_USERID %>'/>
+        <data key='user.db2.fenced.password' value='<%= @DB2FENCED_ENCRYPTED_PWD %>'/>
+        <data key='user.db2.das.username' value='<%= @DB2DAS_USERID %>'/>
+        <data key='user.db2.das.password' value='<%= @DB2DAS_ENCRYPTED_PWD %>'/>
+
+    </profile>
+    
+    <!-- ======================================================================
+    
+    This installation node directs the IBM Installation Manager installer to install the IBM Installation Manager-based offering.
+    
+    The ID must match a valid offering ID of a repository that is specified in the first section of this file.
+    
+    The WebSphere Application Server features list are platform/bit/architecture specific.
+
+    Update the following line as appropriate: 
+        <offering profile="IBM WebSphere Application Server Network Deployment V8.5" id="com.ibm.websphere.ND.v85" features='core.feature,ejbdeploy,thinclient,embeddablecontainer,samples,com.ibm.sdk.6_64bit'/> .
+    
+    64 bit - core.feature,ejbdeploy,thinclient,embeddablecontainer,samples,com.ibm.sdk.6_64bit
+
+    Update the following line as appropriate:
+    <offering profile="IBM WebSphere Application Server Network Deployment V8.5" id="com.ibm.websphere.IBMJAVA.v70" features='com.ibm.sdk.7'/> .
+
+    Update the following line as appropriate: 
+        <offering profile="IBM WebSphere Application Server Network Deployment V8.5" id="com.ibm.bpm.ADV.v85" features='BPMServer.Production'/> 
+
+    You MUST specify one and only one of the following features:
+     
+            WorkflowEnterprise.Production
+            WorkflowEnterprise.NonProduction             
+ 
+    If you have changed the profile node ID above, you must also change the offering profile ID here.
+  
+    
+    ============================================================================--> 
+    
+    <install>
+        <offering profile="<%= @PROFILE_ID %>" id="<%= @WAS_OFFERING_ID %>" features='core.feature,ejbdeploy,thinclient,embeddablecontainer,samples,com.ibm.sdk.6_64bit'/>
+<!--
+-->
+
+
+
+
+
+
+<!--
+-->
+        <offering profile="<%= @PROFILE_ID %>" id="<%= @OFFERING_ID %>" features='<%= @FEATURE_LIST %>'/> 
+
+<!--
+-->
+        <offering profile="<%= @PROFILE_ID %>" id="<%= @DB2_OFFERING_ID %>" /> 
+    
+    </install>
+       
+    <!-- ======================================================================
+    Do not modify the properties in this section.
+    ============================================================================--> 
+    <preference value="30" name="com.ibm.cic.common.core.preferences.connectTimeout" /> 
+    <preference value="30" name="com.ibm.cic.common.core.preferences.readTimeout" /> 
+    <preference value="0" name="com.ibm.cic.common.core.preferences.downloadAutoRetryCount" /> 
+    <preference value="true" name="offering.service.repositories.areUsed" /> 
+    <preference value="false" name="com.ibm.cic.common.core.preferences.ssl.nonsecureMode" /> 
+    <preference value="false" name="com.ibm.cic.common.core.preferences.http.disablePreemptiveAuthentication" /> 
+    <preference value="true" name="com.ibm.cic.common.core.preferences.preserveDownloadedArtifacts" /> 
+    <preference value="false" name="PassportAdvantageIsEnabled" /> 
+    <preference value="true" name="com.ibm.cic.common.core.preferences.searchForUpdates" /> 
+    <preference value="true" name="com.ibm.cic.common.core.preferences.import.enabled" /> 
+</agent-input>
